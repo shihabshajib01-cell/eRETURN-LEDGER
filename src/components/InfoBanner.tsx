@@ -1,47 +1,42 @@
 import React from 'react';
-import { Info, HelpCircle, ArrowRight } from 'lucide-react';
+import { Info, BookOpen } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 
 interface InfoBannerProps {
   lang: Language;
-  onOpenHowItWorks: () => void;
+  onOpenHowItWorks?: () => void;
 }
 
 export const InfoBanner: React.FC<InfoBannerProps> = ({ lang, onOpenHowItWorks }) => {
   const t = TRANSLATIONS[lang];
 
   return (
-    <div 
-      id="important-info-banner"
-      className="bg-[#F0F7FB] border border-[#BEE3F8] rounded-xl p-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs shadow-2xs"
+    <section
+      id="section-info-banner"
+      className="flex flex-col gap-4 rounded-xl border border-sky-200 bg-sky-50/60 p-4 sm:flex-row sm:items-center sm:justify-between"
+      aria-labelledby="info-banner-title"
     >
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#0B6FA4]/15 text-[#0B6FA4] flex items-center justify-center shrink-0 mt-0.5 border border-[#0B6FA4]/20">
-          <Info className="w-4 h-4" />
-        </div>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#0B6FA4] shadow-sm">
+          <Info className="h-4.5 w-4.5" aria-hidden="true" />
+        </span>
         <div>
-          <div className="font-bold text-[#172033] mb-0.5 flex items-center gap-2">
-            <span>{t.importantInfo}</span>
-            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.2 rounded bg-[#0B6FA4]/10 text-[#0B6FA4] font-bold">
-              Notice
-            </span>
-          </div>
-          <p className="text-slate-700 leading-relaxed max-w-4xl text-[12.5px]">
-            {t.bannerText}
-          </p>
+          <h2 id="info-banner-title" className="text-sm font-semibold text-[#172033]">{t.importantInfo}</h2>
+          <p className="mt-1 max-w-4xl text-xs leading-relaxed text-[#5F6B7A]">{t.bannerText}</p>
         </div>
       </div>
 
-      <button
-        id="btn-how-ereturn-works"
-        onClick={onOpenHowItWorks}
-        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-[#BEE3F8] text-[#0B6FA4] hover:bg-[#0B6FA4] hover:text-white font-semibold transition-all shrink-0 shadow-2xs group"
-      >
-        <HelpCircle className="w-3.5 h-3.5 text-[#0B6FA4] group-hover:text-white" />
-        <span className="whitespace-nowrap">{t.howItWorks}</span>
-        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-      </button>
-    </div>
+      {onOpenHowItWorks && (
+        <button
+          type="button"
+          onClick={onOpenHowItWorks}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#0B6FA4]/30 bg-white px-3 py-2 text-xs font-semibold text-[#0B6FA4] transition-colors hover:bg-sky-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]"
+        >
+          <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
+          {t.howItWorks}
+        </button>
+      )}
+    </section>
   );
 };
