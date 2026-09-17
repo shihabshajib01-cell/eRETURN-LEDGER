@@ -352,10 +352,86 @@ export const CategoryWorkspace: React.FC<{ categoryId: string; lang: Language; o
 
 const SalaryIbasPage = ({ lang, onBack, category }: { lang: Language; onBack: () => void; category: any }) => {
   const [claim, setClaim] = useState('1,50,000');
-  return <section className="space-y-5"><button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B6FA4]"><ArrowLeft className="w-3.5 h-3.5" />Back to Dashboard</button><div><div className="flex gap-2 mb-2"><SourceBadge source={category.source} size="sm" lang={lang} /><StatusChip status={category.status} size="sm" lang={lang} /></div><h1 className="text-2xl lg:text-[28px] font-bold">iBAS++ (Salary) TDS</h1></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><FieldCard label="Assessment Year" value="2026-2027" readOnly /><FieldCard label="Office Name" value="Bogura Technical Training Centre, Bogura" readOnly /><FieldCard label="Designation" value="Principal" readOnly /><FieldCard label="TDS Available" value="5,00,450" readOnly /></div><div className="bg-white border border-[#E2E8F0] rounded-xl p-5 max-w-2xl"><label className="block text-sm font-semibold mb-2">TDS Claim</label><input value={claim} onChange={(e) => setClaim(e.target.value)} className="w-full px-3 py-2.5 border border-slate-300 rounded-lg" /><p className="text-xs text-slate-500 mt-2">Maximum available: ৳ 5,00,450</p><div className="mt-4 flex justify-end"><button type="button" className="px-5 py-2.5 rounded-lg bg-[#0B6FA4] text-white font-semibold inline-flex items-center gap-2"><Check className="w-4 h-4" />Save Claim</button></div></div></section>;
+  const isBn = lang === 'bn';
+
+  return (
+    <section className="max-w-[1180px] mx-auto space-y-5" aria-labelledby="salary-ibas-title">
+      <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B6FA4] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded">
+        <ArrowLeft className="w-3.5 h-3.5" />
+        {isBn ? 'ড্যাশবোর্ডে ফিরুন' : 'Back to Dashboard'}
+      </button>
+
+      <header className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <SourceBadge source={category.source} size="sm" lang={lang} />
+          <StatusChip status={category.status} size="sm" lang={lang} />
+        </div>
+        <h1 id="salary-ibas-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">iBAS++ (Salary) TDS</h1>
+        <p className="max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
+          {isBn ? 'iBAS++ থেকে প্রাপ্ত বেতনের তথ্য পর্যালোচনা করুন এবং আপনি যে পরিমাণ উৎস কর দাবি করতে চান তা লিখুন।' : 'Review salary information provided by iBAS++ and enter the TDS amount you want to claim.'}
+        </p>
+      </header>
+
+      <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#E2E8F0] bg-slate-50/60">
+          <h2 className="text-base font-bold text-[#172033]">{isBn ? 'iBAS++ বেতন তথ্য' : 'Salary Information from iBAS++'}</h2>
+          <p className="text-xs text-[#5F6B7A] mt-1">{isBn ? 'এই তথ্যগুলো সিস্টেম থেকে পাওয়া এবং এখানে সম্পাদনা করা যাবে না।' : 'These details are provided by the system and cannot be edited here.'}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#E2E8F0]">
+          <ReadOnlyInfo label={isBn ? 'করবর্ষ' : 'Assessment Year'} value="2026-2027" />
+          <ReadOnlyInfo label={isBn ? 'অফিসের নাম' : 'Office Name'} value="Bogura Technical Training Centre, Bogura" />
+          <ReadOnlyInfo label={isBn ? 'পদবি' : 'Designation'} value="Principal" />
+          <ReadOnlyInfo label={isBn ? 'উপলভ্য উৎস কর' : 'TDS Available'} value="৳ 5,00,450" emphasized helper={isBn ? 'দাবির জন্য সর্বোচ্চ উপলভ্য পরিমাণ' : 'Maximum amount available to claim'} />
+        </div>
+      </div>
+
+      <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#E2E8F0]">
+          <h2 className="text-base font-bold text-[#172033]">{isBn ? 'উৎস কর দাবি' : 'TDS Claim'}</h2>
+          <p className="text-xs text-[#5F6B7A] mt-1">{isBn ? 'আপনি যে পরিমাণ উৎস কর এই রিটার্নে দাবি করতে চান তা লিখুন।' : 'Enter the amount of TDS you want to claim in this return.'}</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 p-5">
+          <div>
+            <label htmlFor="tds-claim" className="block text-sm font-semibold text-[#172033] mb-2">{isBn ? 'দাবির পরিমাণ' : 'Claim Amount'}</label>
+            <div className="relative max-w-xl">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#5F6B7A] font-semibold" aria-hidden="true">৳</span>
+              <input
+                id="tds-claim"
+                value={claim}
+                onChange={(e) => setClaim(e.target.value)}
+                inputMode="decimal"
+                className="w-full pl-8 pr-3 py-3 border border-[#C8D4E1] rounded-lg bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 focus:border-[#0B6FA4]"
+              />
+            </div>
+            <p className="text-sm text-[#5F6B7A] mt-2">
+              {isBn ? 'সর্বোচ্চ উপলভ্য:' : 'Maximum available:'} <span className="font-semibold text-[#172033]">৳ 5,00,450</span>
+            </p>
+          </div>
+
+          <aside className="rounded-lg border border-[#CFE5F1] bg-[#F5FAFD] p-4 self-start" aria-label={isBn ? 'উপলভ্য উৎস কর সারাংশ' : 'Available TDS summary'}>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#5F6B7A]">{isBn ? 'উপলভ্য উৎস কর' : 'Available TDS'}</p>
+            <p className="text-2xl font-bold text-[#0B6FA4] mt-1">৳ 5,00,450</p>
+            <p className="text-xs leading-relaxed text-[#5F6B7A] mt-2">{isBn ? 'দাবির পরিমাণ এই উপলভ্য পরিমাণের বেশি হতে পারবে না।' : 'Your claim amount cannot exceed the available TDS.'}</p>
+          </aside>
+        </div>
+        <div className="px-5 py-4 border-t border-[#E2E8F0] bg-slate-50/60 flex justify-end">
+          <button type="button" className="px-5 py-2.5 rounded-lg bg-[#0B6FA4] hover:bg-[#095D8A] text-white font-semibold inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2">
+            <Check className="w-4 h-4" />
+            {isBn ? 'দাবি সংরক্ষণ করুন' : 'Save Claim'}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
 };
 
-const FieldCard = ({ label, value, readOnly }: { label: string; value: string; readOnly?: boolean }) => <div className="bg-white border border-[#E2E8F0] rounded-xl p-4"><label className="block text-xs font-semibold text-[#5F6B7A] mb-1.5">{label}</label><input value={value} readOnly={readOnly} className="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700" /></div>;
+const ReadOnlyInfo = ({ label, value, emphasized = false, helper }: { label: string; value: string; emphasized?: boolean; helper?: string }) => (
+  <div className={`bg-white p-5 min-h-[108px] flex flex-col justify-center ${emphasized ? 'bg-[#FBFDFE]' : ''}`}>
+    <p className="text-xs font-semibold text-[#5F6B7A] mb-1.5">{label}</p>
+    <p className={`${emphasized ? 'text-xl font-bold text-[#0B6FA4]' : 'text-base font-semibold text-[#263247]'} leading-snug`}>{value}</p>
+    {helper && <p className="text-xs text-[#5F6B7A] mt-1.5">{helper}</p>}
+  </div>
+);
 
 const CarryForwardPage = ({ lang, onBack, category }: { lang: Language; onBack: () => void; category: any }) => <section className="space-y-5"><button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B6FA4]"><ArrowLeft className="w-3.5 h-3.5" />Back to Dashboard</button><div className="flex gap-2"><SourceBadge source={category.source} size="sm" lang={lang} /><StatusChip status={category.status} size="sm" lang={lang} /></div><h1 className="text-2xl lg:text-[28px] font-bold">Adjustment of carry forward tax u/s 163</h1><div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5"><div><p className="text-sm text-slate-500">Claimed Amount</p><p className="text-3xl font-bold text-[#0B6FA4] mt-1">৳ 10,03,333</p><span className="inline-flex mt-3 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Claimed</span></div><button type="button" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-300 text-red-600 font-semibold"><Trash2 className="w-4 h-4" />Remove Claim</button></div></section>;
 
