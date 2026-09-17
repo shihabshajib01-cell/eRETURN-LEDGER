@@ -2,7 +2,7 @@ export type Language = 'en' | 'bn';
 
 export type AssessmentYear = '2026-2027' | '2025-2026' | '2024-2025';
 
-export type TaxStatus = 
+export type TaxStatus =
   | 'Verified'
   | 'Claimed'
   | 'Synced'
@@ -13,7 +13,7 @@ export type TaxStatus =
   | 'Not Started'
   | 'System Record';
 
-export type DataSource = 
+export type DataSource =
   | 'iBAS++'
   | 'eReturn Income'
   | 'System Record'
@@ -27,7 +27,7 @@ export interface SummaryCardData {
   amount: number;
   formattedAmount: string;
   categoriesCount: number;
-  recordsCount: number;
+  recordsCount?: number;
   status?: 'Complete' | 'Review' | 'Pending';
   isHighlighted?: boolean;
   highlightNote?: string;
