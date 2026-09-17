@@ -1,6 +1,6 @@
 import React from 'react';
-import { ArrowLeft, Database, Plus, RefreshCw, Search, ShieldCheck } from 'lucide-react';
-import { Language, TaxCategoryItem } from '../types';
+import { ArrowLeft, Database, Plus, RefreshCw, Search } from 'lucide-react';
+import { Language } from '../types';
 import { ALL_TAX_CATEGORIES } from '../data/mockTaxData';
 import { SourceBadge, StatusChip } from './StatusChip';
 
@@ -11,10 +11,10 @@ interface CategoryWorkspaceProps {
   onUnavailableAction: (message: string) => void;
 }
 
-const actionFor = (id: string) => {
-  if (['bank-fi', 'dividend', 'service-payment'].includes(id)) return { label: 'Sync from eReturn Income', Icon: RefreshCw };
-  if (['commercial-vehicle', 'ait-154', 'tax-paid-return'].includes(id)) return { label: 'Find Record', Icon: Search };
-  if (['salary-other', 'service-payment', 'other-tds', 'environmental-surcharge', 'tax-refund'].includes(id)) return { label: 'Add Entry', Icon: Plus };
+const actionFor = (id: string, lang: Language) => {
+  if (['bank-fi', 'dividend', 'service-payment'].includes(id)) return { label: lang === 'bn' ? 'eReturn Income থেকে সিঙ্ক' : 'Sync from eReturn Income', Icon: RefreshCw };
+  if (['commercial-vehicle', 'ait-154', 'tax-paid-return'].includes(id)) return { label: lang === 'bn' ? 'রেকর্ড খুঁজুন' : 'Find Record', Icon: Search };
+  if (['salary-other', 'service-payment', 'other-tds', 'environmental-surcharge', 'tax-refund'].includes(id)) return { label: lang === 'bn' ? 'এন্ট্রি যোগ করুন' : 'Add Entry', Icon: Plus };
   return null;
 };
 
@@ -43,28 +43,22 @@ export const CategoryWorkspace: React.FC<CategoryWorkspaceProps> = ({ categoryId
   const category = ALL_TAX_CATEGORIES.find((item) => item.id === categoryId);
   if (!category) return null;
 
-  const action = actionFor(category.id);
+  const action = actionFor(category.id, lang);
   const ActionIcon = action?.Icon;
 
   return (
     <section className="space-y-5" aria-labelledby="category-page-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B6FA4] hover:underline mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded"
-          >
+          <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B6FA4] hover:underline mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded">
             <ArrowLeft className="w-3.5 h-3.5" />
             {lang === 'bn' ? 'ড্যাশবোর্ডে ফিরুন' : 'Back to Dashboard'}
           </button>
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <SourceBadge source={category.source} size="sm" />
-            <StatusChip status={category.status} size="sm" />
+            <SourceBadge source={category.source} size="sm" lang={lang} />
+            <StatusChip status={category.status} size="sm" lang={lang} />
           </div>
-          <h1 id="category-page-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
-            {category.name}
-          </h1>
+          <h1 id="category-page-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">{category.name}</h1>
           {category.code && <p className="text-xs font-semibold text-[#0B6FA4] mt-1">{category.code}</p>}
           <p className="text-sm text-[#5F6B7A] mt-2 max-w-3xl leading-relaxed">{descriptionFor(category.id, lang)}</p>
         </div>
