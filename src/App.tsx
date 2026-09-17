@@ -14,6 +14,7 @@ import { InfoBanner } from './components/InfoBanner';
 import { Footer } from './components/Footer';
 import { CategoryWorkspace } from './components/CategoryWorkspace';
 import { SalaryIbasLeanPage } from './components/SalaryIbasLeanPage';
+import { SalaryOtherLeanPage } from './components/SalaryOtherLeanPage';
 import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { AllCategoriesModal } from './components/Modals/AllCategoriesModal';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
@@ -138,8 +139,9 @@ export default function App() {
           {currentTab === 'dashboard' && renderDashboard()}
 
           {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} />}
+          {currentCategory?.id === 'salary-other' && <SalaryOtherLeanPage lang={lang} />}
 
-          {currentCategory && currentCategory.id !== 'salary-ibas' && (
+          {currentCategory && !['salary-ibas', 'salary-other'].includes(currentCategory.id) && (
             <CategoryWorkspace
               categoryId={currentCategory.id}
               lang={lang}
