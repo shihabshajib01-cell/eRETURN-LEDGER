@@ -13,6 +13,7 @@ import { QuickActions } from './components/QuickActions';
 import { InfoBanner } from './components/InfoBanner';
 import { Footer } from './components/Footer';
 import { CategoryWorkspace } from './components/CategoryWorkspace';
+import { SalaryIbasLeanPage } from './components/SalaryIbasLeanPage';
 import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { AllCategoriesModal } from './components/Modals/AllCategoriesModal';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
@@ -136,7 +137,9 @@ export default function App() {
         <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-7 max-w-[1600px] w-full mx-auto space-y-6">
           {currentTab === 'dashboard' && renderDashboard()}
 
-          {currentCategory && (
+          {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} />}
+
+          {currentCategory && currentCategory.id !== 'salary-ibas' && (
             <CategoryWorkspace
               categoryId={currentCategory.id}
               lang={lang}
