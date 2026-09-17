@@ -44,7 +44,7 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
           </h2>
         </div>
 
-        <div className="px-5 py-3.5">
+        <div className="px-5 py-4">
           <div className="max-w-2xl">
             <label htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
               {isBn ? 'দাবির পরিমাণ' : 'Claim Amount'}
@@ -63,18 +63,16 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
               {isBn ? 'সর্বোচ্চ উপলভ্য:' : 'Maximum available:'}{' '}
               <span className="font-semibold text-[#172033]">৳ 5,00,450</span>
             </p>
-          </div>
-        </div>
 
-        <div className="border-t border-[#E2E8F0] bg-slate-50/50 px-5 py-3">
-          <div className="flex max-w-2xl justify-end">
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-2.5 font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
-            >
-              <Check className="h-4 w-4" />
-              {isBn ? 'দাবি সংরক্ষণ করুন' : 'Save Claim'}
-            </button>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-2.5 font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
+              >
+                <Check className="h-4 w-4" />
+                {isBn ? 'দাবি সংরক্ষণ করুন' : 'Save Claim'}
+              </button>
+            </div>
           </div>
         </div>
       </section>
