@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, Check, ChevronDown, Edit2, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Check, Edit2, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
 import { ALL_TAX_CATEGORIES } from '../data/mockTaxData';
 import { SourceBadge, StatusChip } from './StatusChip';
@@ -215,6 +215,7 @@ export const CategoryWorkspace: React.FC<{ categoryId: string; lang: Language; o
   const [editing, setEditing] = useState<Row | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [selectedSync, setSelectedSync] = useState<number[]>([]);
+  const [adding, setAdding] = useState(false);
 
   const columns: Column[] = config?.columns || (categoryId === 'ait-car' ? [
     { key: 'registration', label: 'Registration No.' }, { key: 'date', label: 'Date' }, { key: 'amount', label: 'AIT Amount', numeric: true }, { key: 'status', label: 'Status' },
@@ -223,12 +224,34 @@ export const CategoryWorkspace: React.FC<{ categoryId: string; lang: Language; o
   const filteredRows = useMemo(() => rows.filter((row) => !query || Object.values(row).some((value) => String(value).toLowerCase().includes(query.toLowerCase()))), [rows, query]);
   if (!category) return null;
 
-  const openAdd = () => { setEditing(null); setForm({}); setModalOpen(true); };
-  const openEdit = (row: Row) => { setEditing(row); setForm(Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'id').map(([key, value]) => [key, String(value)]))); setModalOpen(true); };
+  const openAdd = () => {
+    setEditing(null);
+    setForm({});
+    setQuery('');
+    setAdding(true);
+  };
+  const cancelInlineAdd = () => {
+    setAdding(false);
+    setForm({});
+  };
+  const saveInlineAdd = () => {
+    const nextRow = Object.fromEntries(columns.map((column) => [column.key, form[column.key] ?? '']));
+    setRows((current) => [...current, { id: Math.max(0, ...current.map((row) => row.id)) + 1, ...nextRow }]);
+    setAdding(false);
+    setForm({});
+  };
+  const openEdit = (row: Row) => {
+    setAdding(false);
+    setEditing(row);
+    setForm(Object.fromEntries(Object.entries(row).filter(([key]) => key !== 'id').map(([key, value]) => [key, String(value)])));
+    setModalOpen(true);
+  };
   const saveForm = () => {
-    if (editing) setRows((current) => current.map((row) => row.id === editing.id ? { ...row, ...form } : row));
-    else setRows((current) => [...current, { id: Math.max(0, ...current.map((row) => row.id)) + 1, ...form }]);
+    if (!editing) return;
+    setRows((current) => current.map((row) => row.id === editing.id ? { ...row, ...form } : row));
     setModalOpen(false);
+    setEditing(null);
+    setForm({});
   };
   const removeRow = (id: number) => { if (window.confirm(lang === 'bn' ? 'এই রেকর্ডটি মুছে ফেলবেন?' : 'Delete this record?')) setRows((current) => current.filter((row) => row.id !== id)); };
 
@@ -240,6 +263,7 @@ export const CategoryWorkspace: React.FC<{ categoryId: string; lang: Language; o
   }
 
   const syncCandidates = rows.slice(0, Math.min(5, rows.length));
+  const hasActionColumn = !!(config?.addable || config?.editable || config?.deletable);
 
   return (
     <section className="space-y-5" aria-labelledby="category-page-title">
@@ -253,7 +277,7 @@ export const CategoryWorkspace: React.FC<{ categoryId: string; lang: Language; o
         </div>
         <div className="flex flex-wrap gap-2">
           {config?.syncable && <button type="button" onClick={() => setSyncOpen(true)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[#0B6FA4] text-[#0B6FA4] bg-white text-sm font-semibold"><RefreshCw className="w-4 h-4" />Sync from Income</button>}
-          {config?.addable && <button type="button" onClick={openAdd} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0B6FA4] text-white text-sm font-semibold"><Plus className="w-4 h-4" />Add Entry</button>}
+          {config?.addable && <button type="button" onClick={openAdd} disabled={adding} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0B6FA4] text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"><Plus className="w-4 h-4" />Add Entry</button>}
         </div>
       </div>
 
@@ -266,12 +290,61 @@ export const CategoryWorkspace: React.FC<{ categoryId: string; lang: Language; o
 
       {columns.length > 0 && <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-[#E2E8F0] flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between"><div><h2 className="font-bold text-[#172033]">{lang === 'bn' ? 'রেকর্ডসমূহ' : 'Records'}</h2><p className="text-xs text-[#5F6B7A] mt-0.5">{filteredRows.length} {lang === 'bn' ? 'টি রেকর্ড' : 'records'}</p></div>{!config?.searchable && <div className="relative w-full sm:w-72"><Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={lang === 'bn' ? 'খুঁজুন...' : 'Search records...'} className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-sm" /></div>}</div>
-        <div className="overflow-x-auto"><table className="w-full text-sm min-w-[900px]"><thead className="bg-slate-50 text-slate-600"><tr><th className="text-left px-4 py-3 font-semibold">SL</th>{columns.map((col) => <th key={col.key} className={`px-4 py-3 font-semibold ${col.numeric ? 'text-right' : 'text-left'}`}>{col.label}</th>)}{(config?.editable || config?.deletable) && <th className="text-right px-4 py-3 font-semibold">Action</th>}</tr></thead><tbody className="divide-y divide-slate-100">{filteredRows.map((row, index) => <tr key={row.id} className="hover:bg-slate-50"><td className="px-4 py-3 text-slate-500">{index + 1}</td>{columns.map((col) => <td key={col.key} className={`px-4 py-3 ${col.numeric ? 'text-right font-medium' : 'text-left'}`}>{String(row[col.key] ?? '—')}</td>)}{(config?.editable || config?.deletable) && <td className="px-4 py-2"><div className="flex justify-end gap-1.5">{config?.editable && <button type="button" onClick={() => openEdit(row)} aria-label="Edit" className="p-2 rounded-md text-[#0B6FA4] hover:bg-blue-50"><Edit2 className="w-4 h-4" /></button>}{config?.deletable && <button type="button" onClick={() => removeRow(row.id)} aria-label="Delete" className="p-2 rounded-md text-red-600 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>}</div></td>}</tr>)}{filteredRows.length === 0 && <tr><td colSpan={columns.length + 2} className="px-4 py-10 text-center text-slate-500">No records found.</td></tr>}</tbody></table></div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[900px]">
+            <thead className="bg-slate-50 text-slate-600">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold">SL</th>
+                {columns.map((col) => <th key={col.key} className={`px-4 py-3 font-semibold ${col.numeric ? 'text-right' : 'text-left'}`}>{col.label}</th>)}
+                {hasActionColumn && <th className="text-right px-4 py-3 font-semibold">Action</th>}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredRows.map((row, index) => (
+                <tr key={row.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                  {columns.map((col) => <td key={col.key} className={`px-4 py-3 ${col.numeric ? 'text-right font-medium' : 'text-left'}`}>{String(row[col.key] ?? '—')}</td>)}
+                  {hasActionColumn && <td className="px-4 py-2"><div className="flex justify-end gap-1.5">{config?.editable && <button type="button" onClick={() => openEdit(row)} aria-label="Edit" className="p-2 rounded-md text-[#0B6FA4] hover:bg-blue-50"><Edit2 className="w-4 h-4" /></button>}{config?.deletable && <button type="button" onClick={() => removeRow(row.id)} aria-label="Delete" className="p-2 rounded-md text-red-600 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>}</div></td>}
+                </tr>
+              ))}
+              {adding && (
+                <tr className="bg-[#F5FAFD] align-top">
+                  <td className="px-4 py-3 font-semibold text-[#0B6FA4]">{lang === 'bn' ? 'নতুন' : 'New'}</td>
+                  {columns.map((col, index) => (
+                    <td key={col.key} className="px-2 py-2.5">
+                      <input
+                        autoFocus={index === 0}
+                        value={form[col.key] || ''}
+                        onChange={(e) => setForm((current) => ({ ...current, [col.key]: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') cancelInlineAdd();
+                          if (e.key === 'Enter') saveInlineAdd();
+                        }}
+                        aria-label={col.label}
+                        placeholder={col.label}
+                        className={`w-full min-w-[140px] px-2.5 py-2 rounded-md border border-[#9BC8DE] bg-white text-sm text-[#172033] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 focus:border-[#0B6FA4] ${col.numeric ? 'text-right' : 'text-left'}`}
+                      />
+                    </td>
+                  ))}
+                  {hasActionColumn && (
+                    <td className="px-3 py-2.5">
+                      <div className="flex justify-end gap-1.5">
+                        <button type="button" onClick={saveInlineAdd} aria-label={lang === 'bn' ? 'এন্ট্রি সংরক্ষণ করুন' : 'Save entry'} title={lang === 'bn' ? 'সংরক্ষণ' : 'Save'} className="p-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"><Check className="w-4 h-4" /></button>
+                        <button type="button" onClick={cancelInlineAdd} aria-label={lang === 'bn' ? 'নতুন এন্ট্রি বাতিল করুন' : 'Cancel new entry'} title={lang === 'bn' ? 'বাতিল' : 'Cancel'} className="p-2 rounded-md border border-slate-300 text-slate-600 bg-white hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"><X className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              )}
+              {filteredRows.length === 0 && !adding && <tr><td colSpan={columns.length + (hasActionColumn ? 2 : 1)} className="px-4 py-10 text-center text-slate-500">No records found.</td></tr>}
+            </tbody>
+          </table>
+        </div>
       </div>}
 
       {categoryId === 'environmental-surcharge' && <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"><div><p className="text-sm font-semibold text-[#172033]">Surcharge Declared By Assessee</p><p className="text-xs text-[#5F6B7A] mt-1">Current declared amount</p></div><div className="text-2xl font-bold text-[#0B6FA4]">৳ 50,000</div></div>}
 
-      <EditorModal open={modalOpen} onClose={() => setModalOpen(false)} columns={columns} form={form} setForm={setForm} onSave={saveForm} editing={!!editing} />
+      <EditorModal open={modalOpen} onClose={() => { setModalOpen(false); setEditing(null); setForm({}); }} columns={columns} form={form} setForm={setForm} onSave={saveForm} />
       <SyncModal open={syncOpen} onClose={() => setSyncOpen(false)} rows={syncCandidates} columns={columns} selected={selectedSync} setSelected={setSelectedSync} onSync={() => { setSyncOpen(false); onUnavailableAction(lang === 'bn' ? 'নির্বাচিত রেকর্ডগুলো সিঙ্ক করা হয়েছে (প্রোটোটাইপ স্টেট)।' : 'Selected records synced in prototype state.'); }} />
     </section>
   );
@@ -286,9 +359,9 @@ const FieldCard = ({ label, value, readOnly }: { label: string; value: string; r
 
 const CarryForwardPage = ({ lang, onBack, category }: { lang: Language; onBack: () => void; category: any }) => <section className="space-y-5"><button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B6FA4]"><ArrowLeft className="w-3.5 h-3.5" />Back to Dashboard</button><div className="flex gap-2"><SourceBadge source={category.source} size="sm" lang={lang} /><StatusChip status={category.status} size="sm" lang={lang} /></div><h1 className="text-2xl lg:text-[28px] font-bold">Adjustment of carry forward tax u/s 163</h1><div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5"><div><p className="text-sm text-slate-500">Claimed Amount</p><p className="text-3xl font-bold text-[#0B6FA4] mt-1">৳ 10,03,333</p><span className="inline-flex mt-3 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Claimed</span></div><button type="button" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-300 text-red-600 font-semibold"><Trash2 className="w-4 h-4" />Remove Claim</button></div></section>;
 
-const EditorModal = ({ open, onClose, columns, form, setForm, onSave, editing }: { open: boolean; onClose: () => void; columns: Column[]; form: Record<string, string>; setForm: React.Dispatch<React.SetStateAction<Record<string, string>>>; onSave: () => void; editing: boolean }) => {
+const EditorModal = ({ open, onClose, columns, form, setForm, onSave }: { open: boolean; onClose: () => void; columns: Column[]; form: Record<string, string>; setForm: React.Dispatch<React.SetStateAction<Record<string, string>>>; onSave: () => void }) => {
   if (!open) return null;
-  return <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4"><div role="dialog" aria-modal="true" className="bg-white w-full max-w-3xl max-h-[88vh] rounded-xl shadow-xl flex flex-col"><div className="px-5 py-4 border-b flex items-center justify-between"><h2 className="font-bold">{editing ? 'Edit Entry' : 'Add Entry'}</h2><button type="button" onClick={onClose}><X className="w-5 h-5" /></button></div><div className="p-5 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4">{columns.map((col) => <div key={col.key}><label className="block text-sm font-semibold mb-1.5">{col.label}</label><input value={form[col.key] || ''} onChange={(e) => setForm((current) => ({ ...current, [col.key]: e.target.value }))} className="w-full px-3 py-2.5 rounded-lg border border-slate-300" /></div>)}</div><div className="px-5 py-4 border-t flex justify-end gap-2"><button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-slate-300">Cancel</button><button type="button" onClick={onSave} className="px-4 py-2 rounded-lg bg-[#0B6FA4] text-white font-semibold">Save</button></div></div></div>;
+  return <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4"><div role="dialog" aria-modal="true" className="bg-white w-full max-w-3xl max-h-[88vh] rounded-xl shadow-xl flex flex-col"><div className="px-5 py-4 border-b flex items-center justify-between"><h2 className="font-bold">Edit Entry</h2><button type="button" onClick={onClose}><X className="w-5 h-5" /></button></div><div className="p-5 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4">{columns.map((col) => <div key={col.key}><label className="block text-sm font-semibold mb-1.5">{col.label}</label><input value={form[col.key] || ''} onChange={(e) => setForm((current) => ({ ...current, [col.key]: e.target.value }))} className="w-full px-3 py-2.5 rounded-lg border border-slate-300" /></div>)}</div><div className="px-5 py-4 border-t flex justify-end gap-2"><button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-slate-300">Cancel</button><button type="button" onClick={onSave} className="px-4 py-2 rounded-lg bg-[#0B6FA4] text-white font-semibold">Save</button></div></div></div>;
 };
 
 const SyncModal = ({ open, onClose, rows, columns, selected, setSelected, onSync }: { open: boolean; onClose: () => void; rows: Row[]; columns: Column[]; selected: number[]; setSelected: React.Dispatch<React.SetStateAction<number[]>>; onSync: () => void }) => {
