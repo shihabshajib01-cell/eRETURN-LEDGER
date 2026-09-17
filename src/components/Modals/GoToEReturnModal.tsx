@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { X, ArrowUpRight, CheckCircle2, ShieldCheck, AlertCircle, ExternalLink } from 'lucide-react';
+import React from 'react';
+import { X, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { Language } from '../../types';
-import { TRANSLATIONS } from '../../data/translations';
+import { TOTAL_AVAILABLE_TAX_CREDIT, formatBDT } from '../../data/mockTaxData';
 
 interface GoToEReturnModalProps {
   isOpen: boolean;
@@ -9,127 +9,61 @@ interface GoToEReturnModalProps {
   lang: Language;
 }
 
-export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({
-  isOpen,
-  onClose,
-  lang
-}) => {
-  const t = TRANSLATIONS[lang];
-  const [transferring, setTransferring] = useState(false);
-  const [transferred, setTransferred] = useState(false);
-
+export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onClose, lang }) => {
   if (!isOpen) return null;
 
-  const handleProceed = () => {
-    setTransferring(true);
-    setTimeout(() => {
-      setTransferring(false);
-      setTransferred(true);
-    }, 1000);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in">
-      <div 
-        id="goto-ereturn-modal-panel"
-        className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden flex flex-col"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="goto-ereturn-title"
+        className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden"
       >
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-emerald-50/70">
+        <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-emerald-50/70">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#006A4E] text-white flex items-center justify-center shadow-2xs font-bold text-xs">
-              eR
-            </div>
+            <div className="w-8 h-8 rounded-lg bg-[#006A4E] text-white flex items-center justify-center font-bold text-xs">eR</div>
             <div>
-              <h3 className="font-bold text-base text-[#172033]">
-                Transfer Credits to eReturn
-              </h3>
+              <h2 id="goto-ereturn-title" className="font-bold text-base text-[#172033]">
+                {lang === 'bn' ? 'ই-রিটার্নে ফিরে যান' : 'Return to eReturn'}
+              </h2>
               <p className="text-xs text-[#5F6B7A]">
-                Tax & Payment Schedule Integration
+                {lang === 'bn' ? 'Tax & Payment ফ্লোতে ফিরে যাওয়ার বর্তমান হ্যান্ডঅফ' : 'Existing handoff back to the Tax & Payment flow'}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-slate-700">
-            <X className="w-5 h-5" />
+          <button type="button" onClick={onClose} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Close'} className="p-2 rounded text-slate-500 hover:text-slate-800 hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="p-5 sm:p-6 space-y-4 text-sm">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between gap-4">
+            <span className="text-[#5F6B7A]">{lang === 'bn' ? 'বর্তমান লেজার মোট' : 'Current Ledger total'}</span>
+            <span className="font-bold text-lg text-[#006A4E] whitespace-nowrap">{formatBDT(TOTAL_AVAILABLE_TAX_CREDIT)}</span>
+          </div>
+
+          <div className="flex items-start gap-2.5 text-xs leading-relaxed text-slate-700 bg-blue-50/60 border border-blue-100 rounded-lg p-3">
+            <ShieldCheck className="w-4 h-4 text-[#0B6FA4] shrink-0 mt-0.5" />
+            <span>
+              {lang === 'bn'
+                ? 'এই রিডিজাইন প্রোটোটাইপে নতুন ট্রান্সফার, লকিং বা অটো-আপডেট আচরণ যোগ করা হয়নি। প্রোডাকশনের বিদ্যমান “Go to eReturn” হ্যান্ডঅফই সংযুক্ত করতে হবে।'
+                : 'This redesign prototype does not invent transfer, locking, or automatic-update behavior. The existing production “Go to eReturn” handoff must be connected here.'}
+            </span>
+          </div>
+        </div>
+
+        <div className="px-5 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30">
+            {lang === 'bn' ? 'লেজারে থাকুন' : 'Stay in Ledger'}
           </button>
-        </div>
-
-        {/* Body */}
-        <div className="p-6 space-y-4 text-xs">
-          {!transferred ? (
-            <>
-              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
-                <div className="flex items-center justify-between text-slate-600">
-                  <span>Reconciled Tax Credit to Transfer:</span>
-                  <span className="font-mono font-bold text-base text-[#006A4E]">
-                    ৳ 1,65,61,066
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-200/60">
-                  Includes TDS (৳ 1,33,09,693) + AIT (৳ 1,90,365) + Other Credits (৳ 31,07,675)
-                </div>
-              </div>
-
-              <div className="space-y-2 text-slate-700 leading-relaxed">
-                <p>
-                  Upon clicking continue, all verified and claimed ledger records will be locked and reflected in the <strong>eReturn Tax & Payment</strong> calculation sheet.
-                </p>
-                <div className="flex items-center gap-2 text-[11.5px] text-emerald-800 bg-emerald-50 p-2.5 rounded border border-emerald-200">
-                  <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-                  <span>Your eReturn form draft will be updated immediately.</span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="py-6 flex flex-col items-center text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-bold text-base text-slate-900">
-                  Ledger Successfully Transferred!
-                </h4>
-                <p className="text-xs text-slate-600 mt-1 max-w-sm">
-                  ৳ 1,65,61,066 has been applied to Tax & Payment schedule for Assessment Year 2026–2027.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
           <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+            type="button"
+            disabled
+            title={lang === 'bn' ? 'প্রোডাকশন হ্যান্ডঅফ URL/API সংযুক্ত করতে হবে' : 'Connect the production handoff URL/API before enabling navigation'}
+            className="px-5 py-2 rounded-lg bg-[#006A4E] text-white text-xs font-semibold flex items-center gap-2 opacity-50 cursor-not-allowed disabled:pointer-events-none"
           >
-            {transferred ? 'Close' : 'Back to Ledger'}
+            <span>{lang === 'bn' ? 'ই-রিটার্নে যান' : 'Go to eReturn'}</span>
+            <ArrowUpRight className="w-4 h-4" />
           </button>
-          
-          {!transferred ? (
-            <button
-              id="btn-confirm-transfer-to-ereturn"
-              onClick={handleProceed}
-              disabled={transferring}
-              className="px-5 py-2 rounded-lg bg-[#006A4E] hover:bg-[#00533d] text-white text-xs font-semibold transition-all flex items-center gap-2 shadow-2xs"
-            >
-              {transferring ? (
-                <span>Transferring to eReturn...</span>
-              ) : (
-                <>
-                  <span>Transfer & Open eReturn</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={onClose}
-              className="px-5 py-2 rounded-lg bg-[#0B6FA4] hover:bg-[#095782] text-white text-xs font-semibold transition-all"
-            >
-              Continue Working
-            </button>
-          )}
         </div>
       </div>
     </div>

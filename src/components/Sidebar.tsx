@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Receipt, 
-  ChevronDown, 
-  ChevronRight, 
-  Car, 
-  FileSpreadsheet, 
-  Layers, 
-  FileCheck2, 
-  ArrowUpRight, 
-  HelpCircle, 
-  PhoneCall, 
+import React, { useEffect, useState } from 'react';
+import {
+  LayoutDashboard,
+  Receipt,
+  ChevronDown,
+  ChevronRight,
+  Car,
+  FileCheck2,
+  ArrowUpRight,
+  HelpCircle,
+  PhoneCall,
   BookOpen,
-  Briefcase,
-  Coins,
-  ShieldCheck
+  ShieldCheck,
+  X,
 } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
@@ -23,265 +20,186 @@ interface SidebarProps {
   currentTab: string;
   onSelectTab: (tab: string) => void;
   lang: Language;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang }) => {
+const sourceTaxItems = [
+  { id: 'salary-ibas', en: 'Salary (iBAS++)', bn: 'বেতন (iBAS++)' },
+  { id: 'salary-other', en: 'Salary (Others)', bn: 'বেতন (অন্যান্য)' },
+  { id: 'bank-fi', en: 'Bank/FI Interest/Profit', bn: 'ব্যাংক/এফআই সুদ/মুনাফা' },
+  { id: 'dividend', en: 'Dividend', bn: 'লভ্যাংশ' },
+  { id: 'service-payment', en: 'Service Payment', bn: 'সেবা পেমেন্ট' },
+  { id: 'sanchayapatra', en: 'Sanchayapatra', bn: 'সঞ্চয়পত্র' },
+  { id: 'import', en: 'Import', bn: 'আমদানি' },
+  { id: 'commercial-vehicle', en: 'Commercial Vehicle', bn: 'বাণিজ্যিক যানবাহন' },
+  { id: 'other-tds', en: 'Others', bn: 'অন্যান্য' },
+];
+
+const aitItems = [
+  { id: 'ait-car', en: 'AIT on Car', bn: 'গাড়ির উপর AIT' },
+  { id: 'ait-154', en: 'AIT under Section 154', bn: 'ধারা ১৫৪ এর অধীন AIT' },
+];
+
+const otherCreditItems = [
+  { id: 'tax-paid-return', en: 'Tax Paid with Return (173)', bn: 'রিটার্নের সাথে প্রদত্ত কর (১৭৩)' },
+  { id: 'environmental-surcharge', en: 'Environmental Surcharge', bn: 'পরিবেশ সারচার্জ' },
+  { id: 'tax-refund', en: 'Adjustment of Tax Refund', bn: 'কর রিফান্ড সমন্বয়' },
+  { id: 'carry-forward', en: 'Adjustment of carry forward tax u/s 163', bn: 'ধারা ১৬৩ অনুযায়ী জের টানা কর সমন্বয়' },
+];
+
+export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang, isOpen = false, onClose }) => {
   const t = TRANSLATIONS[lang];
-  const [sourceTaxOpen, setSourceTaxOpen] = useState(true);
-  const [aitOpen, setAitOpen] = useState(true);
-  const [otherCreditsOpen, setOtherCreditsOpen] = useState(true);
+  const inferredGroup = sourceTaxItems.some((item) => item.id === currentTab)
+    ? 'source'
+    : aitItems.some((item) => item.id === currentTab)
+      ? 'ait'
+      : otherCreditItems.some((item) => item.id === currentTab)
+        ? 'other'
+        : null;
+  const [openGroup, setOpenGroup] = useState<string | null>(inferredGroup || 'source');
+
+  useEffect(() => {
+    if (inferredGroup) setOpenGroup(inferredGroup);
+  }, [inferredGroup]);
+
+  const select = (id: string) => {
+    onSelectTab(id);
+    onClose?.();
+  };
+
+  const itemClass = (active: boolean) =>
+    `w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40 ${
+      active ? 'bg-[#EBF5FB] text-[#0B6FA4] font-semibold' : 'text-[#5F6B7A] hover:bg-slate-50 hover:text-[#172033]'
+    }`;
+
+  const groupButton = (id: string, label: string, Icon: React.ComponentType<{ className?: string }>) => (
+    <button
+      type="button"
+      onClick={() => setOpenGroup(openGroup === id ? null : id)}
+      aria-expanded={openGroup === id}
+      className="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold text-[#5F6B7A] uppercase tracking-wider hover:text-[#172033] hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40"
+    >
+      <span className="flex items-center gap-2 min-w-0">
+        <Icon className="w-3.5 h-3.5 shrink-0" />
+        <span className="truncate">{label}</span>
+      </span>
+      {openGroup === id ? <ChevronDown className="w-3.5 h-3.5 shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 shrink-0" />}
+    </button>
+  );
 
   return (
-    <aside 
-      id="main-sidebar"
-      className="w-[260px] shrink-0 min-h-screen bg-white border-r border-[#E2E8F0] flex flex-col justify-between select-none z-20"
-    >
-      {/* Brand Header */}
-      <div>
-        <div className="h-[72px] px-5 flex items-center gap-3 border-b border-[#E2E8F0] bg-white">
-          <div className="w-10 h-10 rounded-lg bg-[#006A4E] flex items-center justify-center text-white shadow-xs">
-            {/* Bangladesh Govt / eReturn emblem mark */}
-            <span className="font-bold text-lg tracking-wider">eR</span>
+    <>
+      {isOpen && <button className="fixed inset-0 bg-slate-900/30 z-40 lg:hidden" aria-label="Close navigation" onClick={onClose} />}
+      <aside
+        id="main-sidebar"
+        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-20 w-[280px] lg:w-[260px] shrink-0 h-screen bg-white border-r border-[#E2E8F0] flex flex-col transition-transform duration-200 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+      >
+        <div className="h-[72px] px-5 flex items-center gap-3 border-b border-[#E2E8F0]">
+          <div className="w-10 h-10 rounded-lg bg-[#006A4E] flex items-center justify-center text-white font-bold">eR</div>
+          <div className="min-w-0 flex-1">
+            <div className="font-bold text-[#006A4E] text-lg leading-tight">eReturn</div>
+            <div className="text-xs font-semibold text-[#5F6B7A] tracking-wider uppercase">{t.ledger}</div>
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[#006A4E] text-lg leading-tight tracking-tight">eReturn</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
-                NBR
-              </span>
-            </div>
-            <div className="text-xs font-semibold text-[#5F6B7A] tracking-wider uppercase">
-              {t.ledger}
-            </div>
-          </div>
+          <button type="button" onClick={onClose} className="lg:hidden p-2 rounded-md hover:bg-slate-100" aria-label="Close navigation">
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Navigation List */}
-        <nav className="p-3 space-y-1 text-sm font-medium">
-          {/* 1. Dashboard (Active) */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 text-sm font-medium" aria-label="Ledger navigation">
           <button
-            id="nav-dashboard"
-            onClick={() => onSelectTab('dashboard')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all text-left ${
-              currentTab === 'dashboard'
-                ? 'bg-[#EBF5FB] text-[#0B6FA4] border-l-4 border-[#0B6FA4] font-semibold pl-2.5 shadow-2xs'
-                : 'text-[#172033] hover:bg-slate-50 hover:text-[#0B6FA4]'
+            type="button"
+            onClick={() => select('dashboard')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40 ${
+              currentTab === 'dashboard' ? 'bg-[#EBF5FB] text-[#0B6FA4] border-l-4 border-[#0B6FA4] font-semibold pl-2.5' : 'text-[#172033] hover:bg-slate-50'
             }`}
           >
-            <LayoutDashboard className={`w-4 h-4 shrink-0 ${currentTab === 'dashboard' ? 'text-[#0B6FA4]' : 'text-[#5F6B7A]'}`} />
-            <span className="truncate">{t.dashboard}</span>
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
+            <span>{t.dashboard}</span>
           </button>
 
-          {/* 2. CLAIM SOURCE TAX (Expandable) */}
           <div className="pt-2">
-            <button
-              id="nav-group-source-tax"
-              onClick={() => setSourceTaxOpen(!sourceTaxOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold text-[#5F6B7A] uppercase tracking-wider hover:text-[#172033] hover:bg-slate-50"
-            >
-              <span className="flex items-center gap-2 truncate">
-                <Receipt className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="truncate">{t.claimSourceTax}</span>
-              </span>
-              {sourceTaxOpen ? (
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              )}
-            </button>
-
-            {sourceTaxOpen && (
+            {groupButton('source', t.claimSourceTax, Receipt)}
+            {openGroup === 'source' && (
               <div className="mt-1 pl-4 space-y-0.5 border-l border-slate-200 ml-4">
-                {[
-                  { id: 'source-salary', label: t.salary, icon: Briefcase },
-                  { id: 'source-financial', label: t.financialAssets, icon: Coins },
-                  { id: 'source-service', label: t.serviceProfessional, icon: Layers },
-                  { id: 'source-trade', label: t.tradeOther, icon: FileSpreadsheet }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    id={`nav-${item.id}`}
-                    onClick={() => onSelectTab(item.id)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs transition-colors text-left ${
-                      currentTab === item.id
-                        ? 'bg-[#EBF5FB] text-[#0B6FA4] font-medium'
-                        : 'text-[#5F6B7A] hover:bg-slate-50 hover:text-[#172033]'
-                    }`}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span className="truncate">{item.label}</span>
+                {sourceTaxItems.map((item) => (
+                  <button key={item.id} type="button" onClick={() => select(item.id)} className={itemClass(currentTab === item.id)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40 shrink-0" />
+                    <span className="leading-snug">{lang === 'bn' ? item.bn : item.en}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* 3. ADVANCE INCOME TAX (Expandable) */}
           <div className="pt-2">
-            <button
-              id="nav-group-ait"
-              onClick={() => setAitOpen(!aitOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold text-[#5F6B7A] uppercase tracking-wider hover:text-[#172033] hover:bg-slate-50"
-            >
-              <span className="flex items-center gap-2 truncate">
-                <Car className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="truncate">{t.advanceIncomeTax}</span>
-              </span>
-              {aitOpen ? (
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              )}
-            </button>
-
-            {aitOpen && (
+            {groupButton('ait', t.advanceIncomeTax, Car)}
+            {openGroup === 'ait' && (
               <div className="mt-1 pl-4 space-y-0.5 border-l border-slate-200 ml-4">
-                {[
-                  { id: 'ait-car', label: t.aitOnCar },
-                  { id: 'ait-154', label: t.aitUnder154 }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    id={`nav-${item.id}`}
-                    onClick={() => onSelectTab(item.id)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs transition-colors text-left ${
-                      currentTab === item.id
-                        ? 'bg-[#EBF5FB] text-[#0B6FA4] font-medium'
-                        : 'text-[#5F6B7A] hover:bg-slate-50 hover:text-[#172033]'
-                    }`}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span className="truncate">{item.label}</span>
+                {aitItems.map((item) => (
+                  <button key={item.id} type="button" onClick={() => select(item.id)} className={itemClass(currentTab === item.id)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40 shrink-0" />
+                    <span className="leading-snug">{lang === 'bn' ? item.bn : item.en}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* 4. OTHER TAX CREDITS (Expandable) */}
           <div className="pt-2">
-            <button
-              id="nav-group-other-credits"
-              onClick={() => setOtherCreditsOpen(!otherCreditsOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold text-[#5F6B7A] uppercase tracking-wider hover:text-[#172033] hover:bg-slate-50"
-            >
-              <span className="flex items-center gap-2 truncate">
-                <ShieldCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="truncate">{t.otherTaxCredits}</span>
-              </span>
-              {otherCreditsOpen ? (
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              )}
-            </button>
-
-            {otherCreditsOpen && (
+            {groupButton('other', t.otherTaxCredits, ShieldCheck)}
+            {openGroup === 'other' && (
               <div className="mt-1 pl-4 space-y-0.5 border-l border-slate-200 ml-4">
-                {[
-                  { id: 'other-173', label: t.taxPaidWithReturn },
-                  { id: 'other-surcharge', label: t.environmentalSurcharge },
-                  { id: 'other-refund', label: t.taxRefundAdjustment },
-                  { id: 'other-carry-forward', label: t.carryForwardAdjustment }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    id={`nav-${item.id}`}
-                    onClick={() => onSelectTab(item.id)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs transition-colors text-left ${
-                      currentTab === item.id
-                        ? 'bg-[#EBF5FB] text-[#0B6FA4] font-medium'
-                        : 'text-[#5F6B7A] hover:bg-slate-50 hover:text-[#172033]'
-                    }`}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                    <span className="truncate">{item.label}</span>
+                {otherCreditItems.map((item) => (
+                  <button key={item.id} type="button" onClick={() => select(item.id)} className={itemClass(currentTab === item.id)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40 shrink-0" />
+                    <span className="leading-snug">{lang === 'bn' ? item.bn : item.en}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* 5. Tax Payment Status */}
           <div className="pt-2">
-            <button
-              id="nav-payment-status"
-              onClick={() => onSelectTab('payment-status')}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-left text-xs font-medium ${
-                currentTab === 'payment-status'
-                  ? 'bg-[#EBF5FB] text-[#0B6FA4] border-l-4 border-[#0B6FA4] font-semibold pl-2'
-                  : 'text-[#172033] hover:bg-slate-50 hover:text-[#0B6FA4]'
-              }`}
-            >
-              <FileCheck2 className="w-4 h-4 text-[#5F6B7A] shrink-0" />
-              <span className="truncate">{t.taxPaymentStatus}</span>
+            <button type="button" onClick={() => select('payment-status')} className={itemClass(currentTab === 'payment-status')}>
+              <FileCheck2 className="w-4 h-4 shrink-0" />
+              <span>{t.taxPaymentStatus}</span>
             </button>
           </div>
 
-          {/* 6. Divider */}
-          <div className="my-2 border-t border-[#E2E8F0]"></div>
+          <div className="my-2 border-t border-[#E2E8F0]" />
 
-          {/* 7. Go to eReturn */}
           <button
-            id="nav-goto-ereturn"
-            onClick={() => onSelectTab('goto-ereturn')}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#006A4E] bg-emerald-50/70 hover:bg-emerald-100/80 transition-colors border border-emerald-200/70"
+            type="button"
+            onClick={() => select('goto-ereturn')}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#006A4E] bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/30"
           >
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-              <span>{t.goToEReturn}</span>
-            </span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-700" />
+            <span>{t.goToEReturn}</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </nav>
-      </div>
 
-      {/* Bottom Help & Helpline Area */}
-      <div className="p-4 border-t border-[#E2E8F0] bg-slate-50/60 text-xs">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-[#5F6B7A] font-semibold">
-            <span className="flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
-              {t.needHelp}
-            </span>
+        <div className="p-4 border-t border-[#E2E8F0] bg-slate-50/60 text-xs">
+          <div className="flex items-center gap-1.5 font-semibold text-[#5F6B7A] mb-2">
+            <HelpCircle className="w-3.5 h-3.5" />
+            {t.needHelp}
           </div>
-
-          <div className="flex items-center gap-3 text-[#5F6B7A]">
-            <button 
-              id="sidebar-user-guide-btn"
-              onClick={() => onSelectTab('user-guide')}
-              className="hover:text-[#0B6FA4] underline decoration-slate-300 underline-offset-2 flex items-center gap-1"
-            >
-              <BookOpen className="w-3 h-3 text-slate-400" />
-              {t.userGuide}
+          <div className="flex items-center gap-3 text-[#5F6B7A] mb-3">
+            <button type="button" onClick={() => select('user-guide')} className="hover:text-[#0B6FA4] flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded">
+              <BookOpen className="w-3 h-3" /> {t.userGuide}
             </button>
             <span>•</span>
-            <button 
-              id="sidebar-faqs-btn"
-              onClick={() => onSelectTab('faqs')}
-              className="hover:text-[#0B6FA4] underline decoration-slate-300 underline-offset-2"
-            >
-              {t.faqs}
-            </button>
+            <button type="button" onClick={() => select('faqs')} className="hover:text-[#0B6FA4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded">{t.faqs}</button>
           </div>
-
-          {/* Taxes Helpline 16555 */}
-          <div className="mt-2 pt-2 border-t border-slate-200/70 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-[#0B6FA4]/10 flex items-center justify-center text-[#0B6FA4]">
-                <PhoneCall className="w-3 h-3" />
-              </div>
-              <div>
-                <div className="font-bold text-[#172033] tracking-wide text-xs">16555</div>
-                <div className="text-[10px] text-[#5F6B7A]">{t.helpline}</div>
-              </div>
+          <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
+            <PhoneCall className="w-4 h-4 text-[#0B6FA4]" />
+            <div>
+              <div className="font-bold text-[#172033]">16555</div>
+              <div className="text-[11px] text-[#5F6B7A]">{t.helpline}</div>
             </div>
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
-              9 AM - 5 PM
-            </span>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };

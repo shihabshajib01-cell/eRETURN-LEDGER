@@ -2,6 +2,5 @@
   "name": "eReturn Ledger",
   "description": "National Board of Revenue (NBR) Bangladesh - eReturn Ledger tax reconciliation and credit claim dashboard.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
-
