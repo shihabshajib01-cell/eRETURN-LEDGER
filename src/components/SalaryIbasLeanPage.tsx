@@ -7,7 +7,7 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const isBn = lang === 'bn';
 
   return (
-    <section className="mx-auto w-full max-w-[1120px] space-y-4" aria-labelledby="salary-ibas-title">
+    <section className="mx-auto w-full max-w-[1320px] space-y-4" aria-labelledby="salary-ibas-title">
       <header>
         <h1 id="salary-ibas-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
           iBAS++ (Salary) TDS
