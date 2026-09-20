@@ -98,13 +98,7 @@ export const DividendLeanPage: React.FC<{
             {isBn ? 'লভ্যাংশ' : 'Dividend'}
           </h1>
           <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
-            <span className="font-semibold text-[#0B6FA4]">
-              {isBn ? 'ধারা ১১৭' : 'Section 117'}
-            </span>
-            <span aria-hidden="true"> · </span>
-            {isBn
-              ? 'eReturn Income-এর সাথে সংযুক্ত লভ্যাংশ উৎস কর রেকর্ড পর্যালোচনা ও সিঙ্ক করুন।'
-              : 'Review and sync dividend TDS records linked with eReturn Income.'}
+            {isBn ? 'লভ্যাংশ [ ধারা-১১৭ ]' : 'Dividend [ Section-117 ]'}
           </p>
         </div>
 
@@ -114,7 +108,7 @@ export const DividendLeanPage: React.FC<{
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
-          {isBn ? 'Income থেকে সিঙ্ক করুন' : 'Sync from Income'}
+          {isBn ? 'Sync From Income' : 'Sync From Income'}
         </button>
       </header>
 
@@ -222,14 +216,10 @@ export const DividendLeanPage: React.FC<{
             <div className="flex items-start justify-between border-b border-[#E2E8F0] px-5 py-4">
               <div>
                 <h2 id="dividend-sync-title" className="text-base font-bold text-[#172033]">
-                  {isBn
-                    ? 'eReturn Income থেকে লভ্যাংশ উৎস কর সিঙ্ক'
-                    : 'Sync Dividend TDS from eReturn Income'}
+                  {isBn ? 'Dividend' : 'Dividend'}
                 </h2>
                 <p className="mt-1 text-xs text-[#5F6B7A]">
-                  {isBn
-                    ? 'লেজারে রাখতে চান এমন রেকর্ড নির্বাচন করুন এবং প্রয়োজন হলে সার্টিফিকেট তথ্য যাচাই করুন।'
-                    : 'Select the records to keep in Ledger and review the certificate details before saving.'}
+                  {isBn ? 'Select the records you want to sync.' : 'Select the records you want to sync.'}
                 </p>
               </div>
               <button
@@ -339,7 +329,7 @@ export const DividendLeanPage: React.FC<{
                   className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  {isBn ? 'নির্বাচিত রেকর্ড সংরক্ষণ করুন' : 'Save Selected'}
+                  {isBn ? 'Sync' : 'Sync'}
                 </button>
               </div>
             </div>
