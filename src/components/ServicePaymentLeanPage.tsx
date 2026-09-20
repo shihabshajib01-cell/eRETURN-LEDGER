@@ -128,8 +128,8 @@ export const ServicePaymentLeanPage: React.FC<{
   };
 
   const openSync = () => {
-    setDraftRows(rows.map((row) => ({ ...row })));
-    setSelectedIds(rows.map((row) => row.id));
+    setDraftRows(INITIAL_ROWS.map((row) => ({ ...row })));
+    setSelectedIds(INITIAL_ROWS.map((row) => row.id));
     setSyncOpen(true);
   };
 
@@ -143,9 +143,12 @@ export const ServicePaymentLeanPage: React.FC<{
   };
 
   const saveSync = () => {
-    setRows((current) =>
-      current.map((row) => selectedIds.includes(row.id) ? (draftRows.find((draft) => draft.id === row.id) || row) : row)
-    );
+    const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
+    setRows((current) => {
+      const byId = new Map(current.map((row) => [row.id, row]));
+      selectedRows.forEach((row) => byId.set(row.id, row));
+      return Array.from(byId.values()).sort((a, b) => a.id - b.id);
+    });
     closeSync();
     onUnavailableAction(isBn ? 'নির্বাচিত Service Payment রেকর্ড সংরক্ষিত হয়েছে।' : 'Selected Service Payment records saved.');
   };
@@ -282,8 +285,8 @@ export const ServicePaymentLeanPage: React.FC<{
                     <th className="px-3 py-3 text-left">
                       <input
                         type="checkbox"
-                        checked={selectedIds.length === rows.length}
-                        onChange={(event) => setSelectedIds(event.target.checked ? rows.map((row) => row.id) : [])}
+                        checked={selectedIds.length === draftRows.length}
+                        onChange={(event) => setSelectedIds(event.target.checked ? draftRows.map((row) => row.id) : [])}
                         aria-label={labelText("Select all")}
                         className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4]"
                       />
