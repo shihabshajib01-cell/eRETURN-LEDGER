@@ -38,21 +38,21 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
-        <div className="hidden md:flex items-center gap-1 text-xs text-[#172033]">
-          <span className="font-semibold">{t.assessmentYear} :</span>
+        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-[#172033]">
+          <span className="font-semibold hidden xl:inline">{t.assessmentYear} :</span>
           <span>{assessmentYear}</span>
         </div>
 
-        <div className="hidden sm:inline-flex items-center rounded-md border border-[#E2E8F0] bg-slate-100/80 p-0.5 text-xs font-medium">
+        <div className="inline-flex items-center rounded-md border border-[#E2E8F0] bg-slate-100/80 p-0.5 text-[10px] sm:text-xs font-medium">
           <button type="button" onClick={() => onToggleLang('bn')} className={`px-2.5 py-1 rounded ${lang === 'bn' ? 'bg-white text-[#0B6FA4] font-semibold shadow-2xs' : 'text-[#5F6B7A]'}`}>বাংলা</button>
-          <button type="button" onClick={() => onToggleLang('en')} className={`px-2.5 py-1 rounded ${lang === 'en' ? 'bg-white text-[#0B6FA4] font-semibold shadow-2xs' : 'text-[#5F6B7A]'}`}>English</button>
+          <button type="button" onClick={() => onToggleLang('en')} className={`px-2.5 py-1 rounded ${lang === 'en' ? 'bg-white text-[#0B6FA4] font-semibold shadow-2xs' : 'text-[#5F6B7A]'}`}><span className="sm:hidden">EN</span><span className="hidden sm:inline">English</span></button>
         </div>
 
         <button
           type="button"
           aria-label={lang === 'bn' ? 'নোটিফিকেশন' : 'Notifications'}
           title={lang === 'bn' ? 'নোটিফিকেশন ডেটা এখনো সংযুক্ত নয়' : 'Notification data is not connected yet'}
-          className="w-9 h-9 rounded-md border border-[#E2E8F0] flex items-center justify-center text-[#5F6B7A] bg-slate-50 cursor-default"
+          className="hidden sm:flex w-9 h-9 rounded-md border border-[#E2E8F0] items-center justify-center text-[#5F6B7A] bg-slate-50 cursor-default"
         >
           <Bell className="w-4 h-4" />
         </button>
