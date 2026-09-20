@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Check } from 'lucide-react';
 import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { parseMoney } from '../utils/money';
 
-export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
-  const [claim, setClaim] = useState('1,50,000');
+export const SalaryIbasLeanPage: React.FC<{
+  lang: Language;
+  onUnavailableAction: (message: string) => void;
+}> = ({ lang, onUnavailableAction }) => {
+  const [claim, setClaim] = usePersistentState('ereturn-ledger:v2:salary-ibas-claim', '1,50,000');
+  const { updateCategoryAmount } = useLedgerRuntime();
   const isBn = lang === 'bn';
+  const available = 500450;
+  const claimAmount = useMemo(() => parseMoney(claim), [claim]);
+  const invalid = claimAmount < 0 || claimAmount > available;
+
+  useEffect(() => {
+    updateCategoryAmount('salary-ibas', invalid ? 0 : claimAmount);
+  }, [claimAmount, invalid, updateCategoryAmount]);
+
+  const save = () => {
+    if (invalid) return;
+    onUnavailableAction(isBn ? 'TDS Claim সংরক্ষিত হয়েছে।' : 'TDS Claim saved.');
+  };
 
   return (
     <section className="w-full space-y-4" aria-labelledby="salary-ibas-title">
@@ -26,19 +45,34 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="tds-claim-title">
         <div className="px-5 py-4">
           <div className="max-w-2xl">
-            <label id="tds-claim-title" htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">TDS Claim</label>
+            <label id="tds-claim-title" htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
+              TDS Claim
+            </label>
             <input
               id="tds-claim"
               value={claim}
               onChange={(event) => setClaim(event.target.value)}
               inputMode="decimal"
-              className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-3 font-medium text-[#172033] focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
+              aria-invalid={invalid}
+              aria-describedby={invalid ? 'tds-claim-error' : undefined}
+              className={`w-full rounded-lg border bg-white px-3 py-3 font-medium text-[#172033] focus:outline-none focus:ring-2 ${
+                invalid
+                  ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
+                  : 'border-[#C8D4E1] focus:border-[#0B6FA4] focus:ring-[#0B6FA4]/20'
+              }`}
             />
+            {invalid && (
+              <p id="tds-claim-error" className="mt-2 text-sm text-red-600">
+                {isBn ? 'দাবির পরিমাণ উপলভ্য TDS-এর বেশি হতে পারবে না।' : 'TDS Claim cannot exceed the available amount.'}
+              </p>
+            )}
 
             <div className="mt-4 flex justify-end">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-2.5 font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
+                onClick={save}
+                disabled={invalid}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-2.5 font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
               >
                 <Check className="h-4 w-4" />
                 Save
