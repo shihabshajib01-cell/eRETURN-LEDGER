@@ -127,11 +127,21 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
                   <td data-label={labelText("Motor Vehicle Registration No")} className="px-3 py-2.5"><input value={row.registration} onChange={(e) => updateRow(row.id, 'registration', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
                   <td data-label={labelText("Transaction ID")} className="px-3 py-2.5"><input value={row.transaction} onChange={(e) => updateRow(row.id, 'transaction', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
                   <td data-label={labelText("Bank Name")} className="px-3 py-2.5">
-                    <select value={row.bank} onChange={(e) => updateRow(row.id, 'bank', e.target.value)} className="w-full min-w-[220px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2">
-                      <option value="">{labelText('Select Bank')}</option>
-                      <option value="Community Bank Bangladesh PLC">Community Bank Bangladesh PLC</option>
-                      <option value="AB Bank PLC">AB Bank PLC</option>
-                    </select>
+                    <input
+                      list="environmental-bank-options"
+                      value={row.bank}
+                      onChange={(e) => updateRow(row.id, 'bank', e.target.value)}
+                      placeholder={labelText('Select Bank')}
+                      className="w-full min-w-[220px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2"
+                    />
+                    <datalist id="environmental-bank-options">
+                      <option value="Community Bank Bangladesh PLC" />
+                      <option value="AB Bank PLC" />
+                      <option value="Sonali Bank PLC" />
+                      <option value="Janata Bank PLC" />
+                      <option value="Pubali Bank PLC" />
+                      <option value="IFIC Bank PLC" />
+                    </datalist>
                   </td>
                   <td data-label={labelText("Branch Name")} className="px-3 py-2.5"><input value={row.branch} onChange={(e) => updateRow(row.id, 'branch', e.target.value)} className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
                   <td data-label={labelText("Payment Date")} className="px-3 py-2.5"><input value={row.date} onChange={(e) => updateRow(row.id, 'date', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
