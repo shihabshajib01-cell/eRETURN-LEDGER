@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { RefreshCw, Search, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { RefreshCw, X } from 'lucide-react';
 import { Language } from '../types';
 
 type BankRow = {
@@ -25,17 +25,8 @@ export const BankFiLeanPage: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
-  const [query, setQuery] = useState('');
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-
-  const filteredRows = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return INITIAL_ROWS;
-    return INITIAL_ROWS.filter((row) =>
-      Object.values(row).some((value) => String(value).toLowerCase().includes(normalized))
-    );
-  }, [query]);
 
   const toggleSelection = (id: number) => {
     setSelectedIds((current) =>
@@ -78,28 +69,7 @@ export const BankFiLeanPage: React.FC<{
         </button>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="bank-fi-records-title">
-        <div className="flex flex-col gap-3 border-b border-[#E2E8F0] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 id="bank-fi-records-title" className="text-base font-bold text-[#172033]">
-              {isBn ? 'রেকর্ডসমূহ' : 'Records'}
-            </h2>
-            <p className="mt-0.5 text-xs text-[#5F6B7A]">
-              {filteredRows.length} {isBn ? 'টি রেকর্ড' : filteredRows.length === 1 ? 'record' : 'records'}
-            </p>
-          </div>
-
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={isBn ? 'রেকর্ড খুঁজুন...' : 'Search records...'}
-              className="w-full rounded-lg border border-[#C8D4E1] bg-white py-2 pl-9 pr-3 text-sm text-[#172033] focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
-            />
-          </div>
-        </div>
-
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
@@ -114,7 +84,7 @@ export const BankFiLeanPage: React.FC<{
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredRows.map((row, index) => (
+              {INITIAL_ROWS.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td className="px-4 py-3 text-slate-500">{index + 1}</td>
                   <td className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
@@ -125,13 +95,6 @@ export const BankFiLeanPage: React.FC<{
                   <td className="px-4 py-3 text-right font-semibold text-[#172033]">{row.tds}</td>
                 </tr>
               ))}
-              {filteredRows.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-[#5F6B7A]">
-                    {isBn ? 'কোনো রেকর্ড পাওয়া যায়নি।' : 'No records found.'}
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
@@ -145,9 +108,7 @@ export const BankFiLeanPage: React.FC<{
                 <h2 id="bank-sync-title" className="text-base font-bold text-[#172033]">
                   {isBn ? 'Interest/Profit (Bank & FI - With TDS Deduction)' : 'Interest/Profit (Bank & FI - With TDS Deduction)'}
                 </h2>
-                <p className="mt-1 text-xs text-[#5F6B7A]">
-                  {isBn ? 'Select the records you want to sync.' : 'Select the records you want to sync.'}
-                </p>
+                
               </div>
               <button type="button" onClick={closeSync} aria-label={isBn ? 'বন্ধ করুন' : 'Close'} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
                 <X className="h-5 w-5" />
@@ -192,9 +153,7 @@ export const BankFiLeanPage: React.FC<{
             </div>
 
             <div className="flex flex-col gap-3 border-t border-[#E2E8F0] bg-slate-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-[#5F6B7A]">
-                {selectedIds.length} {isBn ? 'টি নির্বাচিত' : selectedIds.length === 1 ? 'record selected' : 'records selected'}
-              </p>
+              <span />
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={closeSync} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50">
                   {isBn ? 'বাতিল' : 'Cancel'}
