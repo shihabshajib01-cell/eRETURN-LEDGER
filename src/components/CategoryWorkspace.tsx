@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
+import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 
 type Row = Record<string, string | number> & { id: number };
 type Column = { key: string; label: string; numeric?: boolean };
@@ -410,12 +411,24 @@ export const CategoryWorkspace: React.FC<{
           (column.key === 'bank' || column.key === 'branch') &&
           (form.documentType !== 'Challan' || editing !== null)
         ) return true;
-        return String(form[column.key] ?? '').trim().length > 0;
+
+        if (column.key === 'date') {
+          return isValidLedgerDate(String(form[column.key] ?? ''));
+        }
+
+        if (column.numeric) {
+          return isValidMoneyInput(String(form[column.key] ?? ''));
+        }
+
+        return hasText(String(form[column.key] ?? ''));
       })
     : false;
+
+  const amountValue = parseMoneyStrict(form.amount ?? form.refund ?? '');
+  const claimedValue = form.claimed === undefined ? null : parseMoneyStrict(form.claimed);
   const claimedWithinAmount =
     form.claimed === undefined ||
-    parseMoney(form.claimed) <= parseMoney(form.amount ?? form.refund ?? form.claimed);
+    (amountValue !== null && claimedValue !== null && claimedValue <= amountValue);
   const formValid = formComplete && claimedWithinAmount;
 
   const saveAdd = () => {
