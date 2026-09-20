@@ -12,7 +12,7 @@ export const SalaryIbasLeanPage: React.FC<{
   const [savedClaim, setSavedClaim] = usePersistentState('ereturn-ledger:v2:salary-ibas-claim', '1,50,000');
   const [claim, setClaim] = useState(savedClaim);
   const [searching, setSearching] = useState(false);
-  const [searched, setSearched] = useState(true);
+  const [searched, setSearched] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
   const isBn = lang === 'bn';
   const available = 500450;
