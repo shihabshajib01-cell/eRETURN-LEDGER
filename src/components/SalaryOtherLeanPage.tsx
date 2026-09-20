@@ -12,16 +12,18 @@ type SalaryRow = {
   documentType: string;
   reference: string;
   date: string;
+  bank: string;
+  branch: string;
   amount: string;
   claimed: string;
 };
 
 const initialRows: SalaryRow[] = [
-  { id: 1, authority: 'test', documentType: 'Certificate', reference: '123456', date: '04-09-2026', amount: '10,000', claimed: '1,000' },
-  { id: 2, authority: 'test 2', documentType: 'Challan', reference: '2526-0003286477', date: '07-08-2025', amount: '32,73,823', claimed: '32,73,823' },
-  { id: 3, authority: 'test 3', documentType: 'Challan', reference: '2526-0003264262', date: '06-08-2025', amount: '1,37,700', claimed: '1,37,700' },
-  { id: 4, authority: 'test 4', documentType: 'Challan', reference: '2526-0003336839', date: '06-08-2025', amount: '3,529', claimed: '3,529' },
-  { id: 5, authority: 'test 5', documentType: 'Certificate', reference: '11223344', date: '04-09-2026', amount: '2,20,022', claimed: '2,20,022' },
+  { id: 1, authority: 'test', documentType: 'Certificate', reference: '123456', date: '04-09-2026', bank: '', branch: '', amount: '10,000', claimed: '1,000' },
+  { id: 2, authority: 'test 2', documentType: 'Challan', reference: '2526-0003286477', date: '07-08-2025', bank: '', branch: '', amount: '32,73,823', claimed: '32,73,823' },
+  { id: 3, authority: 'test 3', documentType: 'Challan', reference: '2526-0003264262', date: '06-08-2025', bank: '', branch: '', amount: '1,37,700', claimed: '1,37,700' },
+  { id: 4, authority: 'test 4', documentType: 'Challan', reference: '2526-0003336839', date: '06-08-2025', bank: '', branch: '', amount: '3,529', claimed: '3,529' },
+  { id: 5, authority: 'test 5', documentType: 'Certificate', reference: '11223344', date: '04-09-2026', bank: '', branch: '', amount: '2,20,022', claimed: '2,20,022' },
 ];
 
 const emptyForm = {
@@ -29,6 +31,8 @@ const emptyForm = {
   documentType: 'Challan',
   reference: '',
   date: '',
+  bank: '',
+  branch: '',
   amount: '',
   claimed: '',
 };
@@ -46,6 +50,8 @@ const columns: Column[] = [
   { key: 'documentType', label: 'Payment Document Type' },
   { key: 'reference', label: 'Challan/ Certificate Reference No.' },
   { key: 'date', label: 'Challan/ Certificate Date' },
+  { key: 'bank', label: 'Bank Name' },
+  { key: 'branch', label: 'Branch Name' },
   { key: 'amount', label: 'Challan/ Certificate Amount', numeric: true },
   { key: 'claimed', label: 'Claimed Amount', numeric: true },
 ];
@@ -65,6 +71,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
       'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
       'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
+      'Bank Name': 'ব্যাংকের নাম',
+      'Branch Name': 'শাখার নাম',
       'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
       'Claimed Amount': 'দাবিকৃত পরিমাণ',
       'Action': 'অ্যাকশন',
@@ -89,6 +97,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     form.documentType.trim().length > 0 &&
     form.reference.trim().length > 0 &&
     form.date.trim().length > 0 &&
+    (form.documentType !== 'Challan' || editing !== null || (form.bank.trim().length > 0 && form.branch.trim().length > 0)) &&
     parseMoney(form.amount) >= 0 &&
     parseMoney(form.claimed) >= 0 &&
     parseMoney(form.claimed) <= parseMoney(form.amount);
@@ -124,6 +133,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       documentType: row.documentType,
       reference: row.reference,
       date: row.date,
+      bank: row.bank || '',
+      branch: row.branch || '',
       amount: row.amount,
       claimed: row.claimed,
     });
@@ -208,6 +219,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   <td data-label={labelText("Payment Document Type")} className="px-4 py-3">{row.documentType}</td>
                   <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-4 py-3">{row.reference}</td>
                   <td data-label={labelText("Challan/ Certificate Date")} className="px-4 py-3">{row.date}</td>
+                  <td data-label={labelText("Bank Name")} className="px-4 py-3">{row.bank || "—"}</td>
+                  <td data-label={labelText("Branch Name")} className="px-4 py-3">{row.branch || "—"}</td>
                   <td data-label={labelText("Challan/ Certificate Amount")} className="px-4 py-3 text-right font-medium">{row.amount}</td>
                   <td data-label={labelText("Claimed Amount")} className="px-4 py-3 text-right font-medium">{row.claimed}</td>
                   <td data-label={labelText("Action")} className="px-4 py-2">
@@ -264,6 +277,12 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   </td>
                   <td data-label="Challan/ Certificate Date" className="px-2 py-2.5">
                     <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder="Enter Date" className="w-full min-w-[135px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                  </td>
+                  <td data-label={labelText("Bank Name")} className="px-2 py-2.5">
+                    <input value={form.bank} onChange={(event) => setForm((current) => ({ ...current, bank: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "ব্যাংকের নাম" : "Bank Name"} className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                  </td>
+                  <td data-label={labelText("Branch Name")} className="px-2 py-2.5">
+                    <input value={form.branch} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "শাখার নাম" : "Branch Name"} className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
                   </td>
                   <td data-label="Challan/ Certificate Amount" className="px-2 py-2.5">
                     <input value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder="Enter Amount" className="w-full min-w-[125px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
