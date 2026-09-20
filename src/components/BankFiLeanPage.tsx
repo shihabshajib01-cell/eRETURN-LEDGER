@@ -131,12 +131,12 @@ export const BankFiLeanPage: React.FC<{
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td data-label="Bank Name" className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
-                  <td data-label="Account Type" className="px-4 py-3 text-[#263247]">{row.accountType}</td>
-                  <td data-label="Branch Name" className="px-4 py-3 text-[#263247]">{row.branch}</td>
-                  <td data-label="Account Number" className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
-                  <td data-label="Interest Amount" className="px-4 py-3 text-right font-medium text-[#172033]">{row.interest}</td>
-                  <td data-label="TDS" className="px-4 py-3 text-right font-semibold text-[#172033]">{row.tds}</td>
+                  <td data-label={isBn ? "ব্যাংকের নাম" : "Bank Name"} className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
+                  <td data-label={isBn ? "হিসাবের ধরন" : "Account Type"} className="px-4 py-3 text-[#263247]">{row.accountType}</td>
+                  <td data-label={isBn ? "শাখার নাম" : "Branch Name"} className="px-4 py-3 text-[#263247]">{row.branch}</td>
+                  <td data-label={isBn ? "হিসাব নম্বর" : "Account Number"} className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
+                  <td data-label={isBn ? "সুদ/মুনাফার পরিমাণ" : "Interest Amount"} className="px-4 py-3 text-right font-medium text-[#172033]">{row.interest}</td>
+                  <td data-label={isBn ? "উৎস কর" : "TDS"} className="px-4 py-3 text-right font-semibold text-[#172033]">{row.tds}</td>
                 </tr>
               ))}
             </tbody>
