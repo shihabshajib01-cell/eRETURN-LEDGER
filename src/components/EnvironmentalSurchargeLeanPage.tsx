@@ -51,6 +51,15 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   };
   const totalPaid = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.amount), 0), [rows]);
   const declaredAmount = useMemo(() => parseMoney(declared), [declared]);
+  const rowsValid = rows.length > 0 && rows.every((row) =>
+    row.registration.trim() &&
+    row.transaction.trim() &&
+    row.bank.trim() &&
+    row.branch.trim() &&
+    row.date.trim() &&
+    parseMoney(row.amount) >= 0
+  );
+  const canSave = rowsValid && declared.trim().length > 0 && declaredAmount >= 0;
 
   useEffect(() => {
     updateCategoryAmount('environmental-surcharge', declaredAmount);
@@ -156,11 +165,16 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
         </div>
       </section>
 
+      {!canSave && (
+        <p className="text-sm text-red-600">{isBn ? 'সংরক্ষণের আগে সব পেমেন্ট তথ্য পূরণ করুন।' : 'Complete all payment fields before saving.'}</p>
+      )}
+
       <div className="flex justify-end">
         <button
           type="button"
+          disabled={!canSave}
           onClick={() => onUnavailableAction(isBn ? 'Environmental Surcharge সংরক্ষিত হয়েছে।' : 'Environmental Surcharge saved.')}
-          className="rounded-lg bg-[#0B6FA4] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
+          className="rounded-lg bg-[#0B6FA4] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {labelText('Save')}
         </button>
