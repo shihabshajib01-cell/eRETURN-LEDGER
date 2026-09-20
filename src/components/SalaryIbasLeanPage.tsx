@@ -9,24 +9,16 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
   return (
     <section className="w-full space-y-4" aria-labelledby="salary-ibas-title">
       <header>
-        <h1 id="salary-ibas-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
+        <h1 id="salary-ibas-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
           iBAS++ (Salary) TDS
         </h1>
-        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
-          {isBn
-            ? 'iBAS++ থেকে প্রাপ্ত বেতনের তথ্য পর্যালোচনা করুন এবং আপনি যে পরিমাণ উৎস কর দাবি করতে চান তা লিখুন।'
-            : 'Review salary information provided by iBAS++ and enter the TDS amount you want to claim.'}
-        </p>
       </header>
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="salary-info-title">
         <div className="border-b border-[#E2E8F0] bg-slate-50/50 px-5 py-3">
           <h2 id="salary-info-title" className="text-base font-bold text-[#172033]">
-            {isBn ? 'iBAS++ বেতন তথ্য' : 'Salary Information from iBAS++'}
+            {isBn ? 'বেতন তথ্য' : 'Salary Information'}
           </h2>
-          <p className="mt-0.5 text-xs text-[#5F6B7A]">
-            {isBn ? 'iBAS++ থেকে প্রদত্ত; শুধু দেখার জন্য।' : 'Provided by iBAS++; read-only.'}
-          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-px bg-[#E2E8F0] md:grid-cols-2">
@@ -40,14 +32,14 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="tds-claim-title">
         <div className="border-b border-[#E2E8F0] px-5 py-3">
           <h2 id="tds-claim-title" className="text-base font-bold text-[#172033]">
-            {isBn ? 'উৎস কর দাবি' : 'TDS Claim'}
+            TDS Claim
           </h2>
         </div>
 
         <div className="px-5 py-4">
           <div className="max-w-2xl">
             <label htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
-              {isBn ? 'দাবির পরিমাণ' : 'Claim Amount'}
+              TDS Claim
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 font-semibold text-[#5F6B7A]" aria-hidden="true">৳</span>
@@ -59,10 +51,6 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                 className="w-full rounded-lg border border-[#C8D4E1] bg-white py-3 pl-8 pr-3 font-medium text-[#172033] focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
               />
             </div>
-            <p className="mt-2 text-sm text-[#5F6B7A]">
-              {isBn ? 'সর্বোচ্চ উপলভ্য:' : 'Maximum available:'}{' '}
-              <span className="font-semibold text-[#172033]">৳ 5,00,450</span>
-            </p>
 
             <div className="mt-4 flex justify-end">
               <button
@@ -70,7 +58,7 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                 className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-2.5 font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
               >
                 <Check className="h-4 w-4" />
-                {isBn ? 'দাবি সংরক্ষণ করুন' : 'Save Claim'}
+                Save
               </button>
             </div>
           </div>
