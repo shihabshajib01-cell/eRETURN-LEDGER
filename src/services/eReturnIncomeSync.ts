@@ -9,7 +9,7 @@ export type IncomeSyncCategory = 'bank-fi' | 'dividend' | 'service-payment' | 's
  * Otherwise the project-backed current-system fixtures are used so the full
  * interaction can still be tested without fabricating a private API.
  */
-export const fetchIncomeSyncRecords = async <T extends Record<string, unknown>>(
+export const fetchIncomeSyncRecords = async <T extends object>(
   category: IncomeSyncCategory,
   fallback: T[]
 ): Promise<T[]> => {
