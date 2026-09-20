@@ -4,6 +4,7 @@ import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
+import { isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 import { fetchIbasSalaryTds, IbasSalaryTdsRecord } from '../services/iBasLookup';
 
 export const SalaryIbasLeanPage: React.FC<{
@@ -19,8 +20,9 @@ export const SalaryIbasLeanPage: React.FC<{
   const isBn = lang === 'bn';
   const available = salaryRecord?.tdsAvailable ?? 0;
   const claimAmount = useMemo(() => parseMoney(claim), [claim]);
+  const strictClaimAmount = useMemo(() => parseMoneyStrict(claim), [claim]);
   const savedClaimAmount = useMemo(() => parseMoney(savedClaim), [savedClaim]);
-  const invalid = !salaryRecord || claimAmount < 0 || claimAmount > available;
+  const invalid = !salaryRecord || !isValidMoneyInput(claim) || strictClaimAmount === null || strictClaimAmount > available;
 
   useEffect(() => {
     updateCategoryAmount('salary-ibas', savedClaimAmount);
