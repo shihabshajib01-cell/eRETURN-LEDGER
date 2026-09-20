@@ -459,27 +459,7 @@ export const LedgerDashboardPage: React.FC<LedgerDashboardPageProps> = ({
             </div>
           </section>
 
-          <section className="rounded-xl border border-[#CFE2D9] bg-[#F3F8F6] p-5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#5B776C]">
-              {isBn ? 'পরবর্তী ধাপ' : 'Next step'}
-            </p>
-            <h2 className="mt-1.5 text-sm font-bold text-[#172033]">
-              {isBn ? 'eReturn-এ ফিরে যেতে প্রস্তুত?' : 'Ready to return to eReturn?'}
-            </h2>
-            <p className="mt-1.5 text-xs leading-5 text-[#5F6B7A]">
-              {isBn
-                ? 'আগে Home থেকে Tax Payment Status পর্যালোচনা করুন। তথ্য ঠিক থাকলে eReturn-এ ফিরে যান।'
-                : 'Review Tax Payment Status from Home first. If the amounts are correct, return to eReturn.'}
-            </p>
-            <button
-              type="button"
-              onClick={onGoToEReturn}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#006A4E] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"
-            >
-              {isBn ? 'ই-রিটার্নে যান' : 'Go to eReturn'}
-              <ArrowUpRight className="h-4 w-4" />
-            </button>
-          </section>
+
         </aside>
       </div>
     </section>
