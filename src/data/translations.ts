@@ -13,6 +13,7 @@ export const TRANSLATIONS = {
     // Sidebar
     ledger: "LEDGER",
     dashboard: "Home",
+    ledgerGuide: "Ledger Guide",
     claimSourceTax: "Claim Source Tax",
     salary: "Salary",
     financialAssets: "Financial Assets",
@@ -117,6 +118,7 @@ export const TRANSLATIONS = {
     // Sidebar
     ledger: "লেজার",
     dashboard: "হোম",
+    ledgerGuide: "লেজার নির্দেশিকা",
     claimSourceTax: "উৎস কর দাবি করুন",
     salary: "বেতন",
     financialAssets: "আর্থিক সম্পদ ও মুনাফা",
