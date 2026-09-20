@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, X } from 'lucide-react';
 import { Language } from '../types';
+import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
@@ -32,6 +33,7 @@ export const BankFiLeanPage: React.FC<{
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const syncDialogRef = useDialogFocusTrap(syncOpen, closeSync);
   const totalTds = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.tds), 0), [rows]);
 
   useEffect(() => {
@@ -115,7 +117,7 @@ export const BankFiLeanPage: React.FC<{
 
       {syncOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="bank-sync-title" className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
+          <div ref={syncDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="bank-sync-title" className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
             <div className="flex items-start justify-between border-b border-[#E2E8F0] px-5 py-4">
               <div>
                 <h2 id="bank-sync-title" className="text-base font-bold text-[#172033]">
