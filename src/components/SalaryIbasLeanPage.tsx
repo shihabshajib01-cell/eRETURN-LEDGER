@@ -14,13 +14,7 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
         </h1>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="salary-info-title">
-        <div className="border-b border-[#E2E8F0] bg-slate-50/50 px-5 py-3">
-          <h2 id="salary-info-title" className="text-base font-bold text-[#172033]">
-            {isBn ? 'বেতন তথ্য' : 'Salary Information'}
-          </h2>
-        </div>
-
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="grid grid-cols-1 gap-px bg-[#E2E8F0] md:grid-cols-2">
           <ReadOnlyInfo label={isBn ? 'করবর্ষ' : 'Assessment Year'} value="2026-2027" />
           <ReadOnlyInfo label={isBn ? 'অফিসের নাম' : 'Office Name'} value="Bogura Technical Training Centre, Bogura" />
