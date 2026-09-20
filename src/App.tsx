@@ -11,7 +11,6 @@ import { DividendLeanPage } from './components/DividendLeanPage';
 import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
 import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
-import { LedgerHomePage } from './components/LedgerHomePage';
 import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
 import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurchargeLeanPage';
 import { SanchayapatraPage } from './components/SanchayapatraPage';
@@ -68,7 +67,13 @@ export default function App() {
         />
 
         <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-7 max-w-[1600px] w-full mx-auto space-y-6">
-          {currentTab === 'dashboard' && <LedgerHomePage lang={lang} />}
+          {currentTab === 'dashboard' && (
+            <TaxPaymentStatusPage
+              lang={lang}
+              onBack={() => setCurrentTab('dashboard')}
+              onGoToEReturn={() => setGoToEReturnModalOpen(true)}
+            />
+          )}
 
           {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'salary-other' && <SalaryOtherLeanPage lang={lang} />}
