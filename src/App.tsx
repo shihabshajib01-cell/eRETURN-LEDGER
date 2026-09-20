@@ -15,6 +15,7 @@ import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
 import { LedgerHomePage } from './components/LedgerHomePage';
 import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
 import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurchargeLeanPage';
+import { LedgerRuntimeProvider } from './state/LedgerRuntimeContext';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -45,6 +46,7 @@ export default function App() {
   };
 
   return (
+    <LedgerRuntimeProvider>
     <div className={`min-h-screen flex bg-[#F6F8FA] text-[#172033] ${lang === 'bn' ? "font-['Noto_Sans_Bengali',sans-serif]" : "font-['Noto_Sans',sans-serif]"}`}>
       <Sidebar currentTab={currentTab} onSelectTab={handleSelectTab} lang={lang} isOpen={navigationOpen} onClose={() => setNavigationOpen(false)} />
 
@@ -95,5 +97,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </LedgerRuntimeProvider>
   );
 }
