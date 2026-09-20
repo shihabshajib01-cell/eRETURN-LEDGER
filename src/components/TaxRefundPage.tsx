@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
+import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
 
@@ -50,6 +51,7 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const [editing, setEditing] = useState<RefundRow | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
 
   const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
 
@@ -212,7 +214,7 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" className="w-full max-w-3xl rounded-xl bg-white shadow-xl">
+          <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="w-full max-w-3xl rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 className="font-bold">{isBn ? 'রিফান্ড সমন্বয় সম্পাদনা' : 'Edit Refund Adjustment'}</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Close"><X className="h-5 w-5" /></button>
