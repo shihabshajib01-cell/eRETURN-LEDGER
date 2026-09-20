@@ -15,6 +15,7 @@ import { formatLedgerNumber } from '../utils/money';
 interface LedgerDashboardPageProps {
   lang: Language;
   onSelectTab: (tab: string) => void;
+  onViewPaymentStatus: () => void;
   onGoToEReturn: () => void;
 }
 
@@ -53,6 +54,7 @@ const ALL_DASHBOARD_ITEMS = [...SOURCE_TAX_ITEMS, ...AIT_ITEMS, ...OTHER_ITEMS];
 export const LedgerDashboardPage: React.FC<LedgerDashboardPageProps> = ({
   lang,
   onSelectTab,
+  onViewPaymentStatus,
   onGoToEReturn,
 }) => {
   const isBn = lang === 'bn';
@@ -236,7 +238,7 @@ export const LedgerDashboardPage: React.FC<LedgerDashboardPageProps> = ({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center lg:self-auto">
           <button
             type="button"
-            onClick={() => onSelectTab('dashboard')}
+            onClick={onViewPaymentStatus}
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#AFC9D8] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F5FAFD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
           >
             <FileCheck2 className="h-4 w-4" />
@@ -397,7 +399,7 @@ export const LedgerDashboardPage: React.FC<LedgerDashboardPageProps> = ({
             <div className="mt-3 space-y-2">
               <button
                 type="button"
-                onClick={() => onSelectTab('dashboard')}
+                onClick={onViewPaymentStatus}
                 className="flex w-full items-center justify-between gap-3 rounded-lg border border-[#CFE3EF] bg-[#F5FAFD] px-3.5 py-3 text-left hover:bg-[#EEF6FA]"
               >
                 <span>
