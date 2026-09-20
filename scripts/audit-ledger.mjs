@@ -286,6 +286,7 @@ expectContains('Tax Payment Status modal', files.statusModal, [
   'useDialogFocusTrap',
   'role="dialog"',
   'aria-modal="true"',
+  'showHeader={false}',
 ]);
 
 if (!files.app.includes("currentTab === 'overview-dashboard'") || !files.app.includes('<LedgerDashboardPage')) {
