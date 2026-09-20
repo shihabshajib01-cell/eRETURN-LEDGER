@@ -19,7 +19,7 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
           <ReadOnlyInfo label={isBn ? 'করবর্ষ' : 'Assessment Year'} value="2026-2027" />
           <ReadOnlyInfo label={isBn ? 'অফিসের নাম' : 'Office Name'} value="Bogura Technical Training Centre, Bogura" />
           <ReadOnlyInfo label={isBn ? 'পদবি' : 'Designation'} value="Principal" />
-          <ReadOnlyInfo label={isBn ? 'উপলভ্য উৎস কর' : 'TDS Available'} value="৳ 5,00,450" emphasized />
+          <ReadOnlyInfo label={isBn ? 'উপলভ্য উৎস কর' : 'TDS Available'} value="5,00,450" emphasized />
         </div>
       </section>
 
@@ -35,16 +35,13 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             <label htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
               TDS Claim
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 font-semibold text-[#5F6B7A]" aria-hidden="true">৳</span>
-              <input
-                id="tds-claim"
-                value={claim}
-                onChange={(event) => setClaim(event.target.value)}
-                inputMode="decimal"
-                className="w-full rounded-lg border border-[#C8D4E1] bg-white py-3 pl-8 pr-3 font-medium text-[#172033] focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
-              />
-            </div>
+            <input
+              id="tds-claim"
+              value={claim}
+              onChange={(event) => setClaim(event.target.value)}
+              inputMode="decimal"
+              className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-3 font-medium text-[#172033] focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
+            />
 
             <div className="mt-4 flex justify-end">
               <button
