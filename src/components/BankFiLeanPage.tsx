@@ -160,7 +160,7 @@ export const BankFiLeanPage: React.FC<{
             </div>
 
             <div className="overflow-auto">
-              <table className="w-full min-w-[900px] text-sm">
+              <table className="ledger-responsive-table w-full min-w-[900px] text-sm">
                 <thead className="bg-slate-50 text-[#5F6B7A]">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold">
@@ -185,7 +185,7 @@ export const BankFiLeanPage: React.FC<{
                 <tbody className="divide-y divide-slate-100">
                   {draftRows.map((row) => (
                     <tr key={row.id}>
-                      <td className="px-4 py-3">
+                      <td data-label={isBn ? "নির্বাচন" : "Select"} className="px-4 py-3">
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(row.id)}
@@ -194,12 +194,12 @@ export const BankFiLeanPage: React.FC<{
                           className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4] focus:ring-[#0B6FA4]"
                         />
                       </td>
-                      <td className="px-4 py-3 text-[#263247]">{row.accountType}</td>
-                      <td className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
-                      <td className="px-4 py-3 text-[#263247]">{row.branch}</td>
-                      <td className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
-                      <td className="px-4 py-3 text-right font-medium">{row.interest}</td>
-                      <td className="px-4 py-3">
+                      <td data-label={isBn ? "হিসাবের ধরন" : "Account Type"} className="px-4 py-3 text-[#263247]">{row.accountType}</td>
+                      <td data-label={isBn ? "ব্যাংক/এফআই নাম" : "Bank/FI Name"} className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
+                      <td data-label={isBn ? "শাখার নাম" : "Branch Name"} className="px-4 py-3 text-[#263247]">{row.branch}</td>
+                      <td data-label={isBn ? "হিসাব নম্বর" : "Account Number"} className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
+                      <td data-label={isBn ? "সুদ/মুনাফা" : "Interest Amount"} className="px-4 py-3 text-right font-medium">{row.interest}</td>
+                      <td data-label={isBn ? "উৎস কর" : "TDS"} className="px-4 py-3">
                         <input
                           value={row.tds}
                           disabled={!selectedIds.includes(row.id)}
