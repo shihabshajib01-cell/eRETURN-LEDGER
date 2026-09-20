@@ -233,14 +233,25 @@ export const LedgerDashboardPage: React.FC<LedgerDashboardPageProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => onSelectTab('dashboard')}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-[#AFC9D8] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F5FAFD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 lg:self-auto"
-        >
-          <FileCheck2 className="h-4 w-4" />
-          {isBn ? 'Tax Payment Status দেখুন' : 'View Tax Payment Status'}
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center lg:self-auto">
+          <button
+            type="button"
+            onClick={() => onSelectTab('dashboard')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#AFC9D8] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F5FAFD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
+          >
+            <FileCheck2 className="h-4 w-4" />
+            {isBn ? 'Tax Payment Status দেখুন' : 'View Tax Payment Status'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onGoToEReturn}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#006A4E] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"
+          >
+            {isBn ? 'ই-রিটার্নে যান' : 'Go to eReturn'}
+            <ArrowUpRight className="h-4 w-4" />
+          </button>
+        </div>
       </header>
 
       <section
