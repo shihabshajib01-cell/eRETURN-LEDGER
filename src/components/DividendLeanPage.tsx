@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { parseMoney } from '../utils/money';
 
 type DividendRow = {
   id: number;
@@ -24,10 +27,16 @@ export const DividendLeanPage: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
-  const [rows, setRows] = useState<DividendRow[]>(INITIAL_ROWS);
+  const [rows, setRows] = usePersistentState<DividendRow[]>('ereturn-ledger:v2:dividend-rows', INITIAL_ROWS);
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<DividendRow[]>(INITIAL_ROWS);
+  const { updateCategoryAmount } = useLedgerRuntime();
+  const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
+
+  useEffect(() => {
+    updateCategoryAmount('dividend', totalClaimed);
+  }, [totalClaimed, updateCategoryAmount]);
 
   const openSync = () => {
     setDraftRows(rows.map((row) => ({ ...row })));
@@ -64,11 +73,7 @@ export const DividendLeanPage: React.FC<{
       })
     );
     closeSync();
-    onUnavailableAction(
-      isBn
-        ? 'নির্বাচিত লভ্যাংশ রেকর্ডগুলো প্রোটোটাইপ স্টেটে আপডেট করা হয়েছে।'
-        : 'Selected dividend records were updated in prototype state.'
-    );
+    onUnavailableAction(isBn ? 'নির্বাচিত Dividend রেকর্ড সংরক্ষিত হয়েছে।' : 'Selected Dividend records saved.');
   };
 
   const removeRow = (id: number) => {
@@ -105,7 +110,7 @@ export const DividendLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-sm">
+          <table className="ledger-responsive-table w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
@@ -134,13 +139,13 @@ export const DividendLeanPage: React.FC<{
             <tbody className="divide-y divide-slate-100">
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td className="px-4 py-3 font-medium text-[#172033]">{row.authority}</td>
-                  <td className="px-4 py-3 text-[#263247]">{row.reference}</td>
-                  <td className="px-4 py-3 text-[#263247]">{row.date}</td>
-                  <td className="px-4 py-3 text-right font-medium text-[#172033]">{row.amount}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-[#172033]">{row.claimed}</td>
-                  <td className="px-4 py-2">
+                  <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
+                  <td data-label="Depositing Authority / Person / Company" className="px-4 py-3 font-medium text-[#172033]">{row.authority}</td>
+                  <td data-label="Certificate Reference No" className="px-4 py-3 text-[#263247]">{row.reference}</td>
+                  <td data-label="Certificate Reference Date" className="px-4 py-3 text-[#263247]">{row.date}</td>
+                  <td data-label="Challan / Certificate Amount" className="px-4 py-3 text-right font-medium text-[#172033]">{row.amount}</td>
+                  <td data-label="Claimed Amount" className="px-4 py-3 text-right font-semibold text-[#172033]">{row.claimed}</td>
+                  <td data-label="Action" className="px-4 py-2">
                     <div className="flex justify-end">
                       <button
                         type="button"
