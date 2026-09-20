@@ -1,7 +1,8 @@
 import React from 'react';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { Language } from '../types';
-import { VERIFIED_LEDGER_TOTALS, TOTAL_AVAILABLE_TAX_CREDIT } from '../data/mockTaxData';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { formatLedgerNumber } from '../utils/money';
 
 interface TaxPaymentStatusPageProps {
   lang: Language;
@@ -9,17 +10,18 @@ interface TaxPaymentStatusPageProps {
   onGoToEReturn: () => void;
 }
 
-const rows = [
-  ['Source Tax', VERIFIED_LEDGER_TOTALS.sourceTax, true],
-  ['Advance Income Tax (AIT)', VERIFIED_LEDGER_TOTALS.advanceIncomeTax, true],
-  ['Tax Paid With Return', VERIFIED_LEDGER_TOTALS.taxPaidWithReturn, false],
-  ['Environmental Surcharge', VERIFIED_LEDGER_TOTALS.environmentalSurcharge, false],
-  ['Adjustment of Tax Refund', VERIFIED_LEDGER_TOTALS.adjustmentOfTaxRefund, false],
-  ['Adjustment of carry forward tax u/s 163', VERIFIED_LEDGER_TOTALS.carryForwardTax, false],
-] as const;
-
 export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang, onGoToEReturn }) => {
   const isBn = lang === 'bn';
+  const runtime = useLedgerRuntime();
+
+  const rows = [
+    [isBn ? 'উৎস কর' : 'Source Tax', runtime.sourceTax, true],
+    [isBn ? 'অগ্রিম আয়কর (AIT)' : 'Advance Income Tax (AIT)', runtime.advanceIncomeTax, true],
+    [isBn ? 'রিটার্নের সাথে প্রদত্ত কর' : 'Tax Paid With Return', runtime.taxPaidWithReturn, false],
+    [isBn ? 'পরিবেশ সারচার্জ' : 'Environmental Surcharge', runtime.environmentalSurcharge, false],
+    [isBn ? 'কর রিফান্ড সমন্বয়' : 'Adjustment of Tax Refund', runtime.adjustmentOfTaxRefund, false],
+    [isBn ? 'ধারা ১৬৩ অনুযায়ী জের টানা কর সমন্বয়' : 'Adjustment of carry forward tax u/s 163', runtime.carryForwardTax, false],
+  ] as const;
 
   return (
     <section className="w-full space-y-4" aria-labelledby="payment-status-title">
@@ -30,36 +32,33 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
       </header>
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="grid grid-cols-[minmax(0,1fr)_220px] border-b border-[#E2E8F0] bg-slate-50 text-sm font-semibold text-[#5F6B7A]">
-          <div className="px-5 py-3">{isBn ? 'বিবরণ' : 'Particulars'}</div>
-          <div className="px-5 py-3 text-right">{isBn ? 'পরিমাণ' : 'Amount'}</div>
+        <div className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] border-b border-[#E2E8F0] bg-slate-50 text-sm font-semibold text-[#5F6B7A]">
+          <div className="px-4 sm:px-5 py-3">{isBn ? 'বিবরণ' : 'Particulars'}</div>
+          <div className="px-4 sm:px-5 py-3 text-right">{isBn ? 'পরিমাণ' : 'Amount'}</div>
         </div>
 
         <div className="divide-y divide-slate-100">
           {rows.map(([label, amount, expandable]) => (
-            <div key={label}>
-              <div className="grid grid-cols-[minmax(0,1fr)_220px] items-center text-sm">
-                <div className="px-5 py-4">
-                  {expandable ? (
-                    <span className="inline-flex items-center gap-2 font-semibold text-[#172033]">
-                      <ChevronRight className="h-4 w-4 text-[#0B6FA4]" aria-hidden="true" />
-                      {label}
-                    </span>
-                  ) : (
-                    <span className="font-semibold text-[#172033]">{label}</span>
-                  )}
-                </div>
-                <div className="px-5 py-4 text-right font-semibold text-[#172033]">
-                  {amount.toLocaleString('en-IN')}
-                </div>
+            <div key={label} className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center text-sm">
+              <div className="px-4 sm:px-5 py-4">
+                {expandable ? (
+                  <span className="inline-flex items-center gap-2 font-semibold text-[#172033]">
+                    <ChevronRight className="h-4 w-4 text-[#0B6FA4]" aria-hidden="true" />
+                    {label}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-[#172033]">{label}</span>
+                )}
               </div>
-
+              <div className="px-4 sm:px-5 py-4 text-right font-semibold text-[#172033]">
+                {formatLedgerNumber(amount)}
+              </div>
             </div>
           ))}
 
-          <div className="grid grid-cols-[minmax(0,1fr)_220px] items-center bg-slate-50 text-base">
-            <div className="px-5 py-4 font-bold text-[#172033]">{isBn ? 'মোট' : 'Total'}</div>
-            <div className="px-5 py-4 text-right font-bold text-[#0B6FA4]">{TOTAL_AVAILABLE_TAX_CREDIT.toLocaleString('en-IN')}</div>
+          <div className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center bg-slate-50 text-base">
+            <div className="px-4 sm:px-5 py-4 font-bold text-[#172033]">{isBn ? 'মোট' : 'Total'}</div>
+            <div className="px-4 sm:px-5 py-4 text-right font-bold text-[#0B6FA4]">{formatLedgerNumber(runtime.total)}</div>
           </div>
         </div>
       </section>
