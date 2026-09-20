@@ -153,6 +153,8 @@ const configs: Record<string, CategoryConfig> = {
       { key: 'documentType', label: 'Payment Document Type' },
       { key: 'reference', label: 'Challan/ Certificate Reference No.' },
       { key: 'date', label: 'Challan/ Certificate Date' },
+      { key: 'bank', label: 'Bank Name' },
+      { key: 'branch', label: 'Branch Name' },
       { key: 'amount', label: 'Challan/ Certificate Amount', numeric: true },
       { key: 'claimed', label: 'Claimed Amount', numeric: true },
     ],
