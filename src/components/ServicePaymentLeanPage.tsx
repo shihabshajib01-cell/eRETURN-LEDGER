@@ -49,6 +49,27 @@ export const ServicePaymentLeanPage: React.FC<{
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<ServiceRow[]>(INITIAL_ROWS);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const labelText = (label: string) => {
+    if (!isBn) return label;
+    const labels: Record<string, string> = {
+      'Service Payment': 'সেবা পেমেন্ট',
+      'Depositing Authority': 'জমাদানকারী কর্তৃপক্ষ',
+      'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
+      'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
+      'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
+      'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
+      'Claimed Amount': 'দাবিকৃত পরিমাণ',
+      'Action': 'অ্যাকশন',
+      'Add': 'যোগ করুন',
+      'Sync From Income': 'Income থেকে সিঙ্ক',
+      'Save': 'সংরক্ষণ',
+      'Close': 'বন্ধ করুন',
+      'Edit': 'সম্পাদনা',
+      'Delete': 'মুছুন',
+      'Select all': 'সব নির্বাচন করুন',
+    };
+    return labels[label] || label;
+  };
   const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
 
   useEffect(() => {
@@ -134,10 +155,10 @@ export const ServicePaymentLeanPage: React.FC<{
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 id="service-payment-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
-            Service Payment
+            {labelText('Service Payment')}
           </h1>
           <p className="mt-1 text-sm italic text-[#0B6FA4]">
-            Meeting Fees, Honorarium, Professional Service, Consultancy etc. [Section-90]
+            {isBn ? 'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [ধারা-৯০]' : 'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [Section-90]'}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -147,7 +168,7 @@ export const ServicePaymentLeanPage: React.FC<{
             className="inline-flex items-center gap-2 rounded-lg bg-[#149DB2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#108A9D]"
           >
             <RefreshCw className="h-4 w-4" />
-            Sync From Income
+            {labelText('Sync From Income')}
           </button>
           <button
             type="button"
@@ -156,7 +177,7 @@ export const ServicePaymentLeanPage: React.FC<{
             className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50 disabled:opacity-50"
           >
             <Plus className="h-4 w-4" />
-            Add
+            {labelText('Add')}
           </button>
         </div>
       </header>
@@ -169,28 +190,28 @@ export const ServicePaymentLeanPage: React.FC<{
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 {columns.map(([key, label]) => (
                   <th key={key} scope="col" className={`px-4 py-3 font-semibold ${['amount','claimed'].includes(key) ? 'text-right' : 'text-left'}`}>
-                    {label}
+                    {labelText(label)}
                   </th>
                 ))}
-                <th scope="col" className="px-4 py-3 text-right font-semibold">Action</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">{labelText('Action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td data-label="Depositing Authority" className="px-4 py-3">{row.authority}</td>
-                  <td data-label="Payment Document Type" className="px-4 py-3">{row.documentType}</td>
-                  <td data-label="Challan/ Certificate Reference No." className="px-4 py-3">{row.reference}</td>
-                  <td data-label="Challan/ Certificate Date" className="px-4 py-3">{row.date}</td>
-                  <td data-label="Challan/ Certificate Amount" className="px-4 py-3 text-right font-medium">{row.amount}</td>
-                  <td data-label="Claimed Amount" className="px-4 py-3 text-right font-medium">{row.claimed}</td>
-                  <td data-label="Action" className="px-4 py-2">
+                  <td data-label={labelText("Depositing Authority")} className="px-4 py-3">{row.authority}</td>
+                  <td data-label={labelText("Payment Document Type")} className="px-4 py-3">{row.documentType}</td>
+                  <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-4 py-3">{row.reference}</td>
+                  <td data-label={labelText("Challan/ Certificate Date")} className="px-4 py-3">{row.date}</td>
+                  <td data-label={labelText("Challan/ Certificate Amount")} className="px-4 py-3 text-right font-medium">{row.amount}</td>
+                  <td data-label={labelText("Claimed Amount")} className="px-4 py-3 text-right font-medium">{row.claimed}</td>
+                  <td data-label={labelText("Action")} className="px-4 py-2">
                     <div className="flex justify-end gap-1">
-                      <button type="button" onClick={() => openEdit(row)} aria-label="Edit" className="rounded-md p-2 text-[#149DB2] hover:bg-cyan-50">
+                      <button type="button" onClick={() => openEdit(row)} aria-label={labelText("Edit")} className="rounded-md p-2 text-[#149DB2] hover:bg-cyan-50">
                         <Edit2 className="h-4 w-4" />
                       </button>
-                      <button type="button" onClick={() => removeRow(row.id)} aria-label="Delete" className="rounded-md p-2 text-red-600 hover:bg-red-50">
+                      <button type="button" onClick={() => removeRow(row.id)} aria-label={labelText("Delete")} className="rounded-md p-2 text-red-600 hover:bg-red-50">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -202,7 +223,7 @@ export const ServicePaymentLeanPage: React.FC<{
                 <tr className="bg-[#F5FAFD] align-top">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
                   {columns.map(([key, label], index) => (
-                    <td key={key} data-label={label} className="px-2 py-2.5">
+                    <td key={key} data-label={labelText(label)} className="px-2 py-2.5">
                       {key === 'documentType' ? (
                         <select
                           autoFocus={index === 0}
@@ -227,7 +248,7 @@ export const ServicePaymentLeanPage: React.FC<{
                             if (event.key === 'Escape') { setAdding(false); setForm(EMPTY); }
                             if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
                           }}
-                          aria-label={label}
+                          aria-label={labelText(label)}
                           placeholder={key === 'authority' ? 'Enter Depositing Authority' : key === 'reference' ? 'Enter Reference No' : key === 'date' ? 'Enter Date' : key === 'amount' ? 'Enter Amount' : key === 'claimed' ? 'Enter Claimed Amount' : label}
                           className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm ${['amount','claimed'].includes(key) ? 'text-right' : ''}`}
                         />
@@ -251,8 +272,8 @@ export const ServicePaymentLeanPage: React.FC<{
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div role="dialog" aria-modal="true" aria-labelledby="service-sync-title" className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
-              <h2 id="service-sync-title" className="font-bold text-[#172033]">Service Payment</h2>
-              <button type="button" onClick={closeSync} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+              <h2 id="service-sync-title" className="font-bold text-[#172033]">{labelText("Service Payment")}</h2>
+              <button type="button" onClick={closeSync} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="overflow-auto p-4">
               <table className="w-full min-w-[980px] text-sm">
@@ -263,16 +284,16 @@ export const ServicePaymentLeanPage: React.FC<{
                         type="checkbox"
                         checked={selectedIds.length === rows.length}
                         onChange={(event) => setSelectedIds(event.target.checked ? rows.map((row) => row.id) : [])}
-                        aria-label="Select all"
+                        aria-label={labelText("Select all")}
                         className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4]"
                       />
                     </th>
-                    <th className="px-3 py-3 text-left font-semibold">Depositing Authority</th>
-                    <th className="px-3 py-3 text-left font-semibold">Payment Document Type</th>
-                    <th className="px-3 py-3 text-left font-semibold">Challan/ Certificate Reference No.</th>
-                    <th className="px-3 py-3 text-left font-semibold">Challan/ Certificate Date</th>
-                    <th className="px-3 py-3 text-right font-semibold">Challan/ Certificate Amount</th>
-                    <th className="px-3 py-3 text-right font-semibold">Claimed Amount</th>
+                    <th className="px-3 py-3 text-left font-semibold">{labelText('Depositing Authority')}</th>
+                    <th className="px-3 py-3 text-left font-semibold">{labelText('Payment Document Type')}</th>
+                    <th className="px-3 py-3 text-left font-semibold">{labelText('Challan/ Certificate Reference No.')}</th>
+                    <th className="px-3 py-3 text-left font-semibold">{labelText('Challan/ Certificate Date')}</th>
+                    <th className="px-3 py-3 text-right font-semibold">{labelText('Challan/ Certificate Amount')}</th>
+                    <th className="px-3 py-3 text-right font-semibold">{labelText('Claimed Amount')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -318,8 +339,8 @@ export const ServicePaymentLeanPage: React.FC<{
               </table>
             </div>
             <div className="flex justify-end gap-2 border-t border-[#E2E8F0] px-5 py-4">
-              <button type="button" onClick={closeSync} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50">Close</button>
-              <button type="button" onClick={saveSync} disabled={selectedIds.length === 0} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Save</button>
+              <button type="button" onClick={closeSync} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50">{labelText('Close')}</button>
+              <button type="button" onClick={saveSync} disabled={selectedIds.length === 0} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{labelText('Save')}</button>
             </div>
           </div>
         </div>
@@ -329,13 +350,13 @@ export const ServicePaymentLeanPage: React.FC<{
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 className="font-bold text-[#172033]">Service Payment</h2>
+              <h2 className="font-bold text-[#172033]">{labelText('Service Payment')}</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="grid grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
               {columns.map(([key, label]) => (
                 <div key={key}>
-                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{label}</label>
+                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{labelText(label)}</label>
                   <input
                     value={form[key]}
                     onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
