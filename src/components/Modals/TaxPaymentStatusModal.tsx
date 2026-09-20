@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Language } from '../../types';
 import { useDialogFocusTrap } from '../../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../../state/LedgerRuntimeContext';
@@ -33,9 +33,9 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="tax-payment-status-modal-title"
-        className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.34)] sm:h-[88vh] sm:max-w-[980px] sm:rounded-[20px] sm:border sm:border-white/70"
+        className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.34)] sm:h-[88vh] sm:max-w-[930px] sm:rounded-[20px] sm:border sm:border-white/70"
       >
-        <header className="flex shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-4 py-4 sm:px-6">
+        <header className="flex shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-5 py-4 sm:px-6">
           <div className="min-w-0">
             <h2
               id="tax-payment-status-modal-title"
@@ -73,30 +73,20 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
           </div>
         </div>
 
-        <footer className="shrink-0 border-t border-[#DCE5EC] bg-white px-4 py-3.5 shadow-[0_-8px_24px_rgba(15,23,42,0.04)] sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-center justify-between gap-6 sm:justify-start">
-              <div>
-                <p className="text-sm font-bold text-[#172033]">
-                  {isBn ? 'মোট' : 'Total'}
-                </p>
-                <p className="mt-0.5 text-xs text-[#6B778A]">
-                  {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
-                </p>
-              </div>
-              <strong className="whitespace-nowrap text-xl font-bold tabular-nums text-[#0B6FA4] sm:text-2xl">
-                {formatLedgerNumber(runtime.total)}
-              </strong>
+        <footer className="shrink-0 border-t border-[#DCE5EC] bg-white px-5 py-3.5 shadow-[0_-8px_24px_rgba(15,23,42,0.04)] sm:px-6">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#172033]">
+                {isBn ? 'মোট' : 'Total'}
+              </p>
+              <p className="mt-0.5 truncate text-xs text-[#6B778A]">
+                {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
+              </p>
             </div>
 
-            <button
-              type="button"
-              onClick={onGoToEReturn}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#006A4E] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"
-            >
-              {isBn ? 'ই-রিটার্নে যান' : 'Go to eReturn'}
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            </button>
+            <strong className="whitespace-nowrap text-xl font-bold tabular-nums text-[#0B6FA4] sm:text-2xl">
+              {formatLedgerNumber(runtime.total)}
+            </strong>
           </div>
         </footer>
       </div>
