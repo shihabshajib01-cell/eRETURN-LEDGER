@@ -51,8 +51,8 @@ export const BankFiLeanPage: React.FC<{
     closeSync();
     onUnavailableAction(
       isBn
-        ? 'নির্বাচিত ব্যাংক/এফআই রেকর্ডগুলো সিঙ্ক করা হয়েছে (প্রোটোটাইপ স্টেট)।'
-        : 'Selected Bank/FI records synced in prototype state.'
+        ? 'নির্বাচিত ব্যাংক/এফআই রেকর্ডগুলো সিঙ্ক করা হয়েছে।'
+        : 'Selected Bank/FI records synced.'
     );
   };
 
@@ -70,7 +70,7 @@ export const BankFiLeanPage: React.FC<{
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
-          {isBn ? 'Sync From Income' : 'Sync From Income'}
+          {isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income'}
         </button>
       </header>
 
@@ -111,7 +111,7 @@ export const BankFiLeanPage: React.FC<{
             <div className="flex items-start justify-between border-b border-[#E2E8F0] px-5 py-4">
               <div>
                 <h2 id="bank-sync-title" className="text-base font-bold text-[#172033]">
-                  {isBn ? 'Interest/Profit (Bank & FI - With TDS Deduction)' : 'Interest/Profit (Bank & FI - With TDS Deduction)'}
+                  {isBn ? 'সুদ/মুনাফা (Bank & FI - TDS কর্তনসহ)' : 'Interest/Profit (Bank & FI - With TDS Deduction)'}
                 </h2>
                 
               </div>
@@ -135,9 +135,9 @@ export const BankFiLeanPage: React.FC<{
                         Select
                       </label>
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold">Account Type</th>
-                    <th className="px-4 py-3 text-left font-semibold">Bank/FI Name</th>
-                    <th className="px-4 py-3 text-left font-semibold">Branch Name</th>
+                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'হিসাবের ধরন' : 'Account Type'}</th>
+                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'ব্যাংক/এফআই নাম' : 'Bank/FI Name'}</th>
+                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'শাখার নাম' : 'Branch Name'}</th>
                     <th className="px-4 py-3 text-left font-semibold">{isBn ? 'হিসাব নম্বর' : 'Account Number'}</th>
                     <th className="px-4 py-3 text-right font-semibold">{isBn ? 'সুদ/মুনাফা' : 'Interest Amount'}</th>
                     <th className="px-4 py-3 text-right font-semibold">{isBn ? 'উৎস কর' : 'TDS'}</th>
@@ -175,7 +175,7 @@ export const BankFiLeanPage: React.FC<{
                 className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RefreshCw className="h-4 w-4" />
-                Sync
+                {isBn ? 'সিঙ্ক' : 'Sync'}
               </button>
             </div>
           </div>
