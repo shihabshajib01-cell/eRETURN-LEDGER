@@ -49,38 +49,40 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
 
         <div className="divide-y divide-slate-100">
           {rows.map(([label, amount, group]) => (
-            <div key={label} className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center text-sm">
-              <div className="px-4 sm:px-5 py-4">
-                {group ? (
-                  <button
-                    type="button"
-                    onClick={() => setExpanded((current) => current === group ? null : group)}
-                    aria-expanded={expanded === group}
-                    className="inline-flex items-center gap-2 font-semibold text-[#172033] hover:text-[#0B6FA4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded"
-                  >
-                    <ChevronRight className={`h-4 w-4 text-[#0B6FA4] transition-transform ${expanded === group ? 'rotate-90' : ''}`} aria-hidden="true" />
-                    {label}
-                  </button>
-                ) : (
-                  <span className="font-semibold text-[#172033]">{label}</span>
-                )}
-              </div>
-              <div className="px-4 sm:px-5 py-4 text-right font-semibold text-[#172033]">
-                {formatLedgerNumber(amount)}
-              </div>
-            </div>
-            {group && expanded === group && (
-              <div className="border-t border-slate-100 bg-slate-50/70 px-5 py-3">
-                <div className="flex flex-wrap gap-2">
-                  {groupItems[group].map((item) => (
-                    <span key={item} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-[#5F6B7A]">
-                      {item}
-                    </span>
-                  ))}
+            <div key={label}>
+              <div className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center text-sm">
+                <div className="px-4 sm:px-5 py-4">
+                  {group ? (
+                    <button
+                      type="button"
+                      onClick={() => setExpanded((current) => current === group ? null : group)}
+                      aria-expanded={expanded === group}
+                      className="inline-flex items-center gap-2 rounded font-semibold text-[#172033] hover:text-[#0B6FA4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
+                    >
+                      <ChevronRight className={`h-4 w-4 text-[#0B6FA4] transition-transform ${expanded === group ? 'rotate-90' : ''}`} aria-hidden="true" />
+                      {label}
+                    </button>
+                  ) : (
+                    <span className="font-semibold text-[#172033]">{label}</span>
+                  )}
+                </div>
+                <div className="px-4 sm:px-5 py-4 text-right font-semibold text-[#172033]">
+                  {formatLedgerNumber(amount)}
                 </div>
               </div>
-            )}
-          </div>
+
+              {group && expanded === group && (
+                <div className="border-t border-slate-100 bg-slate-50/70 px-5 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    {groupItems[group].map((item) => (
+                      <span key={item} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-[#5F6B7A]">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
 
           <div className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center bg-slate-50 text-base">
