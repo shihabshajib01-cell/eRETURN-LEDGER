@@ -56,6 +56,22 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<SalaryRow | null>(null);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const labelText = (label: string) => {
+    if (!isBn) return label;
+    const labels: Record<string, string> = {
+      'Depositing Authority': 'জমাদানকারী কর্তৃপক্ষ',
+      'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
+      'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
+      'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
+      'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
+      'Claimed Amount': 'দাবিকৃত পরিমাণ',
+      'Action': 'অ্যাকশন',
+      'Edit': 'সম্পাদনা',
+      'Save': 'সংরক্ষণ',
+      'Cancel': 'বাতিল',
+    };
+    return labels[label] || label;
+  };
 
   const totalClaimed = useMemo(
     () => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0),
@@ -176,29 +192,29 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                     key={column.key}
                     className={`px-4 py-3 font-semibold ${column.numeric ? 'text-right' : 'text-left'}`}
                   >
-                    {column.label}
+                    {labelText(column.label)}
                   </th>
                 ))}
-                <th scope="col" className="px-4 py-3 text-right font-semibold">Action</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">{labelText('Action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td data-label="Depositing Authority" className="px-4 py-3">{row.authority}</td>
-                  <td data-label="Payment Document Type" className="px-4 py-3">{row.documentType}</td>
-                  <td data-label="Challan/ Certificate Reference No." className="px-4 py-3">{row.reference}</td>
-                  <td data-label="Challan/ Certificate Date" className="px-4 py-3">{row.date}</td>
-                  <td data-label="Challan/ Certificate Amount" className="px-4 py-3 text-right font-medium">{row.amount}</td>
-                  <td data-label="Claimed Amount" className="px-4 py-3 text-right font-medium">{row.claimed}</td>
-                  <td data-label="Action" className="px-4 py-2">
+                  <td data-label={labelText("Depositing Authority")} className="px-4 py-3">{row.authority}</td>
+                  <td data-label={labelText("Payment Document Type")} className="px-4 py-3">{row.documentType}</td>
+                  <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-4 py-3">{row.reference}</td>
+                  <td data-label={labelText("Challan/ Certificate Date")} className="px-4 py-3">{row.date}</td>
+                  <td data-label={labelText("Challan/ Certificate Amount")} className="px-4 py-3 text-right font-medium">{row.amount}</td>
+                  <td data-label={labelText("Claimed Amount")} className="px-4 py-3 text-right font-medium">{row.claimed}</td>
+                  <td data-label={labelText("Action")} className="px-4 py-2">
                     <div className="flex justify-end gap-1">
                       <button
                         type="button"
                         onClick={() => openEdit(row)}
-                        aria-label="Edit"
-                        title="Edit"
+                        aria-label={labelText("Edit")}
+                        title={labelText("Edit")}
                         className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -255,10 +271,10 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   </td>
                   <td data-label="Action" className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
-                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label="Save" title="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
+                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} title={labelText("Save")} className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
                         <Check className="h-4 w-4" />
                       </button>
-                      <button type="button" onClick={cancelAdd} aria-label="Cancel" title="Cancel" className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700">
+                      <button type="button" onClick={cancelAdd} aria-label={labelText("Cancel")} title={labelText("Cancel")} className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -274,7 +290,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div role="dialog" aria-modal="true" aria-labelledby="salary-edit-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 id="salary-edit-title" className="font-bold text-[#172033]">Edit</h2>
+              <h2 id="salary-edit-title" className="font-bold text-[#172033]">{labelText('Edit')}</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
                 <X className="h-5 w-5" />
               </button>
@@ -282,7 +298,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             <div className="grid grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
               {columns.map((column) => (
                 <div key={column.key}>
-                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{column.label}</label>
+                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{labelText(column.label)}</label>
                   {column.key === 'documentType' ? (
                     <select
                       value={form.documentType}
@@ -304,8 +320,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
               ))}
             </div>
             <div className="flex justify-end gap-2 border-t px-5 py-4">
-              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button>
-              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">Save</button>
+              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">{labelText('Cancel')}</button>
+              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">{labelText('Save')}</button>
             </div>
           </div>
         </div>
