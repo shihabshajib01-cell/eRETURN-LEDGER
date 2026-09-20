@@ -89,7 +89,7 @@ export const DividendLeanPage: React.FC<{
             {isBn ? 'লভ্যাংশ' : 'Dividend'}
           </h1>
           <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
-            {isBn ? 'লভ্যাংশ [ ধারা-১১৭ ]' : 'Dividend [ Section-117 ]'}
+            {isBn ? 'লভ্যাংশ [ ধারা-১১৭]' : 'Dividend [ Section-117]'}
           </p>
         </div>
 
@@ -271,7 +271,7 @@ export const DividendLeanPage: React.FC<{
                   onClick={closeSync}
                   className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
                 >
-                  {isBn ? 'বাতিল' : 'Cancel'}
+                  {isBn ? 'No' : 'No'}
                 </button>
                 <button
                   type="button"
@@ -280,7 +280,7 @@ export const DividendLeanPage: React.FC<{
                   className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  {isBn ? 'Sync' : 'Sync'}
+                  {isBn ? 'Save' : 'Save'}
                 </button>
               </div>
             </div>
