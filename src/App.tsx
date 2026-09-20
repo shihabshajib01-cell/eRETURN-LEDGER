@@ -15,6 +15,7 @@ import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
 import { LedgerHomePage } from './components/LedgerHomePage';
 import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
 import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurchargeLeanPage';
+import { SanchayapatraPage } from './components/SanchayapatraPage';
 import { LedgerRuntimeProvider } from './state/LedgerRuntimeContext';
 
 export default function App() {
@@ -67,8 +68,9 @@ export default function App() {
           {currentCategory?.id === 'dividend' && <DividendLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'service-payment' && <ServicePaymentLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'environmental-surcharge' && <EnvironmentalSurchargeLeanPage lang={lang} onUnavailableAction={showToast} />}
+          {currentCategory?.id === 'sanchayapatra' && <SanchayapatraPage lang={lang} onUnavailableAction={showToast} />}
 
-          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge'].includes(currentCategory.id) && (
+          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge', 'sanchayapatra'].includes(currentCategory.id) && (
             <CategoryWorkspace
               key={currentCategory.id}
               categoryId={currentCategory.id}
