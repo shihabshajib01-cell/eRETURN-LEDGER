@@ -204,6 +204,7 @@ expectContains('Tax Payment Status', files.status, [
   'Amount',
   'runtime.total',
   'Go to eReturn',
+  'useState<ExpandableGroup | null>(null)',
 ]);
 
 expectContains('Go to eReturn', files.goto, [
