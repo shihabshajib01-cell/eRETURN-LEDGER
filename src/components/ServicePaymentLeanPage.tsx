@@ -12,27 +12,31 @@ type ServiceRow = {
   documentType: string;
   reference: string;
   date: string;
+  bank: string;
+  branch: string;
   amount: string;
   claimed: string;
 };
 
 const INITIAL_ROWS: ServiceRow[] = [
-  { id: 1, authority: 'Plumber corp', documentType: 'Challan', reference: '2526-0002912865', date: '30-07-2025', amount: '70,000', claimed: '5,000' },
-  { id: 2, authority: 'Doctor', documentType: 'Challan', reference: '2526-0002968652', date: '30-07-2025', amount: '10,000', claimed: '5,000' },
-  { id: 3, authority: 'Lawyer', documentType: 'Challan', reference: '2526-0003205455', date: '03-08-2025', amount: '16,778', claimed: '10,000' },
-  { id: 4, authority: 'Engineer', documentType: 'Challan', reference: '2526-0003734605', date: '07-08-2025', amount: '26,05,887', claimed: '5,000' },
-  { id: 5, authority: 'Astronaut', documentType: 'Challan', reference: '2526-0003810112', date: '11-08-2025', amount: '75,77,604', claimed: '3,000' },
-  { id: 6, authority: 'Mail Man', documentType: 'Certificate', reference: 'ref-1', date: '30-09-2026', amount: '10,000', claimed: '10,000' },
+  { id: 1, authority: 'Plumber corp', documentType: 'Challan', reference: '2526-0002912865', date: '30-07-2025', bank: '', branch: '', amount: '70,000', claimed: '5,000' },
+  { id: 2, authority: 'Doctor', documentType: 'Challan', reference: '2526-0002968652', date: '30-07-2025', bank: '', branch: '', amount: '10,000', claimed: '5,000' },
+  { id: 3, authority: 'Lawyer', documentType: 'Challan', reference: '2526-0003205455', date: '03-08-2025', bank: '', branch: '', amount: '16,778', claimed: '10,000' },
+  { id: 4, authority: 'Engineer', documentType: 'Challan', reference: '2526-0003734605', date: '07-08-2025', bank: '', branch: '', amount: '26,05,887', claimed: '5,000' },
+  { id: 5, authority: 'Astronaut', documentType: 'Challan', reference: '2526-0003810112', date: '11-08-2025', bank: '', branch: '', amount: '75,77,604', claimed: '3,000' },
+  { id: 6, authority: 'Mail Man', documentType: 'Certificate', reference: 'ref-1', date: '30-09-2026', bank: '', branch: '', amount: '10,000', claimed: '10,000' },
 ];
 
 type FormState = Omit<ServiceRow, 'id'>;
-const EMPTY: FormState = { authority: '', documentType: 'Challan', reference: '', date: '', amount: '', claimed: '' };
+const EMPTY: FormState = { authority: '', documentType: 'Challan', reference: '', date: '', bank: '', branch: '', amount: '', claimed: '' };
 
 const columns = [
   ['authority', 'Depositing Authority'],
   ['documentType', 'Payment Document Type'],
   ['reference', 'Challan/ Certificate Reference No.'],
   ['date', 'Challan/ Certificate Date'],
+  ['bank', 'Bank Name'],
+  ['branch', 'Branch Name'],
   ['amount', 'Challan/ Certificate Amount'],
   ['claimed', 'Claimed Amount'],
 ] as const;
@@ -60,6 +64,8 @@ export const ServicePaymentLeanPage: React.FC<{
       'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
       'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
       'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
+      'Bank Name': 'ব্যাংকের নাম',
+      'Branch Name': 'শাখার নাম',
       'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
       'Claimed Amount': 'দাবিকৃত পরিমাণ',
       'Action': 'অ্যাকশন',
@@ -84,6 +90,7 @@ export const ServicePaymentLeanPage: React.FC<{
     form.documentType.trim().length > 0 &&
     form.reference.trim().length > 0 &&
     form.date.trim().length > 0 &&
+    (form.documentType !== 'Challan' || editing !== null || (form.bank.trim().length > 0 && form.branch.trim().length > 0)) &&
     parseMoney(form.amount) >= 0 &&
     parseMoney(form.claimed) >= 0 &&
     parseMoney(form.claimed) <= parseMoney(form.amount);
@@ -112,6 +119,8 @@ export const ServicePaymentLeanPage: React.FC<{
       documentType: row.documentType,
       reference: row.reference,
       date: row.date,
+      bank: row.bank || '',
+      branch: row.branch || '',
       amount: row.amount,
       claimed: row.claimed,
     });
@@ -147,6 +156,21 @@ export const ServicePaymentLeanPage: React.FC<{
 
   const saveSync = () => {
     const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
+    const invalid = selectedRows.some((row) =>
+      !row.authority.trim() ||
+      !row.reference.trim() ||
+      !row.date.trim() ||
+      parseMoney(row.claimed) > parseMoney(row.amount) ||
+      (row.documentType === 'Challan' && (!row.bank.trim() || !row.branch.trim()))
+    );
+    if (invalid) {
+      onUnavailableAction(
+        isBn
+          ? 'নির্বাচিত Challan রেকর্ডে ব্যাংক/শাখা এবং বৈধ পরিমাণ পূরণ করুন।'
+          : 'Complete bank/branch and valid amounts for the selected Challan records.'
+      );
+      return;
+    }
     setRows((current) => {
       const byId = new Map(current.map((row) => [row.id, row]));
       selectedRows.forEach((row) => byId.set(row.id, row));
@@ -210,6 +234,8 @@ export const ServicePaymentLeanPage: React.FC<{
                   <td data-label={labelText("Payment Document Type")} className="px-4 py-3">{row.documentType}</td>
                   <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-4 py-3">{row.reference}</td>
                   <td data-label={labelText("Challan/ Certificate Date")} className="px-4 py-3">{row.date}</td>
+                  <td data-label={labelText("Bank Name")} className="px-4 py-3">{row.bank || "—"}</td>
+                  <td data-label={labelText("Branch Name")} className="px-4 py-3">{row.branch || "—"}</td>
                   <td data-label={labelText("Challan/ Certificate Amount")} className="px-4 py-3 text-right font-medium">{row.amount}</td>
                   <td data-label={labelText("Claimed Amount")} className="px-4 py-3 text-right font-medium">{row.claimed}</td>
                   <td data-label={labelText("Action")} className="px-4 py-2">
@@ -282,7 +308,7 @@ export const ServicePaymentLeanPage: React.FC<{
               <button type="button" onClick={closeSync} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="overflow-auto p-4">
-              <table className="w-full min-w-[980px] text-sm">
+              <table className="ledger-responsive-table w-full min-w-[1180px] text-sm">
                 <thead className="bg-slate-50 text-[#5F6B7A]">
                   <tr>
                     <th className="px-3 py-3 text-left">
@@ -298,6 +324,8 @@ export const ServicePaymentLeanPage: React.FC<{
                     <th className="px-3 py-3 text-left font-semibold">{labelText('Payment Document Type')}</th>
                     <th className="px-3 py-3 text-left font-semibold">{labelText('Challan/ Certificate Reference No.')}</th>
                     <th className="px-3 py-3 text-left font-semibold">{labelText('Challan/ Certificate Date')}</th>
+                    <th className="px-3 py-3 text-left font-semibold">{labelText('Bank Name')}</th>
+                    <th className="px-3 py-3 text-left font-semibold">{labelText('Branch Name')}</th>
                     <th className="px-3 py-3 text-right font-semibold">{labelText('Challan/ Certificate Amount')}</th>
                     <th className="px-3 py-3 text-right font-semibold">{labelText('Claimed Amount')}</th>
                   </tr>
@@ -307,7 +335,7 @@ export const ServicePaymentLeanPage: React.FC<{
                     const selected = selectedIds.includes(row.id);
                     return (
                       <tr key={row.id}>
-                        <td className="px-3 py-2.5">
+                        <td data-label={isBn ? "নির্বাচন" : "Select"} className="px-3 py-2.5">
                           <input
                             type="checkbox"
                             checked={selected}
@@ -316,8 +344,8 @@ export const ServicePaymentLeanPage: React.FC<{
                             className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4]"
                           />
                         </td>
-                        <td className="px-3 py-2.5 font-medium">{row.authority}</td>
-                        <td className="px-3 py-2.5">
+                        <td data-label={labelText("Depositing Authority")} className="px-3 py-2.5 font-medium">{row.authority}</td>
+                        <td data-label={labelText("Payment Document Type")} className="px-3 py-2.5">
                           <select
                             value={row.documentType}
                             disabled={!selected}
@@ -328,16 +356,22 @@ export const ServicePaymentLeanPage: React.FC<{
                             <option value="Certificate">Certificate</option>
                           </select>
                         </td>
-                        <td className="px-3 py-2.5">
+                        <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-3 py-2.5">
                           <input value={row.reference} disabled={!selected} onChange={(event) => updateDraft(row.id, 'reference', event.target.value)} className="w-full min-w-[150px] rounded-md border border-[#C8D4E1] px-2.5 py-2 disabled:bg-slate-100" />
                         </td>
-                        <td className="px-3 py-2.5">
+                        <td data-label={labelText("Challan/ Certificate Date")} className="px-3 py-2.5">
                           <input value={row.date} disabled={!selected} onChange={(event) => updateDraft(row.id, 'date', event.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2 disabled:bg-slate-100" />
                         </td>
-                        <td className="px-3 py-2.5">
+                        <td data-label={labelText("Bank Name")} className="px-3 py-2.5">
+                          <input value={row.bank} disabled={!selected} onChange={(event) => updateDraft(row.id, 'bank', event.target.value)} placeholder={labelText('Bank Name')} className="w-full min-w-[150px] rounded-md border border-[#C8D4E1] px-2.5 py-2 disabled:bg-slate-100" />
+                        </td>
+                        <td data-label={labelText("Branch Name")} className="px-3 py-2.5">
+                          <input value={row.branch} disabled={!selected} onChange={(event) => updateDraft(row.id, 'branch', event.target.value)} placeholder={labelText('Branch Name')} className="w-full min-w-[150px] rounded-md border border-[#C8D4E1] px-2.5 py-2 disabled:bg-slate-100" />
+                        </td>
+                        <td data-label={labelText("Challan/ Certificate Amount")} className="px-3 py-2.5">
                           <input value={row.amount} disabled={!selected} onChange={(event) => updateDraft(row.id, 'amount', event.target.value)} className="w-full min-w-[125px] rounded-md border border-[#C8D4E1] px-2.5 py-2 text-right disabled:bg-slate-100" />
                         </td>
-                        <td className="px-3 py-2.5 text-right font-medium">{row.claimed}</td>
+                        <td data-label={labelText("Claimed Amount")} className="px-3 py-2.5 text-right font-medium">{row.claimed}</td>
                       </tr>
                     );
                   })}
