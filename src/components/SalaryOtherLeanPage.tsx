@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -56,6 +57,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<SalaryRow | null>(null);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
   const labelText = (label: string) => {
     if (!isBn) return label;
     const labels: Record<string, string> = {
@@ -288,7 +290,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="salary-edit-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
+          <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="salary-edit-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 id="salary-edit-title" className="font-bold text-[#172033]">{labelText('Edit')}</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
