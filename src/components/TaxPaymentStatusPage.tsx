@@ -24,7 +24,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
 }) => {
   const isBn = lang === 'bn';
   const runtime = useLedgerRuntime();
-  const [expanded, setExpanded] = useState<ExpandableGroup | null>('source');
+  const [expanded, setExpanded] = useState<ExpandableGroup | null>(null);
 
   const rows = [
     [isBn ? 'উৎস কর' : 'Source Tax', runtime.sourceTax, 'source'],
