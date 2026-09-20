@@ -8,7 +8,6 @@ import { SalaryIbasLeanPage } from './components/SalaryIbasLeanPage';
 import { SalaryOtherLeanPage } from './components/SalaryOtherLeanPage';
 import { BankFiLeanPage } from './components/BankFiLeanPage';
 import { DividendLeanPage } from './components/DividendLeanPage';
-import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
 import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
 import { LedgerHomePage } from './components/LedgerHomePage';
@@ -21,15 +20,17 @@ import { ImportReadOnlyPage } from './components/ImportReadOnlyPage';
 import { OtherTdsPage } from './components/OtherTdsPage';
 import { CarryForwardPage } from './components/CarryForwardPage';
 import { LedgerDashboardPage } from './components/LedgerDashboardPage';
+import { TaxPaymentStatusModal } from './components/Modals/TaxPaymentStatusModal';
 import { LedgerRuntimeProvider } from './state/LedgerRuntimeContext';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
   const assessmentYear: AssessmentYear = '2026-2027';
-  const [currentTab, setCurrentTab] = useState<string>('dashboard');
+  const [currentTab, setCurrentTab] = useState<string>('overview-dashboard');
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [howItWorksModalOpen, setHowItWorksModalOpen] = useState(false);
   const [goToEReturnModalOpen, setGoToEReturnModalOpen] = useState(false);
+  const [taxPaymentStatusModalOpen, setTaxPaymentStatusModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const currentCategory = ALL_TAX_CATEGORIES.find((category) => category.id === currentTab);
@@ -40,6 +41,10 @@ export default function App() {
   };
 
   const handleSelectTab = (tab: string) => {
+    if (tab === 'dashboard' || tab === 'payment-status') {
+      setTaxPaymentStatusModalOpen(true);
+      return;
+    }
     if (tab === 'goto-ereturn') {
       setGoToEReturnModalOpen(true);
       return;
@@ -69,18 +74,11 @@ export default function App() {
         />
 
         <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-7 max-w-[1600px] w-full mx-auto space-y-6">
-          {currentTab === 'dashboard' && (
-            <TaxPaymentStatusPage
-              lang={lang}
-              onBack={() => setCurrentTab('dashboard')}
-              onGoToEReturn={() => setGoToEReturnModalOpen(true)}
-            />
-          )}
-
           {currentTab === 'overview-dashboard' && (
             <LedgerDashboardPage
               lang={lang}
               onSelectTab={handleSelectTab}
+              onViewPaymentStatus={() => setTaxPaymentStatusModalOpen(true)}
               onGoToEReturn={() => setGoToEReturnModalOpen(true)}
             />
           )}
@@ -103,17 +101,20 @@ export default function App() {
           {currentCategory?.id === 'other-tds' && <OtherTdsPage lang={lang} />}
           {currentCategory?.id === 'carry-forward' && <CarryForwardPage lang={lang} />}
 
-          {currentTab === 'payment-status' && (
-            <TaxPaymentStatusPage
-              lang={lang}
-              onBack={() => setCurrentTab('dashboard')}
-              onGoToEReturn={() => setGoToEReturnModalOpen(true)}
-            />
-          )}
+
         </main>
       </div>
 
       <HowItWorksModal isOpen={howItWorksModalOpen} onClose={() => setHowItWorksModalOpen(false)} lang={lang} />
+      <TaxPaymentStatusModal
+        isOpen={taxPaymentStatusModalOpen}
+        onClose={() => setTaxPaymentStatusModalOpen(false)}
+        lang={lang}
+        onGoToEReturn={() => {
+          setTaxPaymentStatusModalOpen(false);
+          setGoToEReturnModalOpen(true);
+        }}
+      />
       <GoToEReturnModal isOpen={goToEReturnModalOpen} onClose={() => setGoToEReturnModalOpen(false)} lang={lang} />
 
       {toastMessage && (
