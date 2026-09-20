@@ -718,21 +718,25 @@ export const CategoryWorkspace: React.FC<{
                           <option value="Certificate">Certificate</option>
                         </select>
                       ) : categoryId === 'other-tds' && column.key === 'purpose' ? (
-                        <select
-                          autoFocus={index === 0}
-                          value={form[column.key] || ''}
-                          onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Escape') { setAdding(false); setForm({}); }
-                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
-                          }}
-                          className="w-full min-w-[180px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
-                        >
-                          <option value="">Select One</option>
-                          {Array.from(new Set(config.rows.map((row) => String(row.purpose ?? '')).filter(Boolean))).map((option) => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
+                        <>
+                          <input
+                            autoFocus={index === 0}
+                            list="other-tds-purpose-options"
+                            value={form[column.key] || ''}
+                            onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Escape') { setAdding(false); setForm({}); }
+                              if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                            }}
+                            placeholder={isBn ? 'পেমেন্টের উদ্দেশ্য নির্বাচন/লিখুন' : 'Select or enter Purpose of Payment'}
+                            className="w-full min-w-[220px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
+                          />
+                          <datalist id="other-tds-purpose-options">
+                            {Array.from(new Set(config.rows.map((row) => String(row.purpose ?? '')).filter(Boolean))).map((option) => (
+                              <option key={option} value={option} />
+                            ))}
+                          </datalist>
+                        </>
                       ) : categoryId === 'tax-refund' && column.key === 'year' ? (
                         <select
                           autoFocus={index === 0}
@@ -822,15 +826,19 @@ export const CategoryWorkspace: React.FC<{
                       <option value="Certificate">Certificate</option>
                     </select>
                   ) : categoryId === 'other-tds' && column.key === 'purpose' ? (
-                    <select
-                      value={form[column.key] || ''}
-                      onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
-                    >
-                      {Array.from(new Set(config.rows.map((row) => String(row.purpose ?? '')).filter(Boolean))).map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                      ))}
-                    </select>
+                    <>
+                      <input
+                        list="other-tds-purpose-options-edit"
+                        value={form[column.key] || ''}
+                        onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+                      />
+                      <datalist id="other-tds-purpose-options-edit">
+                        {Array.from(new Set(config.rows.map((row) => String(row.purpose ?? '')).filter(Boolean))).map((option) => (
+                          <option key={option} value={option} />
+                        ))}
+                      </datalist>
+                    </>
                   ) : (
                     <input
                       value={form[column.key] || ''}
