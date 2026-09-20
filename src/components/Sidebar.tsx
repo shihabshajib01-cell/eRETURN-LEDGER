@@ -54,9 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang,
     ? 'source'
     : aitItems.some((item) => item.id === currentTab)
       ? 'ait'
-      : otherCreditItems.some((item) => item.id === currentTab)
-        ? 'other'
-        : null;
+      : null;
   const [openGroup, setOpenGroup] = useState<string | null>(inferredGroup || 'source');
 
   useEffect(() => {
@@ -146,18 +144,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang,
             )}
           </div>
 
-          <div className="pt-2">
-            {groupButton('other', t.otherTaxCredits, ShieldCheck)}
-            {openGroup === 'other' && (
-              <div className="mt-1 pl-4 space-y-0.5 border-l border-slate-200 ml-4">
-                {otherCreditItems.map((item) => (
-                  <button key={item.id} type="button" onClick={() => select(item.id)} className={itemClass(currentTab === item.id)}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40 shrink-0" />
-                    <span className="leading-snug">{lang === 'bn' ? item.bn : item.en}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="pt-2 space-y-0.5">
+            {otherCreditItems.map((item) => (
+              <button key={item.id} type="button" onClick={() => select(item.id)} className={itemClass(currentTab === item.id)}>
+                <ShieldCheck className="w-4 h-4 shrink-0 opacity-70" />
+                <span className="leading-snug">{lang === 'bn' ? item.bn : item.en}</span>
+              </button>
+            ))}
           </div>
 
           <div className="pt-2">
