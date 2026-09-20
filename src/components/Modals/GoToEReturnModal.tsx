@@ -16,6 +16,21 @@ export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onCl
   const dialogRef = useDialogFocusTrap(isOpen, onClose);
   if (!isOpen) return null;
 
+  const goToEReturn = () => {
+    const params = new URLSearchParams(window.location.search);
+    const requestedTarget = params.get('returnTo');
+    const candidates = [requestedTarget, document.referrer].filter(Boolean) as string[];
+    const safeTarget = candidates.find((value) => {
+      try {
+        const url = new URL(value, window.location.href);
+        return url.hostname === 'etaxnbr.gov.bd' || url.hostname.endsWith('.etaxnbr.gov.bd');
+      } catch {
+        return false;
+      }
+    });
+    window.location.href = safeTarget || 'https://etaxnbr.gov.bd/';
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <div
@@ -51,8 +66,8 @@ export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onCl
             <ShieldCheck className="w-4 h-4 text-[#0B6FA4] shrink-0 mt-0.5" />
             <span>
               {lang === 'bn'
-                ? 'এই রিডিজাইন প্রোটোটাইপে নতুন ট্রান্সফার, লকিং বা অটো-আপডেট আচরণ যোগ করা হয়নি। প্রোডাকশনের বিদ্যমান “Go to eReturn” হ্যান্ডঅফই সংযুক্ত করতে হবে।'
-                : 'This redesign prototype does not invent transfer, locking, or automatic-update behavior. The existing production “Go to eReturn” handoff must be connected here.'}
+                ? 'বর্তমান eReturn সেশন থেকে return target পাওয়া গেলে সেই Tax & Payment ফ্লোতে ফিরে যাবে; অন্যথায় অফিসিয়াল eReturn পোর্টাল খুলবে।'
+                : 'When a return target is supplied by the current eReturn session, this returns to that Tax & Payment flow; otherwise it opens the official eReturn portal.'}
             </span>
           </div>
         </div>
@@ -63,7 +78,7 @@ export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onCl
           </button>
           <button
             type="button"
-            onClick={() => { window.location.href = 'https://etaxnbr.gov.bd/'; }}
+            onClick={goToEReturn}
             title={lang === 'bn' ? 'ই-রিটার্ন পোর্টালে ফিরে যান' : 'Return to the official e-Return portal'}
             className="px-5 py-2 rounded-lg bg-[#006A4E] text-white text-xs font-semibold flex items-center gap-2 hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"
           >
