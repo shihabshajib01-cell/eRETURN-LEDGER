@@ -109,6 +109,30 @@ if (files.workspace.includes("rows.filter((row) => !query")) {
   fail('Lookup input must not filter already-saved Ledger rows.');
 }
 
+
+expectContains('Functional parity', files.workspace, [
+  "sanchayapatra: {",
+  "syncable: true",
+  "lookupLabel: 'Unique Key (Transaction No.)'",
+  "lookupPrimary: 'Search'",
+  "lookupLabel: 'Challan No.'",
+  "lookupPrimary: 'Save'",
+  "title: 'Regular Tax under Section 173'",
+  "title: 'Adjustment of Tax Refund'",
+]);
+
+if (!files.workspace.includes("categoryId === 'ait-car'")) {
+  fail('AIT on Car Search -> Result -> Save flow must be preserved.');
+}
+
+if (!files.workspace.includes("saveLookupResult")) {
+  fail('Lookup result Save action is missing.');
+}
+
+if (!files.workspace.includes("selectedSync")) {
+  fail('Sync From Income selection flow is missing.');
+}
+
 if (!files.app.includes('LedgerRuntimeProvider')) fail('App is not connected to LedgerRuntimeProvider.');
 if (!files.app.includes('key={currentCategory.id}')) fail('Generic category workspace must remount per category.');
 if (!files.status.includes('useLedgerRuntime')) fail('Tax Payment Status is not connected to live Ledger totals.');
