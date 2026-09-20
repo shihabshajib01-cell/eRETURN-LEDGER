@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Search } from 'lucide-react';
 import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -11,6 +11,8 @@ export const SalaryIbasLeanPage: React.FC<{
 }> = ({ lang, onUnavailableAction }) => {
   const [savedClaim, setSavedClaim] = usePersistentState('ereturn-ledger:v2:salary-ibas-claim', '1,50,000');
   const [claim, setClaim] = useState(savedClaim);
+  const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(true);
   const { updateCategoryAmount } = useLedgerRuntime();
   const isBn = lang === 'bn';
   const available = 500450;
@@ -21,6 +23,15 @@ export const SalaryIbasLeanPage: React.FC<{
   useEffect(() => {
     updateCategoryAmount('salary-ibas', savedClaimAmount);
   }, [savedClaimAmount, updateCategoryAmount]);
+
+  const searchIbas = () => {
+    setSearching(true);
+    window.setTimeout(() => {
+      setSearching(false);
+      setSearched(true);
+      onUnavailableAction(isBn ? 'iBAS++ থেকে বেতন TDS তথ্য পাওয়া গেছে।' : 'Salary TDS information retrieved from iBAS++.');
+    }, 250);
+  };
 
   const save = () => {
     if (invalid) return;
@@ -36,6 +47,19 @@ export const SalaryIbasLeanPage: React.FC<{
         </h1>
       </header>
 
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={searchIbas}
+          disabled={searching}
+          className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50 disabled:opacity-50"
+        >
+          <Search className="h-4 w-4" />
+          {searching ? (isBn ? 'অনুসন্ধান হচ্ছে...' : 'Searching...') : (isBn ? 'অনুসন্ধান' : 'Search')}
+        </button>
+      </div>
+
+      {searched && (
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="grid grid-cols-1 gap-px bg-[#E2E8F0] md:grid-cols-2">
           <ReadOnlyInfo label={isBn ? 'করবর্ষ' : 'Assessment Year'} value="2026-2027" />
@@ -44,7 +68,9 @@ export const SalaryIbasLeanPage: React.FC<{
           <ReadOnlyInfo label={isBn ? 'উপলভ্য উৎস কর' : 'TDS Available'} value="5,00,450" emphasized />
         </div>
       </section>
+      )}
 
+      {searched && (
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="tds-claim-title">
         <div className="px-5 py-4">
           <div className="max-w-2xl">
@@ -84,6 +110,7 @@ export const SalaryIbasLeanPage: React.FC<{
           </div>
         </div>
       </section>
+      )}
     </section>
   );
 };
