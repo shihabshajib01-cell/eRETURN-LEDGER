@@ -58,7 +58,11 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
   };
 
   return (
-    <section className="w-full space-y-5" aria-labelledby="payment-status-title">
+    <section
+      className="w-full space-y-5"
+      aria-labelledby={showHeader ? 'payment-status-title' : undefined}
+      aria-label={!showHeader ? (isBn ? 'কর পরিশোধের বিবরণী' : 'Tax Payment Status') : undefined}
+    >
       {showHeader && (
         <header className="max-w-4xl">
           <h1 id="payment-status-title" className="text-2xl font-bold tracking-tight text-[#172033] lg:text-[28px]">
