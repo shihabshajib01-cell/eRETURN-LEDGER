@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, ChevronDown, User, LogOut, Check, Menu } from 'lucide-react';
+import { Bell, ChevronDown, User, LogOut, Menu } from 'lucide-react';
 import { Language, AssessmentYear } from '../types';
 import { TAXPAYER_PROFILE } from '../data/mockTaxData';
 import { TRANSLATIONS } from '../data/translations';
@@ -8,7 +8,6 @@ interface HeaderProps {
   lang: Language;
   onToggleLang: (lang: Language) => void;
   assessmentYear: AssessmentYear;
-  onChangeAssessmentYear: (year: AssessmentYear) => void;
   onOpenNavigation?: () => void;
 }
 
@@ -16,13 +15,10 @@ export const Header: React.FC<HeaderProps> = ({
   lang,
   onToggleLang,
   assessmentYear,
-  onChangeAssessmentYear,
   onOpenNavigation,
 }) => {
   const t = TRANSLATIONS[lang];
   const [profileOpen, setProfileOpen] = useState(false);
-  const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
-  const years: AssessmentYear[] = ['2026-2027', '2025-2026', '2024-2025'];
 
   return (
     <header id="top-header" className="min-h-[68px] bg-white border-b border-[#E2E8F0] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
@@ -42,37 +38,9 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
-        <div className="relative hidden md:block">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-[#5F6B7A] hidden xl:inline">{t.assessmentYear} :</span>
-            <button
-              type="button"
-              onClick={() => setYearDropdownOpen((open) => !open)}
-              aria-haspopup="listbox"
-              aria-expanded={yearDropdownOpen}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#E2E8F0] bg-slate-50/80 hover:bg-slate-100 text-xs font-semibold text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40"
-            >
-              <span>{assessmentYear}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-            </button>
-          </div>
-          {yearDropdownOpen && (
-            <div role="listbox" className="absolute right-0 mt-1.5 w-44 bg-white border border-[#E2E8F0] rounded-lg shadow-lg py-1 z-40 text-xs">
-              {years.map((yr) => (
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={assessmentYear === yr}
-                  key={yr}
-                  onClick={() => { onChangeAssessmentYear(yr); setYearDropdownOpen(false); }}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-50 ${assessmentYear === yr ? 'bg-blue-50/60 font-semibold text-[#0B6FA4]' : 'text-slate-700'}`}
-                >
-                  <span>{yr}</span>
-                  {assessmentYear === yr && <Check className="w-3.5 h-3.5" />}
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="hidden md:flex items-center gap-1 text-xs text-[#172033]">
+          <span className="font-semibold">{t.assessmentYear} :</span>
+          <span>{assessmentYear}</span>
         </div>
 
         <div className="hidden sm:inline-flex items-center rounded-md border border-[#E2E8F0] bg-slate-100/80 p-0.5 text-xs font-medium">
