@@ -5,6 +5,7 @@ import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
+import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 
 type RefundRow = {
   id: number;
@@ -76,15 +77,19 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
     updateCategoryAmount('tax-refund', totalClaimed);
   }, [totalClaimed, updateCategoryAmount]);
 
+  const refundValue = parseMoneyStrict(form.refund);
+  const claimedValue = parseMoneyStrict(form.claimed);
   const valid =
-    form.year &&
-    form.reference.trim() &&
-    form.date.trim() &&
-    form.zone.trim() &&
-    form.circle.trim() &&
-    parseMoney(form.refund) >= 0 &&
-    parseMoney(form.claimed) >= 0 &&
-    parseMoney(form.claimed) <= parseMoney(form.refund);
+    hasText(form.year) &&
+    hasText(form.reference) &&
+    isValidLedgerDate(form.date) &&
+    hasText(form.zone) &&
+    hasText(form.circle) &&
+    isValidMoneyInput(form.refund) &&
+    isValidMoneyInput(form.claimed) &&
+    refundValue !== null &&
+    claimedValue !== null &&
+    claimedValue <= refundValue;
 
   const openAdd = () => {
     setEditing(null);
