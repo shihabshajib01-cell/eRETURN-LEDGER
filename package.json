@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
-    "audit:ledger": "node scripts/audit-ledger.mjs"
+    "audit:ledger": "node scripts/audit-ledger.mjs",
+    "test:ledger": "tsx tests/ledger-domain.test.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
@@ -26,6 +27,7 @@
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
+    "tsx": "^4.20.0",
     "typescript": "~5.8.2"
   }
 }
