@@ -262,17 +262,18 @@ export const CategoryWorkspace: React.FC<{
   const [selectedSync, setSelectedSync] = useState<number[]>([]);
   const [declaredSurcharge, setDeclaredSurcharge] = useState('50,000');
 
+  const isBn = lang === 'bn';
+  const filteredRows = useMemo(
+    () => rows.filter((row) => !query || Object.values(row).some((value) => String(value).toLowerCase().includes(query.toLowerCase()))),
+    [rows, query]
+  );
+
   if (categoryId === 'carry-forward') {
     return <CarryForwardPage lang={lang} />;
   }
 
   if (!config) return null;
-  const isBn = lang === 'bn';
   const title = isBn ? (bnTitles[categoryId] || config.title) : config.title;
-  const filteredRows = useMemo(
-    () => rows.filter((row) => !query || Object.values(row).some((value) => String(value).toLowerCase().includes(query.toLowerCase()))),
-    [rows, query]
-  );
 
   const openAdd = () => {
     setEditing(null);
