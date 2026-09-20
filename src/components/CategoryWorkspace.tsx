@@ -284,6 +284,59 @@ const bnTitles: Record<string, string> = {
   'tax-refund': 'কর রিফান্ড সমন্বয়',
 };
 
+const bnLabels: Record<string, string> = {
+  'Name of Scheme': 'স্কিমের নাম',
+  'Registration No.': 'রেজিস্ট্রেশন নং',
+  'Issue Date': 'ইস্যুর তারিখ',
+  'Value': 'মূল্য',
+  'TDS Claim': 'TDS দাবি',
+  'Status': 'অবস্থা',
+  'Bin': 'BIN',
+  'Office Code': 'অফিস কোড',
+  'Bill of Entry': 'বিল অব এন্ট্রি',
+  'Bill of Entry Date': 'বিল অব এন্ট্রির তারিখ',
+  'Receipt No.': 'রসিদ নং',
+  'Receipt Date': 'রসিদের তারিখ',
+  'Invoice Value': 'ইনভয়েস মূল্য',
+  'Assessable Value': 'Assessable Value',
+  'Total Tax & Duties': 'মোট কর ও শুল্ক',
+  'TDS Claimed': 'দাবিকৃত TDS',
+  'Unique Key (Transaction No.)': 'ইউনিক কী (ট্রানজ্যাকশন নং)',
+  'Unique Key': 'ইউনিক কী',
+  'Chasis No.': 'চ্যাসিস নং',
+  'TDS Details': 'TDS বিবরণ',
+  'Purpose of Payment': 'পেমেন্টের উদ্দেশ্য',
+  'Depositing Authority': 'জমাদানকারী কর্তৃপক্ষ',
+  'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
+  'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
+  'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
+  'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
+  'Claimed Amount': 'দাবিকৃত পরিমাণ',
+  'Total Claimed Amount': 'মোট দাবিকৃত পরিমাণ',
+  'Transaction No.': 'ট্রানজ্যাকশন নং',
+  'Challan No.': 'চালান নং',
+  'Date': 'তারিখ',
+  'Amount': 'পরিমাণ',
+  'AIT Amount': 'AIT পরিমাণ',
+  'Payment Mode': 'পেমেন্ট পদ্ধতি',
+  'Bank': 'ব্যাংক',
+  'Branch': 'শাখা',
+  'Zone': 'জোন',
+  'Circle': 'সার্কেল',
+  'AIT Details': 'AIT বিবরণ',
+  'Regular Tax under Section 173': 'ধারা ১৭৩-এর অধীন নিয়মিত কর',
+  'Assessment Year': 'করবর্ষ',
+  'Return Register No. / Reference No.': 'রিটার্ন রেজিস্টার নং / রেফারেন্স নং',
+  'Date of Submission': 'দাখিলের তারিখ',
+  'Return Filing Zone': 'রিটার্ন দাখিল জোন',
+  'Return Filing Circle': 'রিটার্ন দাখিল সার্কেল',
+  'Refund Amount': 'রিফান্ডের পরিমাণ',
+  'Adjustment Claim Amount': 'সমন্বয় দাবির পরিমাণ',
+  'Total TDS Claimed': 'মোট দাবিকৃত TDS',
+  'Count': 'সংখ্যা',
+  'Action': 'অ্যাকশন',
+};
+
 export const CategoryWorkspace: React.FC<{
   categoryId: string;
   lang: Language;
@@ -329,6 +382,7 @@ export const CategoryWorkspace: React.FC<{
 
   if (!config) return null;
   const title = isBn ? (bnTitles[categoryId] || config.title) : config.title;
+  const labelText = (value: string) => isBn ? (bnLabels[value] || value) : value;
 
   const openAdd = () => {
     setEditing(null);
@@ -468,13 +522,13 @@ export const CategoryWorkspace: React.FC<{
         <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
           {config.summaryLabel && (
             <div>
-              <p className="text-xs text-[#5F6B7A]">{config.summaryLabel}</p>
+              <p className="text-xs text-[#5F6B7A]">{labelText(config.summaryLabel)}</p>
               <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{amountKey ? formatLedgerNumber(currentTotal) : config.summaryValue}</p>
             </div>
           )}
           {config.showCount && (
             <div>
-              <p className="text-xs text-[#5F6B7A]">{isBn ? 'Count' : 'Count'}</p>
+              <p className="text-xs text-[#5F6B7A]">{labelText('Count')}</p>
               <p className="mt-0.5 text-xl font-bold text-[#172033]">{displayCount}</p>
             </div>
           )}
@@ -485,7 +539,7 @@ export const CategoryWorkspace: React.FC<{
         <section className="rounded-xl border border-[#E2E8F0] bg-white p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
-              <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{config.lookupLabel}</label>
+              <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{labelText(config.lookupLabel)}</label>
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -510,7 +564,7 @@ export const CategoryWorkspace: React.FC<{
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50"
                 >
                   <Search className="h-4 w-4" />
-                  Search
+                  {isBn ? 'অনুসন্ধান' : 'Search'}
                 </button>
                 <button
                   type="button"
@@ -518,7 +572,7 @@ export const CategoryWorkspace: React.FC<{
                   disabled={!lookupResult}
                   className="rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Save
+                  {isBn ? 'সংরক্ষণ' : 'Save'}
                 </button>
               </>
             ) : (
@@ -528,7 +582,7 @@ export const CategoryWorkspace: React.FC<{
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
               >
                 {config.lookupPrimary === 'Search' && <Search className="h-4 w-4" />}
-                {config.lookupPrimary || 'Search'}
+                {config.lookupPrimary === 'Save' ? (isBn ? 'সংরক্ষণ' : 'Save') : (isBn ? 'অনুসন্ধান' : 'Search')}
               </button>
             )}
           </div>
@@ -562,7 +616,7 @@ export const CategoryWorkspace: React.FC<{
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         {config.tableTitle && (
           <div className="border-b border-[#E2E8F0] px-4 py-3">
-            <h2 className="font-bold text-[#172033]">{config.tableTitle}</h2>
+            <h2 className="font-bold text-[#172033]">{labelText(config.tableTitle)}</h2>
           </div>
         )}
         <div className="overflow-x-auto">
@@ -576,10 +630,10 @@ export const CategoryWorkspace: React.FC<{
                     key={column.key}
                     className={`px-4 py-3 font-semibold ${column.numeric ? 'text-right' : 'text-left'}`}
                   >
-                    {column.label}
+                    {labelText(column.label)}
                   </th>
                 ))}
-                {hasActions && <th scope="col" className="px-4 py-3 text-right font-semibold">{categoryId === 'commercial-vehicle' ? '' : 'Action'}</th>}
+                {hasActions && <th scope="col" className="px-4 py-3 text-right font-semibold">{categoryId === 'commercial-vehicle' ? '' : labelText('Action')}</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -589,14 +643,14 @@ export const CategoryWorkspace: React.FC<{
                   {config.columns.map((column) => (
                     <td
                       key={column.key}
-                      data-label={column.label}
+                      data-label={labelText(column.label)}
                       className={`px-4 py-3 ${column.numeric ? 'text-right font-medium' : 'text-left'}`}
                     >
-                      {String(row[column.key] ?? '—')}
+                      {column.key === 'status' && isBn && String(row[column.key]) === 'Verified' ? 'যাচাইকৃত' : String(row[column.key] ?? '—')}
                     </td>
                   ))}
                   {hasActions && (
-                    <td data-label="Action" className="px-4 py-2">
+                    <td data-label={labelText('Action')} className="px-4 py-2">
                       <div className="flex justify-end gap-1">
                         {config.editable && (
                           <button
@@ -681,15 +735,15 @@ export const CategoryWorkspace: React.FC<{
                             if (event.key === 'Escape') { setAdding(false); setForm({}); }
                             if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
                           }}
-                          aria-label={column.label}
+                          aria-label={labelText(column.label)}
                           inputMode={column.numeric ? 'decimal' : undefined}
-                          placeholder={column.label}
+                          placeholder={labelText(column.label)}
                           className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 ${column.numeric ? 'text-right' : 'text-left'}`}
                         />
                       )}
                     </td>
                   ))}
-                  <td data-label="Action" className="px-3 py-2.5">
+                  <td data-label={labelText('Action')} className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <button type="button" onClick={saveAdd} disabled={!formValid} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
                         <Check className="h-4 w-4" />
@@ -737,7 +791,7 @@ export const CategoryWorkspace: React.FC<{
             <div className="grid grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
               {config.columns.map((column) => (
                 <div key={column.key}>
-                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{column.label}</label>
+                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{labelText(column.label)}</label>
                   {column.key === 'documentType' ? (
                     <select
                       value={form[column.key] || 'Challan'}
