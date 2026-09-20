@@ -11,6 +11,7 @@ interface TaxPaymentStatusPageProps {
   showHeader?: boolean;
   showTotalRow?: boolean;
   showSidebar?: boolean;
+  embedded?: boolean;
 }
 
 type ExpandableGroup = 'source' | 'ait';
@@ -21,6 +22,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
   showHeader = true,
   showTotalRow = true,
   showSidebar = true,
+  embedded = false,
 }) => {
   const isBn = lang === 'bn';
   const runtime = useLedgerRuntime();
@@ -59,7 +61,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
 
   return (
     <section
-      className="w-full space-y-5"
+      className={embedded ? 'w-full' : 'w-full space-y-5'}
       aria-labelledby={showHeader ? 'payment-status-title' : undefined}
       aria-label={!showHeader ? (isBn ? 'কর পরিশোধের বিবরণী' : 'Tax Payment Status') : undefined}
     >
@@ -77,8 +79,11 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
       )}
 
       <div className={showSidebar ? 'grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start' : 'block'}>
-        <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="payment-breakdown-title">
-          <div className="flex flex-col gap-1 border-b border-[#E2E8F0] px-4 py-4 sm:px-5">
+        <section
+          className={embedded ? 'overflow-hidden bg-white' : 'overflow-hidden rounded-xl border border-[#E2E8F0] bg-white'}
+          aria-labelledby="payment-breakdown-title"
+        >
+          <div className={embedded ? 'hidden' : 'flex flex-col gap-1 border-b border-[#E2E8F0] px-4 py-4 sm:px-5'}>
             <h2 id="payment-breakdown-title" className="text-base font-bold text-[#172033]">
               {isBn ? 'কর পরিশোধের সারসংক্ষেপ' : 'Payment breakdown'}
             </h2>
