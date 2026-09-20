@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { ArrowUpRight, X } from 'lucide-react';
 import { Language } from '../../types';
 import { useDialogFocusTrap } from '../../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../../state/LedgerRuntimeContext';
@@ -26,24 +26,24 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/50 p-0 backdrop-blur-[1px] sm:p-5">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/40 p-0 sm:p-5">
       <div
         ref={dialogRef}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="tax-payment-status-modal-title"
-        className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.34)] sm:h-auto sm:max-h-[calc(100vh-96px)] sm:max-w-[930px] sm:rounded-[20px] sm:border sm:border-white/70"
+        className="flex h-full w-full flex-col overflow-hidden bg-white shadow-xl sm:h-auto sm:max-h-[86vh] sm:max-w-[780px] sm:rounded-xl sm:border sm:border-slate-200"
       >
-        <header className="flex shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-5 py-4 sm:px-6">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:px-6">
           <div className="min-w-0">
             <h2
               id="tax-payment-status-modal-title"
-              className="truncate text-lg font-bold tracking-tight text-[#172033] sm:text-xl"
+              className="truncate text-base font-bold text-[#172033] sm:text-lg"
             >
               {isBn ? 'কর পরিশোধের অবস্থা' : 'Tax Payment Status'}
             </h2>
-            <p className="mt-1 text-xs leading-5 text-[#6B778A] sm:text-sm">
+            <p className="mt-0.5 text-xs leading-5 text-[#5F6B7A]">
               {isBn
                 ? 'বর্তমান লেজারের সব কর, AIT এবং সমন্বয় একসাথে পর্যালোচনা করুন।'
                 : 'Review all current Ledger tax, AIT and adjustments together.'}
@@ -54,39 +54,48 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label={isBn ? 'বন্ধ করুন' : 'Close'}
-            className="ml-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#D9E2EA] bg-[#F8FAFC] text-[#5F6B7A] transition-colors hover:bg-white hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-white hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#F8FAFC]">
-          <div className="mx-auto w-full p-4 sm:p-5">
-            <TaxPaymentStatusPage
-              lang={lang}
-              onBack={onClose}
-              onGoToEReturn={onGoToEReturn}
-              showHeader={false}
-              showTotalRow={false}
-              showSidebar={false}
-            />
-          </div>
+        <div className="min-h-0 flex-1 overflow-y-auto bg-white">
+          <TaxPaymentStatusPage
+            lang={lang}
+            onBack={onClose}
+            onGoToEReturn={onGoToEReturn}
+            showHeader={false}
+            showTotalRow={false}
+            showSidebar={false}
+            embedded
+          />
         </div>
 
-        <footer className="shrink-0 border-t border-[#DCE5EC] bg-white px-5 py-3.5 shadow-[0_-8px_24px_rgba(15,23,42,0.04)] sm:px-6">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6">
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-[#172033]">
-                {isBn ? 'মোট' : 'Total'}
-              </p>
-              <p className="mt-0.5 truncate text-xs text-[#6B778A]">
-                {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
-              </p>
+        <footer className="shrink-0 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-baseline justify-between gap-4 sm:justify-start sm:gap-5">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-[#172033]">
+                  {isBn ? 'মোট' : 'Total'}
+                </p>
+                <p className="mt-0.5 text-xs text-[#6B778A]">
+                  {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
+                </p>
+              </div>
+              <strong className="shrink-0 whitespace-nowrap text-xl font-bold tabular-nums text-[#0B6FA4]">
+                {formatLedgerNumber(runtime.total)}
+              </strong>
             </div>
 
-            <strong className="whitespace-nowrap text-xl font-bold tabular-nums text-[#0B6FA4] sm:text-2xl">
-              {formatLedgerNumber(runtime.total)}
-            </strong>
+            <button
+              type="button"
+              onClick={onGoToEReturn}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#006A4E] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30 sm:w-auto"
+            >
+              {isBn ? 'ই-রিটার্নে যান' : 'Go to eReturn'}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
         </footer>
       </div>
