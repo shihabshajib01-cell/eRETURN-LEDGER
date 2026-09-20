@@ -42,7 +42,10 @@ expectContains('iBAS', files.ibas, [
 
 expectContains('Salary Others', files.salaryOther, [
   'Salary [ Section-86]',
-  '36,36,074',
+  '32,73,823',
+  '1,37,700',
+  '3,529',
+  '2,20,022',
   'Challan/ Certificate Reference No.',
   'Challan/ Certificate Date',
   'Challan/ Certificate Amount',
@@ -108,5 +111,9 @@ if (files.workspace.includes("rows.filter((row) => !query")) {
 
 if (!files.app.includes('LedgerRuntimeProvider')) fail('App is not connected to LedgerRuntimeProvider.');
 if (!files.app.includes('key={currentCategory.id}')) fail('Generic category workspace must remount per category.');
+if (!files.status.includes('useLedgerRuntime')) fail('Tax Payment Status is not connected to live Ledger totals.');
+if (!files.salaryOther.includes('usePersistentState')) fail('Salary Others rows are not persistent.');
+if (!files.workspace.includes('lookupResult')) fail('Lookup flows do not separate lookup state from saved rows.');
+if (!files.workspace.includes('ledger-responsive-table')) fail('Generic Ledger tables are missing responsive card behavior.');
 
 if (!process.exitCode) console.log('Ledger source-fidelity and integrity audit passed.');
