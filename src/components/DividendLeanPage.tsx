@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
@@ -32,6 +33,7 @@ export const DividendLeanPage: React.FC<{
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<DividendRow[]>(INITIAL_ROWS);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const syncDialogRef = useDialogFocusTrap(syncOpen, closeSync);
   const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
 
   useEffect(() => {
@@ -169,6 +171,8 @@ export const DividendLeanPage: React.FC<{
       {syncOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div
+            ref={syncDialogRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="dividend-sync-title"
