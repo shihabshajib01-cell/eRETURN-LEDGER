@@ -5,6 +5,7 @@ import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type SanchayRow = {
@@ -122,9 +123,18 @@ export const SanchayapatraPage: React.FC<{
   };
 
   const saveSync = () => {
-    const invalid = draftRows.some((row) =>
-      selectedIds.includes(row.id) && parseMoney(row.claim) > parseMoney(row.available)
-    );
+    const invalid = draftRows.some((row) => {
+      if (!selectedIds.includes(row.id)) return false;
+      const claim = parseMoneyStrict(row.claim);
+      const available = parseMoneyStrict(row.available);
+      return (
+        !isValidMoneyInput(row.claim) ||
+        !isValidMoneyInput(row.available) ||
+        claim === null ||
+        available === null ||
+        claim > available
+      );
+    });
     if (invalid) {
       onUnavailableAction(isBn ? 'TDS দাবি উপলভ্য TDS-এর বেশি হতে পারবে না।' : 'TDS Claim cannot exceed TDS Available.');
       return;
@@ -146,7 +156,9 @@ export const SanchayapatraPage: React.FC<{
   };
 
   const saveEdit = (row: SanchayRow) => {
-    if (parseMoney(editingClaim) > parseMoney(row.available)) {
+    const claim = parseMoneyStrict(editingClaim);
+    const available = parseMoneyStrict(row.available);
+    if (!isValidMoneyInput(editingClaim) || claim === null || available === null || claim > available) {
       onUnavailableAction(isBn ? 'TDS দাবি উপলভ্য TDS-এর বেশি হতে পারবে না।' : 'TDS Claim cannot exceed TDS Available.');
       return;
     }
