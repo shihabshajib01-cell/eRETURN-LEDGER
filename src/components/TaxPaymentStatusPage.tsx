@@ -137,7 +137,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
                   </div>
 
                   {expandable && isOpen && (
-                    <div className="border-t border-[#EDF1F5] bg-[#F8FAFC] px-4 py-2 sm:px-5">
+                    <div className={`border-t border-[#EDF1F5] px-4 py-2 sm:px-5 ${expandable === 'source' ? 'bg-white' : 'bg-[#F8FAFC]'}`}>
                       <div className="ml-0 divide-y divide-[#E6ECF2] sm:ml-10">
                         {groupItems[expandable].map((item) => (
                           <div
