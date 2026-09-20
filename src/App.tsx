@@ -16,6 +16,7 @@ import { CategoryWorkspace } from './components/CategoryWorkspace';
 import { SalaryIbasLeanPage } from './components/SalaryIbasLeanPage';
 import { SalaryOtherLeanPage } from './components/SalaryOtherLeanPage';
 import { BankFiLeanPage } from './components/BankFiLeanPage';
+import { DividendLeanPage } from './components/DividendLeanPage';
 import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { AllCategoriesModal } from './components/Modals/AllCategoriesModal';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
@@ -142,8 +143,9 @@ export default function App() {
           {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} />}
           {currentCategory?.id === 'salary-other' && <SalaryOtherLeanPage lang={lang} />}
           {currentCategory?.id === 'bank-fi' && <BankFiLeanPage lang={lang} onUnavailableAction={showToast} />}
+          {currentCategory?.id === 'dividend' && <DividendLeanPage lang={lang} onUnavailableAction={showToast} />}
 
-          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi'].includes(currentCategory.id) && (
+          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend'].includes(currentCategory.id) && (
             <CategoryWorkspace
               categoryId={currentCategory.id}
               lang={lang}
