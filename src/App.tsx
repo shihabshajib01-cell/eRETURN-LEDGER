@@ -18,7 +18,7 @@ import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurcha
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
-  const [assessmentYear, setAssessmentYear] = useState<AssessmentYear>('2026-2027');
+  const assessmentYear: AssessmentYear = '2026-2027';
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [howItWorksModalOpen, setHowItWorksModalOpen] = useState(false);
@@ -53,7 +53,6 @@ export default function App() {
           lang={lang}
           onToggleLang={setLang}
           assessmentYear={assessmentYear}
-          onChangeAssessmentYear={(year) => setAssessmentYear(year)}
           onOpenNavigation={() => setNavigationOpen(true)}
         />
 
