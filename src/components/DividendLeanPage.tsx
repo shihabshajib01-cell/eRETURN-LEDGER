@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type DividendRow = {
   id: number;
@@ -32,6 +33,7 @@ export const DividendLeanPage: React.FC<{
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<DividendRow[]>(INITIAL_ROWS);
+  const [syncLoading, setSyncLoading] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
   const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
@@ -40,10 +42,25 @@ export const DividendLeanPage: React.FC<{
     updateCategoryAmount('dividend', totalClaimed);
   }, [totalClaimed, updateCategoryAmount]);
 
-  const openSync = () => {
-    setDraftRows(INITIAL_ROWS.map((row) => ({ ...row })));
-    setSelectedIds(INITIAL_ROWS.map((row) => row.id));
-    setSyncOpen(true);
+  const openSync = async () => {
+    setSyncLoading(true);
+    try {
+      const sourceRows = await fetchIncomeSyncRecords<DividendRow>('dividend', INITIAL_ROWS);
+      setDraftRows(sourceRows);
+      setSelectedIds(sourceRows.map((row) => row.id));
+      setSyncOpen(true);
+      if (sourceRows.length === 0) {
+        onUnavailableAction(
+          isBn
+            ? 'Income-এ সংশ্লিষ্ট Dividend তথ্য নেই, তাই সিঙ্ক করার মতো কোনো রেকর্ড পাওয়া যায়নি।'
+            : 'No Dividend records are available to sync because the related Income data is not available.'
+        );
+      }
+    } catch {
+      onUnavailableAction(isBn ? 'Income থেকে Dividend তথ্য আনা যায়নি। পরে আবার চেষ্টা করুন।' : 'Dividend Income data could not be loaded. Please try again.');
+    } finally {
+      setSyncLoading(false);
+    }
   };
 
   const closeSync = () => {
@@ -102,11 +119,12 @@ export const DividendLeanPage: React.FC<{
 
         <button
           type="button"
-          onClick={openSync}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
+          onClick={() => void openSync()}
+          disabled={syncLoading}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
-          {isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income'}
+          {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income')}
         </button>
       </header>
 
@@ -196,7 +214,7 @@ export const DividendLeanPage: React.FC<{
             </div>
 
             <div className="overflow-auto">
-              <table className="w-full min-w-[1080px] text-sm">
+              <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
                 <thead className="bg-slate-50 text-[#5F6B7A]">
                   <tr>
                     <th scope="col" className="px-4 py-3 text-left font-semibold">
@@ -226,7 +244,7 @@ export const DividendLeanPage: React.FC<{
                     const selected = selectedIds.includes(row.id);
                     return (
                       <tr key={row.id} className={selected ? 'bg-white' : 'bg-slate-50/70'}>
-                        <td className="px-4 py-3 align-middle">
+                        <td data-label={isBn ? "নির্বাচন" : "Select"} className="px-4 py-3 align-middle">
                           <input
                             type="checkbox"
                             checked={selected}
@@ -235,8 +253,8 @@ export const DividendLeanPage: React.FC<{
                             className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4] focus:ring-[#0B6FA4]"
                           />
                         </td>
-                        <td className="px-4 py-3 font-medium text-[#172033]">{row.authority}</td>
-                        <td className="px-3 py-2">
+                        <td data-label={isBn ? "জমাদানকারী কর্তৃপক্ষ / ব্যক্তি / কোম্পানি" : "Depositing Authority / Person / Company"} className="px-4 py-3 font-medium text-[#172033]">{row.authority}</td>
+                        <td data-label={isBn ? "সার্টিফিকেট রেফারেন্স নং" : "Certificate Reference No."} className="px-3 py-2">
                           <input
                             value={row.reference}
                             disabled={!selected}
@@ -245,7 +263,7 @@ export const DividendLeanPage: React.FC<{
                             className="w-full min-w-[150px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-400 focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
                           />
                         </td>
-                        <td className="px-3 py-2">
+                        <td data-label={isBn ? "রেফারেন্স তারিখ" : "Certificate Reference Date"} className="px-3 py-2">
                           <input
                             value={row.date}
                             disabled={!selected}
@@ -254,7 +272,7 @@ export const DividendLeanPage: React.FC<{
                             className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-400 focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
                           />
                         </td>
-                        <td className="px-3 py-2">
+                        <td data-label={isBn ? "সার্টিফিকেট পরিমাণ" : "Challan/ Certificate Amount"} className="px-3 py-2">
                           <input
                             value={row.amount}
                             disabled={!selected}
@@ -264,7 +282,7 @@ export const DividendLeanPage: React.FC<{
                             className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2 text-right text-sm disabled:bg-slate-100 disabled:text-slate-400 focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
                           />
                         </td>
-                        <td className="px-4 py-3 text-right font-semibold text-[#172033]">{row.claimed}</td>
+                        <td data-label={isBn ? "দাবিকৃত পরিমাণ" : "Claimed Amount"} className="px-4 py-3 text-right font-semibold text-[#172033]">{row.claimed}</td>
                       </tr>
                     );
                   })}
