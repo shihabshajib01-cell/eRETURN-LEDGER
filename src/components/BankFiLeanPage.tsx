@@ -71,7 +71,7 @@ export const BankFiLeanPage: React.FC<{
           <table className="w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">SL</th>
+                <th className="px-4 py-3 text-left font-semibold">SL.</th>
                 <th className="px-4 py-3 text-left font-semibold">{isBn ? 'ব্যাংকের নাম' : 'Bank Name'}</th>
                 <th className="px-4 py-3 text-left font-semibold">{isBn ? 'হিসাবের ধরন' : 'Account Type'}</th>
                 <th className="px-4 py-3 text-left font-semibold">{isBn ? 'শাখার নাম' : 'Branch Name'}</th>
