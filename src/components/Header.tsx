@@ -21,6 +21,11 @@ export const Header: React.FC<HeaderProps> = ({
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDetailsOpen, setProfileDetailsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const logout = () => {
+    const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
+    const target = env?.VITE_ERETURN_LOGOUT_URL?.trim() || 'https://etaxnbr.gov.bd/';
+    window.location.href = target;
+  };
 
   return (
     <header id="top-header" className="min-h-[68px] bg-white border-b border-[#E2E8F0] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
@@ -112,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
                   role="menuitem"
                   onClick={() => {
                     const confirmed = window.confirm(lang === 'bn' ? 'লগ আউট করে eReturn পোর্টালে ফিরে যাবেন?' : 'Log out and return to the eReturn portal?');
-                    if (confirmed) window.location.href = 'https://etaxnbr.gov.bd/';
+                    if (confirmed) logout();
                   }}
                   className="w-full flex items-center gap-2 px-2.5 py-2 text-rose-600 hover:bg-rose-50 rounded"
                 >
