@@ -52,6 +52,23 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const [form, setForm] = useState<FormState>(EMPTY);
   const { updateCategoryAmount } = useLedgerRuntime();
   const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
+  const labelText = (key: string) => {
+    const labels: Record<string, [string, string]> = {
+      year: ['Assessment Year', 'করবর্ষ'],
+      reference: ['Return Register / Reference No.', 'রিটার্ন রেজিস্টার / রেফারেন্স নং'],
+      date: ['Date of Submission', 'দাখিলের তারিখ'],
+      zone: ['Return Filing Zone', 'রিটার্ন দাখিল জোন'],
+      circle: ['Return Filing Circle', 'রিটার্ন দাখিল সার্কেল'],
+      refund: ['Refund Amount', 'রিফান্ডের পরিমাণ'],
+      claimed: ['Adjustment Claim Amount', 'সমন্বয় দাবির পরিমাণ'],
+    };
+    const pair = labels[key];
+    return pair ? pair[isBn ? 1 : 0] : key;
+  };
+  const statusText = (status: RefundRow['verificationStatus']) =>
+    isBn
+      ? (status === 'Verified' ? 'যাচাইকৃত' : 'DCT যাচাই অপেক্ষমাণ')
+      : status;
 
   const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
 
@@ -167,22 +184,22 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
               {rows.map((row, index) => (
                 <tr key={row.id}>
                   <td data-label="SL." className="px-4 py-3">{index + 1}</td>
-                  <td data-label="Assessment Year" className="px-4 py-3">{row.year}</td>
-                  <td data-label="Return Register / Reference No." className="px-4 py-3">{row.reference}</td>
-                  <td data-label="Date of Submission" className="px-4 py-3">{row.date}</td>
-                  <td data-label="Return Filing Zone" className="px-4 py-3">{row.zone}</td>
-                  <td data-label="Return Filing Circle" className="px-4 py-3">{row.circle}</td>
-                  <td data-label="Refund Amount" className="px-4 py-3 text-right">{row.refund}</td>
-                  <td data-label="Adjustment Claim Amount" className="px-4 py-3 text-right font-semibold">{row.claimed}</td>
-                  <td data-label="Verification Status" className="px-4 py-3">
+                  <td data-label={labelText("year")} className="px-4 py-3">{row.year}</td>
+                  <td data-label={labelText("reference")} className="px-4 py-3">{row.reference}</td>
+                  <td data-label={labelText("date")} className="px-4 py-3">{row.date}</td>
+                  <td data-label={labelText("zone")} className="px-4 py-3">{row.zone}</td>
+                  <td data-label={labelText("circle")} className="px-4 py-3">{row.circle}</td>
+                  <td data-label={labelText("refund")} className="px-4 py-3 text-right">{row.refund}</td>
+                  <td data-label={labelText("claimed")} className="px-4 py-3 text-right font-semibold">{row.claimed}</td>
+                  <td data-label={isBn ? "যাচাই অবস্থা" : "Verification Status"} className="px-4 py-3">
                     <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-                      {row.verificationStatus}
+                      {statusText(row.verificationStatus)}
                     </span>
                   </td>
-                  <td data-label="Action" className="px-4 py-2">
+                  <td data-label={isBn ? "অ্যাকশন" : "Action"} className="px-4 py-2">
                     <div className="flex justify-end gap-1">
-                      <button type="button" onClick={() => openEdit(row)} aria-label="Edit" className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50"><Edit2 className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => remove(row.id)} aria-label="Delete" className="rounded-md p-2 text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => openEdit(row)} aria-label={isBn ? "সম্পাদনা" : "Edit"} className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50"><Edit2 className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => remove(row.id)} aria-label={isBn ? "মুছুন" : "Delete"} className="rounded-md p-2 text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -201,8 +218,8 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   <td data-label="Verification Status" className="px-4 py-3 text-xs text-amber-700">{isBn ? 'DCT যাচাই অপেক্ষমাণ' : 'Pending DCT Verification'}</td>
                   <td data-label="Action" className="px-3 py-2">
                     <div className="flex justify-end gap-1">
-                      <button type="button" onClick={saveAdd} disabled={!valid} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white disabled:opacity-40"><Check className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label="Cancel" className="rounded-md border p-2 text-slate-600"><X className="h-4 w-4" /></button>
+                      <button type="button" onClick={saveAdd} disabled={!valid} aria-label={isBn ? "সংরক্ষণ" : "Save"} className="rounded-md bg-emerald-600 p-2 text-white disabled:opacity-40"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label={isBn ? "বাতিল" : "Cancel"} className="rounded-md border p-2 text-slate-600"><X className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -217,13 +234,28 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
           <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="w-full max-w-3xl rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 className="font-bold">{isBn ? 'রিফান্ড সমন্বয় সম্পাদনা' : 'Edit Refund Adjustment'}</h2>
-              <button type="button" onClick={() => setEditing(null)} aria-label="Close"><X className="h-5 w-5" /></button>
+              <button type="button" onClick={() => setEditing(null)} aria-label={isBn ? "বন্ধ করুন" : "Close"}><X className="h-5 w-5" /></button>
             </div>
             <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
-              {Object.entries(form).map(([key, value]) => (
+              {(Object.entries(form) as [keyof FormState, string][]).map(([key, value]) => (
                 <label key={key} className="text-sm font-semibold text-[#172033]">
-                  {key}
-                  <input value={value} onChange={(e) => setForm((s) => ({ ...s, [key]: e.target.value }))} className="mt-1 w-full rounded-lg border px-3 py-2.5 font-normal" />
+                  {labelText(key)}
+                  {key === 'year' ? (
+                    <select
+                      value={value}
+                      onChange={(e) => setForm((s) => ({ ...s, year: e.target.value }))}
+                      className="mt-1 w-full rounded-lg border bg-white px-3 py-2.5 font-normal"
+                    >
+                      <option value="2025-2026">2025-2026</option>
+                    </select>
+                  ) : (
+                    <input
+                      value={value}
+                      onChange={(e) => setForm((s) => ({ ...s, [key]: e.target.value }))}
+                      inputMode={key === 'refund' || key === 'claimed' ? 'decimal' : undefined}
+                      className={`mt-1 w-full rounded-lg border px-3 py-2.5 font-normal ${key === 'refund' || key === 'claimed' ? 'text-right' : ''}`}
+                    />
+                  )}
                 </label>
               ))}
             </div>
