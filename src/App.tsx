@@ -4,7 +4,6 @@ import { Language, AssessmentYear } from './types';
 import { ALL_TAX_CATEGORIES } from './data/mockTaxData';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { CategoryWorkspace } from './components/CategoryWorkspace';
 import { SalaryIbasLeanPage } from './components/SalaryIbasLeanPage';
 import { SalaryOtherLeanPage } from './components/SalaryOtherLeanPage';
 import { BankFiLeanPage } from './components/BankFiLeanPage';
@@ -18,6 +17,9 @@ import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurcha
 import { SanchayapatraPage } from './components/SanchayapatraPage';
 import { LookupClaimPage } from './components/LookupClaimPage';
 import { TaxRefundPage } from './components/TaxRefundPage';
+import { ImportReadOnlyPage } from './components/ImportReadOnlyPage';
+import { OtherTdsPage } from './components/OtherTdsPage';
+import { CarryForwardPage } from './components/CarryForwardPage';
 import { LedgerRuntimeProvider } from './state/LedgerRuntimeContext';
 
 export default function App() {
@@ -80,16 +82,9 @@ export default function App() {
           {currentCategory?.id === 'ait-154' && <LookupClaimPage kind="ait-154" lang={lang} onMessage={showToast} />}
           {currentCategory?.id === 'tax-paid-return' && <LookupClaimPage kind="tax-paid-return" lang={lang} onMessage={showToast} />}
           {currentCategory?.id === 'tax-refund' && <TaxRefundPage lang={lang} />}
-
-          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge', 'sanchayapatra', 'commercial-vehicle', 'ait-car', 'ait-154', 'tax-paid-return', 'tax-refund'].includes(currentCategory.id) && (
-            <CategoryWorkspace
-              key={currentCategory.id}
-              categoryId={currentCategory.id}
-              lang={lang}
-              onBack={() => setCurrentTab('dashboard')}
-              onUnavailableAction={showToast}
-            />
-          )}
+          {currentCategory?.id === 'import' && <ImportReadOnlyPage lang={lang} />}
+          {currentCategory?.id === 'other-tds' && <OtherTdsPage lang={lang} />}
+          {currentCategory?.id === 'carry-forward' && <CarryForwardPage lang={lang} />}
 
           {currentTab === 'payment-status' && (
             <TaxPaymentStatusPage
