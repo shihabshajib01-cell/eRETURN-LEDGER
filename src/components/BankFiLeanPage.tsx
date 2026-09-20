@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type BankRow = {
@@ -81,9 +82,17 @@ export const BankFiLeanPage: React.FC<{
 
   const syncSelected = () => {
     const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
-    const invalid = selectedRows.some((row) =>
-      parseMoney(row.tds) < 0 || parseMoney(row.tds) > parseMoney(row.interest)
-    );
+    const invalid = selectedRows.some((row) => {
+      const tds = parseMoneyStrict(row.tds);
+      const interest = parseMoneyStrict(row.interest);
+      return (
+        !isValidMoneyInput(row.tds) ||
+        !isValidMoneyInput(row.interest) ||
+        tds === null ||
+        interest === null ||
+        tds > interest
+      );
+    });
     if (invalid) {
       onUnavailableAction(
         isBn
