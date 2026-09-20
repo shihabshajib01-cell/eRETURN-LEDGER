@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Database, ShieldCheck, CheckCircle2, RefreshCw, FileText } from 'lucide-react';
 import { Language } from '../../types';
+import { useDialogFocusTrap } from '../../hooks/useDialogFocusTrap';
 
 interface HowItWorksModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface HowItWorksModalProps {
 }
 
 export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose, lang }) => {
+  const dialogRef = useDialogFocusTrap(isOpen, onClose);
   if (!isOpen) return null;
 
   const steps = lang === 'bn'
@@ -29,7 +31,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClos
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <div role="dialog" aria-modal="true" aria-labelledby="how-it-works-title" className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="how-it-works-title" className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]">
         <div className="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
           <div>
             <h2 id="how-it-works-title" className="font-bold text-base text-[#172033]">
