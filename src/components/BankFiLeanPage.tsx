@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, X } from 'lucide-react';
 import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { parseMoney } from '../utils/money';
 
 type BankRow = {
   id: number;
@@ -26,7 +29,13 @@ export const BankFiLeanPage: React.FC<{
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
   const [syncOpen, setSyncOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = usePersistentState<number[]>('ereturn-ledger:v2:bank-fi-selected', []);
+  const { updateCategoryAmount } = useLedgerRuntime();
+  const totalTds = useMemo(() => INITIAL_ROWS.reduce((sum, row) => sum + parseMoney(row.tds), 0), []);
+
+  useEffect(() => {
+    updateCategoryAmount('bank-fi', totalTds);
+  }, [totalTds, updateCategoryAmount]);
 
   const toggleSelection = (id: number) => {
     setSelectedIds((current) =>
@@ -36,7 +45,6 @@ export const BankFiLeanPage: React.FC<{
 
   const closeSync = () => {
     setSyncOpen(false);
-    setSelectedIds([]);
   };
 
   const syncSelected = () => {
@@ -68,7 +76,7 @@ export const BankFiLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-sm">
+          <table className="ledger-responsive-table w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">SL.</th>
@@ -83,13 +91,13 @@ export const BankFiLeanPage: React.FC<{
             <tbody className="divide-y divide-slate-100">
               {INITIAL_ROWS.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
-                  <td className="px-4 py-3 text-[#263247]">{row.accountType}</td>
-                  <td className="px-4 py-3 text-[#263247]">{row.branch}</td>
-                  <td className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
-                  <td className="px-4 py-3 text-right font-medium text-[#172033]">{row.interest}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-[#172033]">{row.tds}</td>
+                  <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
+                  <td data-label="Bank Name" className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
+                  <td data-label="Account Type" className="px-4 py-3 text-[#263247]">{row.accountType}</td>
+                  <td data-label="Branch Name" className="px-4 py-3 text-[#263247]">{row.branch}</td>
+                  <td data-label="Account Number" className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
+                  <td data-label="Interest Amount" className="px-4 py-3 text-right font-medium text-[#172033]">{row.interest}</td>
+                  <td data-label="TDS" className="px-4 py-3 text-right font-semibold text-[#172033]">{row.tds}</td>
                 </tr>
               ))}
             </tbody>
