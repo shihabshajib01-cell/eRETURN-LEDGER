@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
@@ -49,6 +50,8 @@ export const ServicePaymentLeanPage: React.FC<{
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<ServiceRow[]>(INITIAL_ROWS);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const syncDialogRef = useDialogFocusTrap(syncOpen, closeSync);
+  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
   const labelText = (label: string) => {
     if (!isBn) return label;
     const labels: Record<string, string> = {
@@ -273,7 +276,7 @@ export const ServicePaymentLeanPage: React.FC<{
 
       {syncOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="service-sync-title" className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
+          <div ref={syncDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="service-sync-title" className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
               <h2 id="service-sync-title" className="font-bold text-[#172033]">{labelText("Service Payment")}</h2>
               <button type="button" onClick={closeSync} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
@@ -351,7 +354,7 @@ export const ServicePaymentLeanPage: React.FC<{
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
+          <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 className="font-bold text-[#172033]">{labelText('Service Payment')}</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
