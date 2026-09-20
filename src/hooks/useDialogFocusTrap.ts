@@ -11,6 +11,11 @@ const FOCUSABLE = [
 
 export const useDialogFocusTrap = (active: boolean, onClose: () => void) => {
   const ref = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!active) return;
@@ -29,7 +34,7 @@ export const useDialogFocusTrap = (active: boolean, onClose: () => void) => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -62,7 +67,7 @@ export const useDialogFocusTrap = (active: boolean, onClose: () => void) => {
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
-  }, [active, onClose]);
+  }, [active]);
 
   return ref;
 };
