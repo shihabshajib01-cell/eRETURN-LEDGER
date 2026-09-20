@@ -55,9 +55,6 @@ export const BankFiLeanPage: React.FC<{
           <h1 id="bank-fi-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
             {isBn ? 'ব্যাংক উৎস কর' : 'Bank TDS'}
           </h1>
-          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
-            {isBn ? 'Interest/Profit (Bank & FI - With TDS Deduction)' : 'Interest/Profit (Bank & FI - With TDS Deduction)'}
-          </p>
         </div>
         <button
           type="button"
@@ -119,10 +116,20 @@ export const BankFiLeanPage: React.FC<{
               <table className="w-full min-w-[900px] text-sm">
                 <thead className="bg-slate-50 text-[#5F6B7A]">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'নির্বাচন' : 'Select'}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'ব্যাংকের নাম' : 'Bank Name'}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'হিসাবের ধরন' : 'Account Type'}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{isBn ? 'শাখা' : 'Branch'}</th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      <label className="inline-flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.length === INITIAL_ROWS.length}
+                          onChange={(event) => setSelectedIds(event.target.checked ? INITIAL_ROWS.map((row) => row.id) : [])}
+                          className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4] focus:ring-[#0B6FA4]"
+                        />
+                        Select
+                      </label>
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">Account Type</th>
+                    <th className="px-4 py-3 text-left font-semibold">Bank/FI Name</th>
+                    <th className="px-4 py-3 text-left font-semibold">Branch Name</th>
                     <th className="px-4 py-3 text-left font-semibold">{isBn ? 'হিসাব নম্বর' : 'Account Number'}</th>
                     <th className="px-4 py-3 text-right font-semibold">{isBn ? 'সুদ/মুনাফা' : 'Interest Amount'}</th>
                     <th className="px-4 py-3 text-right font-semibold">{isBn ? 'উৎস কর' : 'TDS'}</th>
@@ -140,8 +147,8 @@ export const BankFiLeanPage: React.FC<{
                           className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4] focus:ring-[#0B6FA4]"
                         />
                       </td>
-                      <td className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
                       <td className="px-4 py-3 text-[#263247]">{row.accountType}</td>
+                      <td className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
                       <td className="px-4 py-3 text-[#263247]">{row.branch}</td>
                       <td className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
                       <td className="px-4 py-3 text-right font-medium">{row.interest}</td>
@@ -152,22 +159,16 @@ export const BankFiLeanPage: React.FC<{
               </table>
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-[#E2E8F0] bg-slate-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <span />
-              <div className="flex justify-end gap-2">
-                <button type="button" onClick={closeSync} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50">
-                  {isBn ? 'বাতিল' : 'Cancel'}
-                </button>
-                <button
-                  type="button"
-                  onClick={syncSelected}
-                  disabled={selectedIds.length === 0}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  {isBn ? 'Sync' : 'Sync'}
-                </button>
-              </div>
+            <div className="flex justify-end border-t border-[#E2E8F0] bg-slate-50/60 px-5 py-4">
+              <button
+                type="button"
+                onClick={syncSelected}
+                disabled={selectedIds.length === 0}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Sync
+              </button>
             </div>
           </div>
         </div>
