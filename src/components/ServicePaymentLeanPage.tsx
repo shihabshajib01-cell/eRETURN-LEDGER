@@ -50,7 +50,7 @@ export const ServicePaymentLeanPage: React.FC<{
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<ServiceRow[]>(INITIAL_ROWS);
   const { updateCategoryAmount } = useLedgerRuntime();
-  const syncDialogRef = useDialogFocusTrap(syncOpen, closeSync);
+  const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
   const labelText = (label: string) => {
     if (!isBn) return label;
