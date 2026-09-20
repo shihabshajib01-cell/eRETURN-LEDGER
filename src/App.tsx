@@ -16,6 +16,8 @@ import { LedgerHomePage } from './components/LedgerHomePage';
 import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
 import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurchargeLeanPage';
 import { SanchayapatraPage } from './components/SanchayapatraPage';
+import { LookupClaimPage } from './components/LookupClaimPage';
+import { TaxRefundPage } from './components/TaxRefundPage';
 import { LedgerRuntimeProvider } from './state/LedgerRuntimeContext';
 
 export default function App() {
@@ -73,8 +75,13 @@ export default function App() {
           {currentCategory?.id === 'service-payment' && <ServicePaymentLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'environmental-surcharge' && <EnvironmentalSurchargeLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'sanchayapatra' && <SanchayapatraPage lang={lang} onUnavailableAction={showToast} />}
+          {currentCategory?.id === 'commercial-vehicle' && <LookupClaimPage kind="commercial-vehicle" lang={lang} onMessage={showToast} />}
+          {currentCategory?.id === 'ait-car' && <LookupClaimPage kind="ait-car" lang={lang} onMessage={showToast} />}
+          {currentCategory?.id === 'ait-154' && <LookupClaimPage kind="ait-154" lang={lang} onMessage={showToast} />}
+          {currentCategory?.id === 'tax-paid-return' && <LookupClaimPage kind="tax-paid-return" lang={lang} onMessage={showToast} />}
+          {currentCategory?.id === 'tax-refund' && <TaxRefundPage lang={lang} />}
 
-          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge', 'sanchayapatra'].includes(currentCategory.id) && (
+          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge', 'sanchayapatra', 'commercial-vehicle', 'ait-car', 'ait-154', 'tax-paid-return', 'tax-refund'].includes(currentCategory.id) && (
             <CategoryWorkspace
               key={currentCategory.id}
               categoryId={currentCategory.id}
