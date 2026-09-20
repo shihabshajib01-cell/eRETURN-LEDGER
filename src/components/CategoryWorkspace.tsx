@@ -1,6 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { formatLedgerNumber, parseMoney } from '../utils/money';
 
 type Row = Record<string, string | number> & { id: number };
 type Column = { key: string; label: string; numeric?: boolean };
@@ -288,20 +291,37 @@ export const CategoryWorkspace: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ categoryId, lang, onUnavailableAction }) => {
   const config = configs[categoryId];
-  const [rows, setRows] = useState<Row[]>(() => config?.rows || []);
+  const [rows, setRows] = usePersistentState<Row[]>(`ereturn-ledger:v2:${categoryId}-rows`, () => config?.rows || []);
   const [query, setQuery] = useState('');
+  const [lookupResult, setLookupResult] = useState<Row | null>(null);
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedSync, setSelectedSync] = useState<number[]>([]);
-  const [declaredSurcharge, setDeclaredSurcharge] = useState('50,000');
 
   const isBn = lang === 'bn';
-  const filteredRows = useMemo(
-    () => rows.filter((row) => !query || Object.values(row).some((value) => String(value).toLowerCase().includes(query.toLowerCase()))),
-    [rows, query]
+  const filteredRows = rows;
+  const { updateCategoryAmount } = useLedgerRuntime();
+  const amountKeyByCategory: Record<string, string> = {
+    sanchayapatra: 'tds',
+    import: 'claimed',
+    'commercial-vehicle': 'tds',
+    'other-tds': 'claimed',
+    'ait-car': 'amount',
+    'ait-154': 'amount',
+    'tax-paid-return': 'amount',
+    'tax-refund': 'claimed',
+  };
+  const amountKey = amountKeyByCategory[categoryId];
+  const currentTotal = useMemo(
+    () => amountKey ? rows.reduce((sum, row) => sum + parseMoney(row[amountKey] ?? 0), 0) : 0,
+    [rows, amountKey]
   );
+
+  useEffect(() => {
+    if (amountKey) updateCategoryAmount(categoryId, currentTotal);
+  }, [amountKey, categoryId, currentTotal, updateCategoryAmount]);
 
   if (categoryId === 'carry-forward') {
     return <CarryForwardPage lang={lang} />;
@@ -355,7 +375,7 @@ export const CategoryWorkspace: React.FC<{
   };
 
   const hasActions = !!(config.addable || config.editable || config.deletable);
-  const displayCount = config.targetCount ?? rows.length;
+  const displayCount = rows.length;
 
   return (
     <section className="w-full space-y-4" aria-labelledby="category-title">
