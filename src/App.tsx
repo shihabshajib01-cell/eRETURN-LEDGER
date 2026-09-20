@@ -14,6 +14,7 @@ import { HowItWorksModal } from './components/Modals/HowItWorksModal';
 import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
 import { LedgerHomePage } from './components/LedgerHomePage';
 import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
+import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurchargeLeanPage';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -64,8 +65,9 @@ export default function App() {
           {currentCategory?.id === 'bank-fi' && <BankFiLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'dividend' && <DividendLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'service-payment' && <ServicePaymentLeanPage lang={lang} onUnavailableAction={showToast} />}
+          {currentCategory?.id === 'environmental-surcharge' && <EnvironmentalSurchargeLeanPage lang={lang} onUnavailableAction={showToast} />}
 
-          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment'].includes(currentCategory.id) && (
+          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge'].includes(currentCategory.id) && (
             <CategoryWorkspace
               categoryId={currentCategory.id}
               lang={lang}
