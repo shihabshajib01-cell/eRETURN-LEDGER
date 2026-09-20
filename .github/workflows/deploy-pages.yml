@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -19,11 +20,23 @@ jobs:
   build:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    outputs:
+      validated_sha: ${{ steps.sha.outputs.value }}
     steps:
+      - name: Resolve validated commit
+        id: sha
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "value=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout validated commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ steps.sha.outputs.value }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -35,6 +48,16 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Verify production artifact
+        shell: bash
+        run: |
+          test -f dist/index.html
+          grep -q '/eRETURN-LEDGER/assets/' dist/index.html
+          if grep -q '/src/main.tsx' dist/index.html; then
+            echo "Raw Vite source entry leaked into production index."
+            exit 1
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -51,10 +74,62 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Let legacy branch Pages publication finish first
+      - name: Wait for legacy branch Pages publication
         if: ${{ github.event_name == 'workflow_run' }}
-        run: sleep 30
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ needs.build.outputs.validated_sha }}
+        shell: bash
+        run: |
+          echo "Waiting for GitHub's branch-based Pages run for $SHA so it cannot overwrite the Vite deployment afterward."
+          found=0
+          for attempt in {1..60}; do
+            response="$(curl -fsSL               -H "Authorization: Bearer $GH_TOKEN"               -H "Accept: application/vnd.github+json"               "https://api.github.com/repos/$REPO/actions/runs?head_sha=$SHA&event=dynamic&per_page=20")"
+
+            count="$(echo "$response" | jq '.workflow_runs | length')"
+            if [ "$count" -gt 0 ]; then
+              found=1
+              status="$(echo "$response" | jq -r '.workflow_runs[0].status')"
+              conclusion="$(echo "$response" | jq -r '.workflow_runs[0].conclusion // ""')"
+              echo "Legacy Pages status: $status ${conclusion:+($conclusion)}"
+              if [ "$status" = "completed" ]; then
+                break
+              fi
+            fi
+            sleep 5
+          done
+
+          if [ "$found" -eq 0 ]; then
+            echo "No legacy Pages run appeared. Continuing with the validated deployment."
+          else
+            response="$(curl -fsSL               -H "Authorization: Bearer $GH_TOKEN"               -H "Accept: application/vnd.github+json"               "https://api.github.com/repos/$REPO/actions/runs?head_sha=$SHA&event=dynamic&per_page=20")"
+            status="$(echo "$response" | jq -r '.workflow_runs[0].status')"
+            if [ "$status" != "completed" ]; then
+              echo "Legacy Pages run did not finish before timeout."
+              exit 1
+            fi
+          fi
 
       - name: Deploy validated Vite build to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify live Pages entry
+        env:
+          SHA: ${{ needs.build.outputs.validated_sha }}
+        shell: bash
+        run: |
+          url="https://shihabshajib01-cell.github.io/eRETURN-LEDGER/?v=$SHA"
+          for attempt in {1..24}; do
+            html="$(curl -fsSL -H 'Cache-Control: no-cache' "$url" || true)"
+            if echo "$html" | grep -q '/eRETURN-LEDGER/assets/' && ! echo "$html" | grep -q '/src/main.tsx'; then
+              echo "Live Pages is serving the validated Vite build."
+              exit 0
+            fi
+            echo "Live Pages has not switched to the validated build yet (attempt $attempt/24)."
+            sleep 5
+          done
+
+          echo "Live Pages verification failed: the published index is not the validated Vite build."
+          exit 1
