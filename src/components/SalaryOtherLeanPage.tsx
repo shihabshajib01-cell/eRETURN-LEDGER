@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
+import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 
 type SalaryRow = {
   id: number;
@@ -94,15 +95,19 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     updateCategoryAmount('salary-other', totalClaimed);
   }, [totalClaimed, updateCategoryAmount]);
 
+  const amountValue = parseMoneyStrict(form.amount);
+  const claimedValue = parseMoneyStrict(form.claimed);
   const formValid =
-    form.authority.trim().length > 0 &&
-    form.documentType.trim().length > 0 &&
-    form.reference.trim().length > 0 &&
-    form.date.trim().length > 0 &&
-    (form.documentType !== 'Challan' || editing !== null || (form.bank.trim().length > 0 && form.branch.trim().length > 0)) &&
-    parseMoney(form.amount) >= 0 &&
-    parseMoney(form.claimed) >= 0 &&
-    parseMoney(form.claimed) <= parseMoney(form.amount);
+    hasText(form.authority) &&
+    hasText(form.documentType) &&
+    hasText(form.reference) &&
+    isValidLedgerDate(form.date) &&
+    (form.documentType !== 'Challan' || editing !== null || (hasText(form.bank) && hasText(form.branch))) &&
+    isValidMoneyInput(form.amount) &&
+    isValidMoneyInput(form.claimed) &&
+    amountValue !== null &&
+    claimedValue !== null &&
+    claimedValue <= amountValue;
 
   const openAdd = () => {
     setEditing(null);
