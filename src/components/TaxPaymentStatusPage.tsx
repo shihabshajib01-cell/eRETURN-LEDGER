@@ -9,11 +9,19 @@ interface TaxPaymentStatusPageProps {
   onBack: () => void;
   onGoToEReturn: () => void;
   showHeader?: boolean;
+  showTotalRow?: boolean;
+  showSidebar?: boolean;
 }
 
 type ExpandableGroup = 'source' | 'ait';
 
-export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang, onGoToEReturn, showHeader = true }) => {
+export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
+  lang,
+  onGoToEReturn,
+  showHeader = true,
+  showTotalRow = true,
+  showSidebar = true,
+}) => {
   const isBn = lang === 'bn';
   const runtime = useLedgerRuntime();
   const [expanded, setExpanded] = useState<ExpandableGroup | null>('source');
@@ -64,7 +72,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
         </header>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+      <div className={showSidebar ? 'grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start' : 'block'}>
         <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="payment-breakdown-title">
           <div className="flex flex-col gap-1 border-b border-[#E2E8F0] px-4 py-4 sm:px-5">
             <h2 id="payment-breakdown-title" className="text-base font-bold text-[#172033]">
@@ -145,20 +153,23 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
               );
             })}
 
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 bg-[#F4F8FB] px-4 py-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:px-5">
-              <div>
-                <p className="text-sm font-bold text-[#172033]">{isBn ? 'মোট' : 'Total'}</p>
-                <p className="mt-0.5 text-xs text-[#6B778A]">
-                  {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
-                </p>
+            {showTotalRow && (
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 bg-[#F4F8FB] px-4 py-4 sm:grid-cols-[minmax(0,1fr)_180px] sm:px-5">
+                <div>
+                  <p className="text-sm font-bold text-[#172033]">{isBn ? 'মোট' : 'Total'}</p>
+                  <p className="mt-0.5 text-xs text-[#6B778A]">
+                    {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
+                  </p>
+                </div>
+                <div className="whitespace-nowrap text-right text-lg font-bold tabular-nums text-[#0B6FA4]">
+                  {formatLedgerNumber(runtime.total)}
+                </div>
               </div>
-              <div className="whitespace-nowrap text-right text-lg font-bold tabular-nums text-[#0B6FA4]">
-                {formatLedgerNumber(runtime.total)}
-              </div>
-            </div>
+            )}
           </div>
         </section>
 
+        {showSidebar && (
         <aside className="rounded-xl border border-[#D8E4EA] bg-white p-5 xl:sticky xl:top-24" aria-labelledby="next-step-title">
           <p className="text-xs font-semibold uppercase tracking-[0.06em] text-[#6B778A]">
             {isBn ? 'বর্তমান মোট' : 'Current total'}
@@ -202,6 +213,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
             </button>
           </div>
         </aside>
+        )}
       </div>
     </section>
   );
