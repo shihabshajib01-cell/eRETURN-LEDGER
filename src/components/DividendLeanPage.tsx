@@ -88,7 +88,7 @@ export const DividendLeanPage: React.FC<{
           >
             {isBn ? 'লভ্যাংশ' : 'Dividend'}
           </h1>
-          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
+          <p className="mt-1 max-w-3xl text-sm italic leading-relaxed text-[#0B6FA4]">
             {isBn ? 'লভ্যাংশ [ ধারা-১১৭]' : 'Dividend [ Section-117]'}
           </p>
         </div>
@@ -108,14 +108,14 @@ export const DividendLeanPage: React.FC<{
           <table className="w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">SL</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">
                   {isBn
                     ? 'জমাদানকারী কর্তৃপক্ষ / ব্যক্তি / কোম্পানি'
                     : 'Depositing Authority / Person / Company'}
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">
-                  {isBn ? 'সার্টিফিকেট রেফারেন্স নং' : 'Certificate Reference No.'}
+                  {isBn ? 'সার্টিফিকেট রেফারেন্স নং' : 'Certificate Reference No'}
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">
                   {isBn ? 'সার্টিফিকেট রেফারেন্স তারিখ' : 'Certificate Reference Date'}
@@ -202,10 +202,10 @@ export const DividendLeanPage: React.FC<{
                       {isBn ? 'সার্টিফিকেট রেফারেন্স নং' : 'Certificate Reference No.'}
                     </th>
                     <th scope="col" className="px-4 py-3 text-left font-semibold">
-                      {isBn ? 'রেফারেন্স তারিখ' : 'Reference Date'}
+                      {isBn ? 'রেফারেন্স তারিখ' : 'Certificate Reference Date'}
                     </th>
                     <th scope="col" className="px-4 py-3 text-right font-semibold">
-                      {isBn ? 'সার্টিফিকেট পরিমাণ' : 'Certificate Amount'}
+                      {isBn ? 'সার্টিফিকেট পরিমাণ' : 'Challan/ Certificate Amount'}
                     </th>
                     <th scope="col" className="px-4 py-3 text-right font-semibold">
                       {isBn ? 'দাবিকৃত পরিমাণ' : 'Claimed Amount'}
