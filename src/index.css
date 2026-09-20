@@ -1,1 +1,85 @@
 @import "tailwindcss";
+
+@media (max-width: 767px) {
+  .ledger-responsive-table {
+    display: block;
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .ledger-responsive-table thead {
+    display: none;
+  }
+
+  .ledger-responsive-table tbody,
+  .ledger-responsive-table tfoot {
+    display: block;
+    width: 100%;
+  }
+
+  .ledger-responsive-table tbody tr {
+    display: block;
+    margin: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #E2E8F0;
+    border-radius: 0.75rem;
+    background: #fff;
+  }
+
+  .ledger-responsive-table tbody tr + tr {
+    margin-top: 0.75rem;
+  }
+
+  .ledger-responsive-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 42%) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0 !important;
+    padding: 0.7rem 0.9rem !important;
+    text-align: left !important;
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .ledger-responsive-table tbody td:last-child {
+    border-bottom: 0;
+  }
+
+  .ledger-responsive-table tbody td::before {
+    content: attr(data-label);
+    align-self: start;
+    color: #5F6B7A;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2rem;
+  }
+
+  .ledger-responsive-table tbody td[data-label=""]::before {
+    content: none;
+  }
+
+  .ledger-responsive-table tbody td > input,
+  .ledger-responsive-table tbody td > select {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .ledger-responsive-table tbody td > div {
+    min-width: 0;
+  }
+
+  .ledger-responsive-table tfoot tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid #E2E8F0;
+    background: #F8FAFC;
+  }
+
+  .ledger-responsive-table tfoot td {
+    display: block;
+    padding: 0.85rem 1rem !important;
+  }
+}
