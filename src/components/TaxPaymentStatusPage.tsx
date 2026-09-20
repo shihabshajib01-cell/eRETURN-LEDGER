@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { Language } from '../types';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -13,15 +13,25 @@ interface TaxPaymentStatusPageProps {
 export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang, onGoToEReturn }) => {
   const isBn = lang === 'bn';
   const runtime = useLedgerRuntime();
+  const [expanded, setExpanded] = useState<'source' | 'ait' | null>(null);
 
   const rows = [
-    [isBn ? 'উৎস কর' : 'Source Tax', runtime.sourceTax, true],
-    [isBn ? 'অগ্রিম আয়কর (AIT)' : 'Advance Income Tax (AIT)', runtime.advanceIncomeTax, true],
-    [isBn ? 'রিটার্নের সাথে প্রদত্ত কর' : 'Tax Paid With Return', runtime.taxPaidWithReturn, false],
-    [isBn ? 'পরিবেশ সারচার্জ' : 'Environmental Surcharge', runtime.environmentalSurcharge, false],
-    [isBn ? 'কর রিফান্ড সমন্বয়' : 'Adjustment of Tax Refund', runtime.adjustmentOfTaxRefund, false],
-    [isBn ? 'ধারা ১৬৩ অনুযায়ী জের টানা কর সমন্বয়' : 'Adjustment of carry forward tax u/s 163', runtime.carryForwardTax, false],
+    [isBn ? 'উৎস কর' : 'Source Tax', runtime.sourceTax, 'source'],
+    [isBn ? 'অগ্রিম আয়কর (AIT)' : 'Advance Income Tax (AIT)', runtime.advanceIncomeTax, 'ait'],
+    [isBn ? 'রিটার্নের সাথে প্রদত্ত কর' : 'Tax Paid With Return', runtime.taxPaidWithReturn, null],
+    [isBn ? 'পরিবেশ সারচার্জ' : 'Environmental Surcharge', runtime.environmentalSurcharge, null],
+    [isBn ? 'কর রিফান্ড সমন্বয়' : 'Adjustment of Tax Refund', runtime.adjustmentOfTaxRefund, null],
+    [isBn ? 'ধারা ১৬৩ অনুযায়ী জের টানা কর সমন্বয়' : 'Adjustment of carry forward tax u/s 163', runtime.carryForwardTax, null],
   ] as const;
+
+  const groupItems = {
+    source: isBn
+      ? ['বেতন (iBAS++)', 'বেতন (অন্যান্য)', 'ব্যাংক/এফআই সুদ/মুনাফা', 'লভ্যাংশ', 'সেবা পেমেন্ট', 'সঞ্চয়পত্র', 'আমদানি', 'বাণিজ্যিক যানবাহন', 'অন্যান্য']
+      : ['Salary (iBAS++)', 'Salary (Others)', 'Bank/FI Interest/Profit', 'Dividend', 'Service Payment', 'Sanchayapatra', 'Import', 'Commercial Vehicle', 'Others'],
+    ait: isBn
+      ? ['গাড়ির উপর AIT', 'AIT (154)']
+      : ['AIT on Car', 'AIT (154)'],
+  };
 
   return (
     <section className="w-full space-y-4" aria-labelledby="payment-status-title">
@@ -38,14 +48,19 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
         </div>
 
         <div className="divide-y divide-slate-100">
-          {rows.map(([label, amount, expandable]) => (
+          {rows.map(([label, amount, group]) => (
             <div key={label} className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center text-sm">
               <div className="px-4 sm:px-5 py-4">
-                {expandable ? (
-                  <span className="inline-flex items-center gap-2 font-semibold text-[#172033]">
-                    <ChevronRight className="h-4 w-4 text-[#0B6FA4]" aria-hidden="true" />
+                {group ? (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((current) => current === group ? null : group)}
+                    aria-expanded={expanded === group}
+                    className="inline-flex items-center gap-2 font-semibold text-[#172033] hover:text-[#0B6FA4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 rounded"
+                  >
+                    <ChevronRight className={`h-4 w-4 text-[#0B6FA4] transition-transform ${expanded === group ? 'rotate-90' : ''}`} aria-hidden="true" />
                     {label}
-                  </span>
+                  </button>
                 ) : (
                   <span className="font-semibold text-[#172033]">{label}</span>
                 )}
@@ -54,6 +69,18 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
                 {formatLedgerNumber(amount)}
               </div>
             </div>
+            {group && expanded === group && (
+              <div className="border-t border-slate-100 bg-slate-50/70 px-5 py-3">
+                <div className="flex flex-wrap gap-2">
+                  {groupItems[group].map((item) => (
+                    <span key={item} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-[#5F6B7A]">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           ))}
 
           <div className="grid grid-cols-[minmax(0,1fr)_140px] sm:grid-cols-[minmax(0,1fr)_220px] items-center bg-slate-50 text-base">
