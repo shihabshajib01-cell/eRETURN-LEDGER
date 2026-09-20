@@ -13,6 +13,7 @@ import {
   ChallanRecord,
   CommercialVehicleRecord,
 } from '../data/eledgerVerificationData';
+import { lookupExternalLedgerRecord } from '../services/eledgerLookup';
 
 type LookupKind = 'commercial-vehicle' | 'ait-car' | 'ait-154' | 'tax-paid-return';
 type LookupRecord = CommercialVehicleRecord | ChallanRecord | AitCarRecord;
@@ -142,6 +143,7 @@ export const LookupClaimPage: React.FC<{
   const [rows, setRows] = usePersistentState<LookupRecord[]>(storageKey, config.initialRows);
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<LookupRecord | null>(null);
+  const [searching, setSearching] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
 
   const total = useMemo(
@@ -153,7 +155,7 @@ export const LookupClaimPage: React.FC<{
     updateCategoryAmount(kind, total);
   }, [kind, total, updateCategoryAmount]);
 
-  const search = () => {
+  const search = async () => {
     const value = query.trim();
     if (!value) {
       setResult(null);
@@ -161,22 +163,43 @@ export const LookupClaimPage: React.FC<{
       return;
     }
 
-    const match = config.sourceRows.find((row) =>
-      String((row as Record<string, unknown>)[config.lookupKey] ?? '').toLowerCase() === value.toLowerCase()
-    ) ?? null;
+    setSearching(true);
+    try {
+      const localMatch = config.sourceRows.find((row) =>
+        String((row as Record<string, unknown>)[config.lookupKey] ?? '').toLowerCase() === value.toLowerCase()
+      ) ?? null;
 
-    setResult(match);
+      if (localMatch) {
+        setResult(localMatch);
+        return;
+      }
 
-    if (!match) {
+      const external = await lookupExternalLedgerRecord(kind, value);
+      if (external) {
+        const normalized = {
+          id: Number(external.id ?? Date.now()),
+          ...external,
+          [config.lookupKey]: external[config.lookupKey] ?? value,
+        } as LookupRecord;
+        setResult(normalized);
+        return;
+      }
+
+      setResult(null);
       if (kind === 'ait-car' && config.sourceRows.length === 0) {
         onMessage(
           isBn
-            ? 'AIT on Car-এর আসল Transaction ID যাচাই করতে NBR/ব্যাংক-স্লিপ ভেরিফিকেশন সোর্স প্রয়োজন। এই প্রোটোটাইপে কোনো কর রেকর্ড বানানো হয়নি।'
-            : 'AIT on Car requires the real NBR/bank-slip verification source for Transaction ID lookup. No tax record is fabricated in this prototype.'
+            ? 'Transaction ID-এর কোনো যাচাইকৃত রেকর্ড পাওয়া যায়নি। উৎপাদন NBR/ব্যাংক-স্লিপ lookup সংযুক্ত হলে একই Search → Result → Save ফ্লো কাজ করবে।'
+            : 'No verified record was found for this Transaction ID. The same Search → Result → Save flow will use the production NBR/bank-slip lookup when connected.'
         );
       } else {
         onMessage(isBn ? 'কোনো মিল পাওয়া যায়নি।' : 'No matching record found.');
       }
+    } catch {
+      setResult(null);
+      onMessage(isBn ? 'ভেরিফিকেশন সার্ভিসে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।' : 'The verification service is unavailable. Please try again.');
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -214,7 +237,7 @@ export const LookupClaimPage: React.FC<{
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => { if (event.key === 'Enter') search(); }}
+              onKeyDown={(event) => { if (event.key === 'Enter') void search(); }}
               placeholder={label(config.placeholder)}
               className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-2.5 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
             />
@@ -222,9 +245,9 @@ export const LookupClaimPage: React.FC<{
           <button type="button" onClick={reset} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2.5 text-sm font-semibold text-[#263247] hover:bg-slate-50">
             {isBn ? 'রিসেট' : 'Reset'}
           </button>
-          <button type="button" onClick={search} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]">
+          <button type="button" onClick={() => void search()} disabled={searching} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50">
             <Search className="h-4 w-4" />
-            {isBn ? 'অনুসন্ধান' : 'Search'}
+            {searching ? (isBn ? 'অনুসন্ধান হচ্ছে...' : 'Searching...') : (isBn ? 'অনুসন্ধান' : 'Search')}
           </button>
         </div>
       </section>
