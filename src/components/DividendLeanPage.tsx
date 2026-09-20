@@ -33,7 +33,7 @@ export const DividendLeanPage: React.FC<{
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<DividendRow[]>(INITIAL_ROWS);
   const { updateCategoryAmount } = useLedgerRuntime();
-  const syncDialogRef = useDialogFocusTrap(syncOpen, closeSync);
+  const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
 
   useEffect(() => {
