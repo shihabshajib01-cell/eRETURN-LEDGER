@@ -166,7 +166,7 @@ const configs: Record<string, CategoryConfig> = {
   },
   'ait-car': {
     title: 'AIT on Car',
-    lookupLabel: 'Transaction No.',
+    lookupLabel: 'Unique Key (Transaction No.)',
     lookupPrimary: 'Search',
     lookupPlaceholder: 'Transaction No.',
     targetCount: 0,
