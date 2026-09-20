@@ -86,6 +86,21 @@ export const DividendLeanPage: React.FC<{
 
   const saveSync = () => {
     const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
+    const invalid = selectedRows.some((row) =>
+      !row.reference.trim() ||
+      !row.date.trim() ||
+      parseMoney(row.amount) < 0 ||
+      parseMoney(row.claimed) < 0 ||
+      parseMoney(row.claimed) > parseMoney(row.amount)
+    );
+    if (invalid) {
+      onUnavailableAction(
+        isBn
+          ? 'নির্বাচিত Dividend রেকর্ডে রেফারেন্স, তারিখ এবং বৈধ দাবির পরিমাণ পূরণ করুন।'
+          : 'Complete reference, date, and valid claim amounts for the selected Dividend records.'
+      );
+      return;
+    }
     setRows((current) => {
       const byId = new Map(current.map((row) => [row.id, row]));
       selectedRows.forEach((row) => byId.set(row.id, row));
