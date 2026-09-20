@@ -104,7 +104,7 @@ export const DividendLeanPage: React.FC<{
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
-          {isBn ? 'Sync From Income' : 'Sync From Income'}
+          {isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income'}
         </button>
       </header>
 
@@ -140,12 +140,12 @@ export const DividendLeanPage: React.FC<{
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td data-label="Depositing Authority / Person / Company" className="px-4 py-3 font-medium text-[#172033]">{row.authority}</td>
-                  <td data-label="Certificate Reference No" className="px-4 py-3 text-[#263247]">{row.reference}</td>
-                  <td data-label="Certificate Reference Date" className="px-4 py-3 text-[#263247]">{row.date}</td>
-                  <td data-label="Challan / Certificate Amount" className="px-4 py-3 text-right font-medium text-[#172033]">{row.amount}</td>
-                  <td data-label="Claimed Amount" className="px-4 py-3 text-right font-semibold text-[#172033]">{row.claimed}</td>
-                  <td data-label="Action" className="px-4 py-2">
+                  <td data-label={isBn ? "জমাদানকারী কর্তৃপক্ষ / ব্যক্তি / কোম্পানি" : "Depositing Authority / Person / Company"} className="px-4 py-3 font-medium text-[#172033]">{row.authority}</td>
+                  <td data-label={isBn ? "সার্টিফিকেট রেফারেন্স নং" : "Certificate Reference No"} className="px-4 py-3 text-[#263247]">{row.reference}</td>
+                  <td data-label={isBn ? "সার্টিফিকেট রেফারেন্স তারিখ" : "Certificate Reference Date"} className="px-4 py-3 text-[#263247]">{row.date}</td>
+                  <td data-label={isBn ? "চালান / সার্টিফিকেট পরিমাণ" : "Challan / Certificate Amount"} className="px-4 py-3 text-right font-medium text-[#172033]">{row.amount}</td>
+                  <td data-label={isBn ? "দাবিকৃত পরিমাণ" : "Claimed Amount"} className="px-4 py-3 text-right font-semibold text-[#172033]">{row.claimed}</td>
+                  <td data-label={isBn ? "অ্যাকশন" : "Action"} className="px-4 py-2">
                     <div className="flex justify-end">
                       <button
                         type="button"
@@ -177,7 +177,7 @@ export const DividendLeanPage: React.FC<{
             <div className="flex items-start justify-between border-b border-[#E2E8F0] px-5 py-4">
               <div>
                 <h2 id="dividend-sync-title" className="text-base font-bold text-[#172033]">
-                  {isBn ? 'Dividend' : 'Dividend'}
+                  {isBn ? 'লভ্যাংশ' : 'Dividend'}
                 </h2>
                 
               </div>
@@ -276,7 +276,7 @@ export const DividendLeanPage: React.FC<{
                   onClick={closeSync}
                   className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
                 >
-                  {isBn ? 'No' : 'No'}
+                  {isBn ? 'না' : 'No'}
                 </button>
                 <button
                   type="button"
@@ -285,7 +285,7 @@ export const DividendLeanPage: React.FC<{
                   className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  {isBn ? 'Save' : 'Save'}
+                  {isBn ? 'সংরক্ষণ' : 'Save'}
                 </button>
               </div>
             </div>
