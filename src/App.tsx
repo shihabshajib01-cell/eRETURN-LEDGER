@@ -20,6 +20,7 @@ import { TaxRefundPage } from './components/TaxRefundPage';
 import { ImportReadOnlyPage } from './components/ImportReadOnlyPage';
 import { OtherTdsPage } from './components/OtherTdsPage';
 import { CarryForwardPage } from './components/CarryForwardPage';
+import { LedgerDashboardPage } from './components/LedgerDashboardPage';
 import { LedgerRuntimeProvider } from './state/LedgerRuntimeContext';
 
 export default function App() {
@@ -72,6 +73,14 @@ export default function App() {
             <TaxPaymentStatusPage
               lang={lang}
               onBack={() => setCurrentTab('dashboard')}
+              onGoToEReturn={() => setGoToEReturnModalOpen(true)}
+            />
+          )}
+
+          {currentTab === 'overview-dashboard' && (
+            <LedgerDashboardPage
+              lang={lang}
+              onSelectTab={handleSelectTab}
               onGoToEReturn={() => setGoToEReturnModalOpen(true)}
             />
           )}
