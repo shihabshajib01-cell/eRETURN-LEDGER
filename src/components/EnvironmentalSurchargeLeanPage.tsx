@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
@@ -26,8 +26,10 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
-  const [rows, setRows] = usePersistentState<SurchargeRow[]>('ereturn-ledger:v2:environmental-surcharge-rows', INITIAL_ROWS);
-  const [declared, setDeclared] = usePersistentState('ereturn-ledger:v2:environmental-surcharge-declared', '50000');
+  const [savedRows, setSavedRows] = usePersistentState<SurchargeRow[]>('ereturn-ledger:v2:environmental-surcharge-rows', INITIAL_ROWS);
+  const [savedDeclared, setSavedDeclared] = usePersistentState('ereturn-ledger:v2:environmental-surcharge-declared', '50000');
+  const [rows, setRows] = useState<SurchargeRow[]>(savedRows);
+  const [declared, setDeclared] = useState(savedDeclared);
   const { updateCategoryAmount } = useLedgerRuntime();
   const labelText = (label: string) => {
     if (!isBn) return label;
@@ -51,6 +53,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   };
   const totalPaid = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.amount), 0), [rows]);
   const declaredAmount = useMemo(() => parseMoney(declared), [declared]);
+  const savedDeclaredAmount = useMemo(() => parseMoney(savedDeclared), [savedDeclared]);
   const rowsValid = rows.length > 0 && rows.every((row) =>
     row.registration.trim() &&
     row.transaction.trim() &&
@@ -62,8 +65,8 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   const canSave = rowsValid && declared.trim().length > 0 && declaredAmount >= 0;
 
   useEffect(() => {
-    updateCategoryAmount('environmental-surcharge', declaredAmount);
-  }, [declaredAmount, updateCategoryAmount]);
+    updateCategoryAmount('environmental-surcharge', savedDeclaredAmount);
+  }, [savedDeclaredAmount, updateCategoryAmount]);
 
   const updateRow = (id: number, key: keyof Omit<SurchargeRow, 'id'>, value: string) => {
     setRows((current) => current.map((row) => row.id === id ? { ...row, [key]: value } : row));
@@ -173,7 +176,11 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
         <button
           type="button"
           disabled={!canSave}
-          onClick={() => onUnavailableAction(isBn ? 'Environmental Surcharge সংরক্ষিত হয়েছে।' : 'Environmental Surcharge saved.')}
+          onClick={() => {
+            setSavedRows(rows);
+            setSavedDeclared(declared);
+            onUnavailableAction(isBn ? 'Environmental Surcharge সংরক্ষিত হয়েছে।' : 'Environmental Surcharge saved.');
+          }}
           className="rounded-lg bg-[#0B6FA4] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {labelText('Save')}
