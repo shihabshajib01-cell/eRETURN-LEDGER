@@ -15,6 +15,7 @@ type CategoryConfig = {
   deletable?: boolean;
   syncable?: boolean;
   targetCount?: number;
+  showCount?: boolean;
   summaryLabel?: string;
   summaryValue?: string;
   lookupLabel?: string;
@@ -71,6 +72,7 @@ const configs: Record<string, CategoryConfig> = {
     summaryLabel: 'Total TDS Claimed',
     summaryValue: '৳ 18,12,218',
     targetCount: 7,
+    showCount: true,
     columns: [
       { key: 'bin', label: 'BIN' },
       { key: 'office', label: 'Office Code' },
@@ -359,7 +361,7 @@ export const CategoryWorkspace: React.FC<{
         </div>
       </header>
 
-      {(config.summaryLabel || config.targetCount !== undefined) && (
+      {(config.summaryLabel || config.showCount) && (
         <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
           {config.summaryLabel && (
             <div>
@@ -367,7 +369,7 @@ export const CategoryWorkspace: React.FC<{
               <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{config.summaryValue}</p>
             </div>
           )}
-          {config.targetCount !== undefined && (
+          {config.showCount && (
             <div>
               <p className="text-xs text-[#5F6B7A]">{isBn ? 'Count' : 'Count'}</p>
               <p className="mt-0.5 text-xl font-bold text-[#172033]">{displayCount}</p>
