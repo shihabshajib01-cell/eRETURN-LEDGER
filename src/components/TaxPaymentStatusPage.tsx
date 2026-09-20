@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowUpRight, ChevronDown, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { Language } from '../types';
 import { VERIFIED_LEDGER_TOTALS, TOTAL_AVAILABLE_TAX_CREDIT, formatBDT } from '../data/mockTaxData';
 
@@ -19,7 +19,6 @@ const rows = [
 ] as const;
 
 export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang, onGoToEReturn }) => {
-  const [expanded, setExpanded] = useState<string | null>(null);
   const isBn = lang === 'bn';
 
   return (
@@ -42,15 +41,10 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
               <div className="grid grid-cols-[minmax(0,1fr)_220px] items-center text-sm">
                 <div className="px-5 py-4">
                   {expandable ? (
-                    <button
-                      type="button"
-                      onClick={() => setExpanded((current) => (current === label ? null : label))}
-                      className="inline-flex items-center gap-2 font-semibold text-[#172033] hover:text-[#0B6FA4]"
-                      aria-expanded={expanded === label}
-                    >
-                      {expanded === label ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    <span className="inline-flex items-center gap-2 font-semibold text-[#172033]">
+                      <ChevronRight className="h-4 w-4 text-[#0B6FA4]" aria-hidden="true" />
                       {label}
-                    </button>
+                    </span>
                   ) : (
                     <span className="font-semibold text-[#172033]">{label}</span>
                   )}
@@ -60,13 +54,6 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
                 </div>
               </div>
 
-              {expandable && expanded === label && (
-                <div className="border-t border-slate-100 bg-slate-50/70 px-10 py-3 text-xs text-[#5F6B7A]">
-                  {label === 'Source Tax'
-                    ? (isBn ? 'উৎস করের বিস্তারিত বাম পাশের Claim Source Tax মেনু থেকে দেখুন।' : 'View source-tax details from Claim Source Tax in the left menu.')
-                    : (isBn ? 'AIT-এর বিস্তারিত বাম পাশের Claim AIT মেনু থেকে দেখুন।' : 'View AIT details from Claim AIT in the left menu.')}
-                </div>
-              )}
             </div>
           ))}
 
