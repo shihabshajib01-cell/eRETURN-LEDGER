@@ -28,10 +28,11 @@ export const BankFiLeanPage: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
+  const [rows, setRows] = usePersistentState<BankRow[]>('ereturn-ledger:v2:bank-fi-rows', INITIAL_ROWS);
   const [syncOpen, setSyncOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = usePersistentState<number[]>('ereturn-ledger:v2:bank-fi-selected', []);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const { updateCategoryAmount } = useLedgerRuntime();
-  const totalTds = useMemo(() => INITIAL_ROWS.reduce((sum, row) => sum + parseMoney(row.tds), 0), []);
+  const totalTds = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.tds), 0), [rows]);
 
   useEffect(() => {
     updateCategoryAmount('bank-fi', totalTds);
@@ -45,9 +46,16 @@ export const BankFiLeanPage: React.FC<{
 
   const closeSync = () => {
     setSyncOpen(false);
+    setSelectedIds([]);
   };
 
   const syncSelected = () => {
+    const selectedRows = INITIAL_ROWS.filter((row) => selectedIds.includes(row.id));
+    setRows((current) => {
+      const byId = new Map(current.map((row) => [row.id, row]));
+      selectedRows.forEach((row) => byId.set(row.id, row));
+      return Array.from(byId.values()).sort((a, b) => a.id - b.id);
+    });
     closeSync();
     onUnavailableAction(
       isBn
@@ -89,7 +97,7 @@ export const BankFiLeanPage: React.FC<{
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {INITIAL_ROWS.map((row, index) => (
+              {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
                   <td data-label="Bank Name" className="px-4 py-3 font-medium text-[#172033]">{row.bank}</td>
