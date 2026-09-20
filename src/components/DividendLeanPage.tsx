@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type DividendRow = {
@@ -86,13 +87,19 @@ export const DividendLeanPage: React.FC<{
 
   const saveSync = () => {
     const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
-    const invalid = selectedRows.some((row) =>
-      !row.reference.trim() ||
-      !row.date.trim() ||
-      parseMoney(row.amount) < 0 ||
-      parseMoney(row.claimed) < 0 ||
-      parseMoney(row.claimed) > parseMoney(row.amount)
-    );
+    const invalid = selectedRows.some((row) => {
+      const amount = parseMoneyStrict(row.amount);
+      const claimed = parseMoneyStrict(row.claimed);
+      return (
+        !hasText(row.reference) ||
+        !isValidLedgerDate(row.date) ||
+        !isValidMoneyInput(row.amount) ||
+        !isValidMoneyInput(row.claimed) ||
+        amount === null ||
+        claimed === null ||
+        claimed > amount
+      );
+    });
     if (invalid) {
       onUnavailableAction(
         isBn
