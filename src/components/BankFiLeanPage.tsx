@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type BankRow = {
   id: number;
@@ -33,6 +34,7 @@ export const BankFiLeanPage: React.FC<{
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<BankRow[]>(INITIAL_ROWS);
+  const [syncLoading, setSyncLoading] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
   const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const totalTds = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.tds), 0), [rows]);
@@ -47,10 +49,25 @@ export const BankFiLeanPage: React.FC<{
     );
   };
 
-  const openSync = () => {
-    setDraftRows(INITIAL_ROWS.map((row) => ({ ...row })));
-    setSelectedIds(INITIAL_ROWS.map((row) => row.id));
-    setSyncOpen(true);
+  const openSync = async () => {
+    setSyncLoading(true);
+    try {
+      const sourceRows = await fetchIncomeSyncRecords<BankRow>('bank-fi', INITIAL_ROWS);
+      setDraftRows(sourceRows);
+      setSelectedIds(sourceRows.map((row) => row.id));
+      setSyncOpen(true);
+      if (sourceRows.length === 0) {
+        onUnavailableAction(
+          isBn
+            ? 'Income-এ সংশ্লিষ্ট Bank/FI তথ্য নেই, তাই সিঙ্ক করার মতো কোনো রেকর্ড পাওয়া যায়নি।'
+            : 'No Bank/FI records are available to sync because the related Income data is not available.'
+        );
+      }
+    } catch {
+      onUnavailableAction(isBn ? 'Income থেকে Bank/FI তথ্য আনা যায়নি। পরে আবার চেষ্টা করুন।' : 'Bank/FI Income data could not be loaded. Please try again.');
+    } finally {
+      setSyncLoading(false);
+    }
   };
 
   const updateDraftTds = (id: number, value: string) => {
@@ -87,11 +104,12 @@ export const BankFiLeanPage: React.FC<{
         </div>
         <button
           type="button"
-          onClick={openSync}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
+          onClick={() => void openSync()}
+          disabled={syncLoading}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
-          {isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income'}
+          {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income')}
         </button>
       </header>
 
