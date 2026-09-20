@@ -332,12 +332,23 @@ export const CategoryWorkspace: React.FC<{
 
   const openAdd = () => {
     setEditing(null);
-    setForm({});
-    setQuery('');
+    const defaults: Record<string, string> = {};
+    if (config?.columns.some((column) => column.key === 'documentType')) defaults.documentType = 'Challan';
+    if (categoryId === 'tax-refund') defaults.year = '2025-2026';
+    setForm(defaults);
     setAdding(true);
   };
 
+  const formComplete = config
+    ? config.columns.every((column) => String(form[column.key] ?? '').trim().length > 0)
+    : false;
+  const claimedWithinAmount =
+    form.claimed === undefined ||
+    parseMoney(form.claimed) <= parseMoney(form.amount ?? form.refund ?? form.claimed);
+  const formValid = formComplete && claimedWithinAmount;
+
   const saveAdd = () => {
+    if (!formValid) return;
     const nextRow = Object.fromEntries(config.columns.map((column) => [column.key, form[column.key] ?? '']));
     setRows((current) => [
       ...current,
@@ -354,7 +365,7 @@ export const CategoryWorkspace: React.FC<{
   };
 
   const saveEdit = () => {
-    if (!editing) return;
+    if (!editing || !formValid) return;
     setRows((current) => current.map((row) => row.id === editing.id ? { ...row, ...form } : row));
     setEditing(null);
     setForm({});
@@ -366,12 +377,51 @@ export const CategoryWorkspace: React.FC<{
     }
   };
 
+  const lookupKeyByCategory: Record<string, string> = {
+    'commercial-vehicle': 'uniqueKey',
+    'ait-car': 'transaction',
+    'ait-154': 'challan',
+    'tax-paid-return': 'challan',
+  };
+
   const lookupAction = () => {
-    onUnavailableAction(
-      isBn
-        ? 'বর্তমান স্ক্রিনশটের lookup UI সংরক্ষিত হয়েছে; বাস্তব lookup API এখনো সংযুক্ত নয়।'
-        : 'The current-screen lookup UI is preserved; the real lookup API is not connected yet.'
-    );
+    const value = query.trim();
+    if (!value) {
+      onUnavailableAction(isBn ? 'অনুসন্ধানের মান লিখুন।' : 'Enter a lookup value.');
+      return;
+    }
+
+    const lookupKey = lookupKeyByCategory[categoryId];
+    const catalog = config.rows;
+    const match = lookupKey
+      ? catalog.find((row) => String(row[lookupKey] ?? '').toLowerCase() === value.toLowerCase())
+      : undefined;
+
+    if (!match) {
+      setLookupResult(null);
+      onUnavailableAction(isBn ? 'কোনো মিল পাওয়া যায়নি।' : 'No matching record found.');
+      return;
+    }
+
+    if (categoryId === 'commercial-vehicle' || categoryId === 'ait-car') {
+      setLookupResult(match);
+      return;
+    }
+
+    const alreadyAdded = rows.some((row) => row.id === match.id);
+    if (!alreadyAdded) setRows((current) => [...current, { ...match }]);
+    onUnavailableAction(alreadyAdded
+      ? (isBn ? 'রেকর্ডটি ইতোমধ্যে যোগ করা আছে।' : 'This record is already added.')
+      : (isBn ? 'রেকর্ডটি সংরক্ষিত হয়েছে।' : 'Record saved.'));
+  };
+
+  const saveLookupResult = () => {
+    if (!lookupResult) return;
+    const alreadyAdded = rows.some((row) => row.id === lookupResult.id);
+    if (!alreadyAdded) setRows((current) => [...current, { ...lookupResult }]);
+    onUnavailableAction(alreadyAdded
+      ? (isBn ? 'রেকর্ডটি ইতোমধ্যে যোগ করা আছে।' : 'This record is already added.')
+      : (isBn ? 'রেকর্ডটি সংরক্ষিত হয়েছে।' : 'Record saved.'));
   };
 
   const hasActions = !!(config.addable || config.editable || config.deletable);
@@ -419,7 +469,7 @@ export const CategoryWorkspace: React.FC<{
           {config.summaryLabel && (
             <div>
               <p className="text-xs text-[#5F6B7A]">{config.summaryLabel}</p>
-              <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{config.summaryValue}</p>
+              <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{amountKey ? formatLedgerNumber(currentTotal) : config.summaryValue}</p>
             </div>
           )}
           {config.showCount && (
@@ -446,7 +496,7 @@ export const CategoryWorkspace: React.FC<{
             {config.showReset && (
               <button
                 type="button"
-                onClick={() => setQuery('')}
+                onClick={() => { setQuery(''); setLookupResult(null); }}
                 className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2.5 text-sm font-semibold text-[#263247] hover:bg-slate-50"
               >
                 Reset
@@ -464,8 +514,9 @@ export const CategoryWorkspace: React.FC<{
                 </button>
                 <button
                   type="button"
-                  onClick={lookupAction}
-                  className="rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
+                  onClick={saveLookupResult}
+                  disabled={!lookupResult}
+                  className="rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Save
                 </button>
@@ -484,6 +535,30 @@ export const CategoryWorkspace: React.FC<{
         </section>
       )}
 
+      {lookupResult && (categoryId === 'commercial-vehicle' || categoryId === 'ait-car') && (
+        <section className="rounded-xl border border-[#D7E8F2] bg-[#F5FAFD] p-4" aria-live="polite">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {config.columns.map((column) => (
+              <div key={column.key}>
+                <p className="text-xs font-semibold text-[#5F6B7A]">{column.label}</p>
+                <p className="mt-1 text-sm font-medium text-[#172033]">{String(lookupResult[column.key] ?? '—')}</p>
+              </div>
+            ))}
+          </div>
+          {categoryId === 'commercial-vehicle' && (
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={saveLookupResult}
+                className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A]"
+              >
+                Save
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         {config.tableTitle && (
           <div className="border-b border-[#E2E8F0] px-4 py-3">
@@ -491,7 +566,7 @@ export const CategoryWorkspace: React.FC<{
           </div>
         )}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
+          <table className="ledger-responsive-table w-full min-w-[900px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
@@ -510,17 +585,18 @@ export const CategoryWorkspace: React.FC<{
             <tbody className="divide-y divide-slate-100">
               {filteredRows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
+                  <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
                   {config.columns.map((column) => (
                     <td
                       key={column.key}
+                      data-label={column.label}
                       className={`px-4 py-3 ${column.numeric ? 'text-right font-medium' : 'text-left'}`}
                     >
                       {String(row[column.key] ?? '—')}
                     </td>
                   ))}
                   {hasActions && (
-                    <td className="px-4 py-2">
+                    <td data-label="Action" className="px-4 py-2">
                       <div className="flex justify-end gap-1">
                         {config.editable && (
                           <button
@@ -550,29 +626,72 @@ export const CategoryWorkspace: React.FC<{
 
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
-                  <td className="px-4 py-3 font-semibold text-[#0B6FA4]">{isBn ? 'নতুন' : 'New'}</td>
+                  <td data-label="SL." className="px-4 py-3 font-semibold text-[#0B6FA4]">{rows.length + 1}</td>
                   {config.columns.map((column, index) => (
-                    <td key={column.key} className="px-2 py-2.5">
-                      <input
-                        autoFocus={index === 0}
-                        value={form[column.key] || ''}
-                        onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Escape') {
-                            setAdding(false);
-                            setForm({});
-                          }
-                          if (event.key === 'Enter') saveAdd();
-                        }}
-                        aria-label={column.label}
-                        placeholder={column.label}
-                        className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 ${column.numeric ? 'text-right' : 'text-left'}`}
-                      />
+                    <td key={column.key} data-label={column.label} className="px-2 py-2.5">
+                      {column.key === 'documentType' ? (
+                        <select
+                          autoFocus={index === 0}
+                          value={form[column.key] || 'Challan'}
+                          onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') { setAdding(false); setForm({}); }
+                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                          }}
+                          className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
+                        >
+                          <option value="Challan">Challan</option>
+                          <option value="Certificate">Certificate</option>
+                        </select>
+                      ) : categoryId === 'other-tds' && column.key === 'purpose' ? (
+                        <select
+                          autoFocus={index === 0}
+                          value={form[column.key] || ''}
+                          onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') { setAdding(false); setForm({}); }
+                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                          }}
+                          className="w-full min-w-[180px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
+                        >
+                          <option value="">Select One</option>
+                          {Array.from(new Set(config.rows.map((row) => String(row.purpose ?? '')).filter(Boolean))).map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      ) : categoryId === 'tax-refund' && column.key === 'year' ? (
+                        <select
+                          autoFocus={index === 0}
+                          value={form[column.key] || '2025-2026'}
+                          onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') { setAdding(false); setForm({}); }
+                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                          }}
+                          className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
+                        >
+                          <option value="2025-2026">2025-2026</option>
+                        </select>
+                      ) : (
+                        <input
+                          autoFocus={index === 0}
+                          value={form[column.key] || ''}
+                          onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') { setAdding(false); setForm({}); }
+                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                          }}
+                          aria-label={column.label}
+                          inputMode={column.numeric ? 'decimal' : undefined}
+                          placeholder={column.label}
+                          className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 ${column.numeric ? 'text-right' : 'text-left'}`}
+                        />
+                      )}
                     </td>
                   ))}
-                  <td className="px-3 py-2.5">
+                  <td data-label="Action" className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
-                      <button type="button" onClick={saveAdd} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700">
+                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
                         <Check className="h-4 w-4" />
                       </button>
                       <button
@@ -582,9 +701,9 @@ export const CategoryWorkspace: React.FC<{
                           setForm({});
                         }}
                         aria-label="Cancel"
-                        className="rounded-md border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-50"
+                        className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"
                       >
-                        <X className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
@@ -606,31 +725,6 @@ export const CategoryWorkspace: React.FC<{
         </div>
       </section>
 
-      {categoryId === 'environmental-surcharge' && (
-        <section className="rounded-xl border border-[#E2E8F0] bg-white p-5">
-          <div className="max-w-2xl">
-            <label className="mb-2 block text-sm font-semibold text-[#172033]">
-              Surcharge Declared By Assessee
-            </label>
-            <input
-              value={declaredSurcharge}
-              onChange={(event) => setDeclaredSurcharge(event.target.value)}
-              inputMode="decimal"
-              className="w-full rounded-lg border border-[#C8D4E1] px-3 py-2.5 text-right text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
-            />
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={() => onUnavailableAction(isBn ? 'Save API এখনো সংযুক্ত নয়।' : 'Save API is not connected yet.')}
-                className="rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
@@ -644,17 +738,39 @@ export const CategoryWorkspace: React.FC<{
               {config.columns.map((column) => (
                 <div key={column.key}>
                   <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{column.label}</label>
-                  <input
-                    value={form[column.key] || ''}
-                    onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
-                    className={`w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 ${column.numeric ? 'text-right' : ''}`}
-                  />
+                  {column.key === 'documentType' ? (
+                    <select
+                      value={form[column.key] || 'Challan'}
+                      onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+                    >
+                      <option value="Challan">Challan</option>
+                      <option value="Certificate">Certificate</option>
+                    </select>
+                  ) : categoryId === 'other-tds' && column.key === 'purpose' ? (
+                    <select
+                      value={form[column.key] || ''}
+                      onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+                    >
+                      {Array.from(new Set(config.rows.map((row) => String(row.purpose ?? '')).filter(Boolean))).map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={form[column.key] || ''}
+                      onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
+                      inputMode={column.numeric ? 'decimal' : undefined}
+                      className={`w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 ${column.numeric ? 'text-right' : ''}`}
+                    />
+                  )}
                 </div>
               ))}
             </div>
             <div className="flex justify-end gap-2 border-t px-5 py-4">
               <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Cancel</button>
-              <button type="button" onClick={saveEdit} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white">Save</button>
+              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">Save</button>
             </div>
           </div>
         </div>
