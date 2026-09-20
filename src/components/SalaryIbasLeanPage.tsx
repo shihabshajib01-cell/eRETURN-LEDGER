@@ -3,7 +3,8 @@ import { Check, Search } from 'lucide-react';
 import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
-import { parseMoney } from '../utils/money';
+import { formatLedgerNumber, parseMoney } from '../utils/money';
+import { fetchIbasSalaryTds, IbasSalaryTdsRecord } from '../services/iBasLookup';
 
 export const SalaryIbasLeanPage: React.FC<{
   lang: Language;
@@ -13,24 +14,36 @@ export const SalaryIbasLeanPage: React.FC<{
   const [claim, setClaim] = useState(savedClaim);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [salaryRecord, setSalaryRecord] = useState<IbasSalaryTdsRecord | null>(null);
   const { updateCategoryAmount } = useLedgerRuntime();
   const isBn = lang === 'bn';
-  const available = 500450;
+  const available = salaryRecord?.tdsAvailable ?? 0;
   const claimAmount = useMemo(() => parseMoney(claim), [claim]);
   const savedClaimAmount = useMemo(() => parseMoney(savedClaim), [savedClaim]);
-  const invalid = claimAmount < 0 || claimAmount > available;
+  const invalid = !salaryRecord || claimAmount < 0 || claimAmount > available;
 
   useEffect(() => {
     updateCategoryAmount('salary-ibas', savedClaimAmount);
   }, [savedClaimAmount, updateCategoryAmount]);
 
-  const searchIbas = () => {
+  const searchIbas = async () => {
     setSearching(true);
-    window.setTimeout(() => {
-      setSearching(false);
+    try {
+      const record = await fetchIbasSalaryTds();
+      setSalaryRecord(record);
       setSearched(true);
-      onUnavailableAction(isBn ? 'iBAS++ থেকে বেতন TDS তথ্য পাওয়া গেছে।' : 'Salary TDS information retrieved from iBAS++.');
-    }, 250);
+      if (record) {
+        onUnavailableAction(isBn ? 'iBAS++ থেকে বেতন TDS তথ্য পাওয়া গেছে।' : 'Salary TDS information retrieved from iBAS++.');
+      } else {
+        onUnavailableAction(isBn ? 'iBAS++-এ কোনো বেতন TDS তথ্য পাওয়া যায়নি।' : 'No salary TDS information was found in iBAS++.');
+      }
+    } catch {
+      setSalaryRecord(null);
+      setSearched(true);
+      onUnavailableAction(isBn ? 'iBAS++ ভেরিফিকেশন সার্ভিসে সংযোগ করা যাচ্ছে না।' : 'The iBAS++ verification service is unavailable.');
+    } finally {
+      setSearching(false);
+    }
   };
 
   const save = () => {
@@ -50,7 +63,7 @@ export const SalaryIbasLeanPage: React.FC<{
       <div className="flex justify-end">
         <button
           type="button"
-          onClick={searchIbas}
+          onClick={() => void searchIbas()}
           disabled={searching}
           className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50 disabled:opacity-50"
         >
@@ -59,18 +72,18 @@ export const SalaryIbasLeanPage: React.FC<{
         </button>
       </div>
 
-      {searched && (
+      {searched && salaryRecord && (
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="grid grid-cols-1 gap-px bg-[#E2E8F0] md:grid-cols-2">
-          <ReadOnlyInfo label={isBn ? 'করবর্ষ' : 'Assessment Year'} value="2026-2027" />
-          <ReadOnlyInfo label={isBn ? 'অফিসের নাম' : 'Office Name'} value="Bogura Technical Training Centre, Bogura" />
-          <ReadOnlyInfo label={isBn ? 'পদবি' : 'Designation'} value="Principal" />
-          <ReadOnlyInfo label={isBn ? 'উপলভ্য উৎস কর' : 'TDS Available'} value="5,00,450" emphasized />
+          <ReadOnlyInfo label={isBn ? 'করবর্ষ' : 'Assessment Year'} value={salaryRecord.assessmentYear} />
+          <ReadOnlyInfo label={isBn ? 'অফিসের নাম' : 'Office Name'} value={salaryRecord.officeName} />
+          <ReadOnlyInfo label={isBn ? 'পদবি' : 'Designation'} value={salaryRecord.designation} />
+          <ReadOnlyInfo label={isBn ? 'উপলভ্য উৎস কর' : 'TDS Available'} value={formatLedgerNumber(salaryRecord.tdsAvailable)} emphasized />
         </div>
       </section>
       )}
 
-      {searched && (
+      {searched && salaryRecord && (
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="tds-claim-title">
         <div className="px-5 py-4">
           <div className="max-w-2xl">
