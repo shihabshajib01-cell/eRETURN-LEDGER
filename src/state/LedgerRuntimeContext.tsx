@@ -27,6 +27,7 @@ const CATEGORY_BASELINES: Record<string, CategoryBaseline> = {
   import: { group: 'sourceTax', baseline: 1812218 },
   'commercial-vehicle': { group: 'sourceTax', baseline: 125000 },
   'other-tds': { group: 'sourceTax', baseline: 6970044 },
+  'ait-car': { group: 'advanceIncomeTax', baseline: 0 },
   'ait-154': { group: 'advanceIncomeTax', baseline: 118365 },
   'tax-paid-return': { baseline: 1004342 },
   'environmental-surcharge': { baseline: 50000 },
