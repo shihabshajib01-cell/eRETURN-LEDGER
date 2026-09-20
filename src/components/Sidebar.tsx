@@ -187,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang,
           <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
             <PhoneCall className="w-4 h-4 text-[#0B6FA4]" />
             <div>
-              <div className="font-bold text-[#172033]">16555</div>
+              <div className="font-bold text-[#172033]">09643717171</div>
               <div className="text-[11px] text-[#5F6B7A]">{t.helpline}</div>
             </div>
           </div>
