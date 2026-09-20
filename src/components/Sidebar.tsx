@@ -38,7 +38,7 @@ const sourceTaxItems = [
 
 const aitItems = [
   { id: 'ait-car', en: 'AIT on Car', bn: 'গাড়ির উপর AIT' },
-  { id: 'ait-154', en: 'AIT under Section 154', bn: 'ধারা ১৫৪ এর অধীন AIT' },
+  { id: 'ait-154', en: 'AIT (154)', bn: 'AIT (154)' },
 ];
 
 const otherCreditItems = [
@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang,
       type="button"
       onClick={() => setOpenGroup(openGroup === id ? null : id)}
       aria-expanded={openGroup === id}
-      className="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold text-[#5F6B7A] uppercase tracking-wider hover:text-[#172033] hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40"
+      className="w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold text-[#5F6B7A] hover:text-[#172033] hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40"
     >
       <span className="flex items-center gap-2 min-w-0">
         <Icon className="w-3.5 h-3.5 shrink-0" />
