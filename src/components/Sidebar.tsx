@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
+  Home,
   Receipt,
   ChevronDown,
   ChevronRight,
@@ -112,8 +113,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang,
               currentTab === 'dashboard' ? 'bg-[#EBF5FB] text-[#0B6FA4] border-l-4 border-[#0B6FA4] font-semibold pl-2.5' : 'text-[#172033] hover:bg-slate-50'
             }`}
           >
-            <LayoutDashboard className="w-4 h-4 shrink-0" />
+            <Home className="w-4 h-4 shrink-0" />
             <span>{t.dashboard}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => select('overview-dashboard')}
+            className={itemClass(currentTab === 'overview-dashboard')}
+          >
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
+            <span>{t.overviewDashboard}</span>
           </button>
 
           <button
