@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language, AssessmentYear } from './types';
-import { TRANSLATIONS } from './data/translations';
 import { ALL_TAX_CATEGORIES } from './data/mockTaxData';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -14,6 +13,7 @@ import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
 import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
 import { LedgerHomePage } from './components/LedgerHomePage';
+import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -63,8 +63,9 @@ export default function App() {
           {currentCategory?.id === 'salary-other' && <SalaryOtherLeanPage lang={lang} />}
           {currentCategory?.id === 'bank-fi' && <BankFiLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'dividend' && <DividendLeanPage lang={lang} onUnavailableAction={showToast} />}
+          {currentCategory?.id === 'service-payment' && <ServicePaymentLeanPage lang={lang} onUnavailableAction={showToast} />}
 
-          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend'].includes(currentCategory.id) && (
+          {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment'].includes(currentCategory.id) && (
             <CategoryWorkspace
               categoryId={currentCategory.id}
               lang={lang}
