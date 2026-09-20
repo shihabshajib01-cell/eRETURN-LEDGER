@@ -79,6 +79,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       'Edit': 'সম্পাদনা',
       'Save': 'সংরক্ষণ',
       'Cancel': 'বাতিল',
+      'Delete': 'মুছুন',
+      'Close': 'বন্ধ করুন',
     };
     return labels[label] || label;
   };
@@ -237,8 +239,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                       <button
                         type="button"
                         onClick={() => removeRow(row.id)}
-                        aria-label="Delete"
-                        title="Delete"
+                        aria-label={labelText("Delete")}
+                        title={labelText("Delete")}
                         className="rounded-md p-2 text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -251,17 +253,17 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
-                  <td data-label="Depositing Authority" className="px-2 py-2.5">
+                  <td data-label={labelText("Depositing Authority")} className="px-2 py-2.5">
                     <input
                       autoFocus
                       value={form.authority}
                       onChange={(event) => setForm((current) => ({ ...current, authority: event.target.value }))}
                       onKeyDown={handleRowKeyDown}
-                      placeholder="Enter Depositing Authority"
+                      placeholder={isBn ? "জমাদানকারী কর্তৃপক্ষ লিখুন" : "Enter Depositing Authority"}
                       className="w-full min-w-[160px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
                     />
                   </td>
-                  <td data-label="Payment Document Type" className="px-2 py-2.5">
+                  <td data-label={labelText("Payment Document Type")} className="px-2 py-2.5">
                     <select
                       value={form.documentType}
                       onChange={(event) => setForm((current) => ({ ...current, documentType: event.target.value }))}
@@ -272,11 +274,11 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                       <option value="Certificate">Certificate</option>
                     </select>
                   </td>
-                  <td data-label="Challan/ Certificate Reference No." className="px-2 py-2.5">
-                    <input value={form.reference} onChange={(event) => setForm((current) => ({ ...current, reference: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder="Enter Challan No." className="w-full min-w-[180px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                  <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-2 py-2.5">
+                    <input value={form.reference} onChange={(event) => setForm((current) => ({ ...current, reference: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "চালান/সার্টিফিকেট রেফারেন্স লিখুন" : "Enter Challan/Certificate Reference"} className="w-full min-w-[180px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
                   </td>
-                  <td data-label="Challan/ Certificate Date" className="px-2 py-2.5">
-                    <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder="Enter Date" className="w-full min-w-[135px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                  <td data-label={labelText("Challan/ Certificate Date")} className="px-2 py-2.5">
+                    <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "তারিখ লিখুন" : "Enter Date"} className="w-full min-w-[135px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
                   </td>
                   <td data-label={labelText("Bank Name")} className="px-2 py-2.5">
                     <input value={form.bank} onChange={(event) => setForm((current) => ({ ...current, bank: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "ব্যাংকের নাম" : "Bank Name"} className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
@@ -284,13 +286,13 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   <td data-label={labelText("Branch Name")} className="px-2 py-2.5">
                     <input value={form.branch} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "শাখার নাম" : "Branch Name"} className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
                   </td>
-                  <td data-label="Challan/ Certificate Amount" className="px-2 py-2.5">
-                    <input value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder="Enter Amount" className="w-full min-w-[125px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
+                  <td data-label={labelText("Challan/ Certificate Amount")} className="px-2 py-2.5">
+                    <input value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder={isBn ? "পরিমাণ লিখুন" : "Enter Amount"} className="w-full min-w-[125px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
                   </td>
-                  <td data-label="Claimed Amount" className="px-2 py-2.5">
-                    <input value={form.claimed} onChange={(event) => setForm((current) => ({ ...current, claimed: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder="Enter Claimed Amount" className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
+                  <td data-label={labelText("Claimed Amount")} className="px-2 py-2.5">
+                    <input value={form.claimed} onChange={(event) => setForm((current) => ({ ...current, claimed: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder={isBn ? "দাবিকৃত পরিমাণ লিখুন" : "Enter Claimed Amount"} className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
                   </td>
-                  <td data-label="Action" className="px-3 py-2.5">
+                  <td data-label={labelText("Action")} className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} title={labelText("Save")} className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
                         <Check className="h-4 w-4" />
@@ -312,7 +314,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
           <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="salary-edit-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 id="salary-edit-title" className="font-bold text-[#172033]">{labelText('Edit')}</h2>
-              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
+              <button type="button" onClick={() => setEditing(null)} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
                 <X className="h-5 w-5" />
               </button>
             </div>
