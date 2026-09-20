@@ -8,11 +8,12 @@ interface TaxPaymentStatusPageProps {
   lang: Language;
   onBack: () => void;
   onGoToEReturn: () => void;
+  showHeader?: boolean;
 }
 
 type ExpandableGroup = 'source' | 'ait';
 
-export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang, onGoToEReturn }) => {
+export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang, onGoToEReturn, showHeader = true }) => {
   const isBn = lang === 'bn';
   const runtime = useLedgerRuntime();
   const [expanded, setExpanded] = useState<ExpandableGroup | null>('source');
@@ -50,16 +51,18 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
 
   return (
     <section className="w-full space-y-5" aria-labelledby="payment-status-title">
-      <header className="max-w-4xl">
-        <h1 id="payment-status-title" className="text-2xl font-bold tracking-tight text-[#172033] lg:text-[28px]">
-          {isBn ? 'কর পরিশোধের বিবরণী' : 'Tax Payment Status'}
-        </h1>
-        <p className="mt-1.5 text-sm leading-6 text-[#5F6B7A]">
-          {isBn
-            ? 'ই-রিটার্নে ফিরে যাওয়ার আগে এই লেজারে থাকা সব কর পরিশোধ, উৎস কর, AIT এবং সমন্বয়ের পরিমাণ পর্যালোচনা করুন।'
-            : 'Review all tax payments, source tax, AIT and adjustments recorded in this Ledger before returning to eReturn.'}
-        </p>
-      </header>
+      {showHeader && (
+        <header className="max-w-4xl">
+          <h1 id="payment-status-title" className="text-2xl font-bold tracking-tight text-[#172033] lg:text-[28px]">
+            {isBn ? 'কর পরিশোধের বিবরণী' : 'Tax Payment Status'}
+          </h1>
+          <p className="mt-1.5 text-sm leading-6 text-[#5F6B7A]">
+            {isBn
+              ? 'ই-রিটার্নে ফিরে যাওয়ার আগে এই লেজারে থাকা সব কর পরিশোধ, উৎস কর, AIT এবং সমন্বয়ের পরিমাণ পর্যালোচনা করুন।'
+              : 'Review all tax payments, source tax, AIT and adjustments recorded in this Ledger before returning to eReturn.'}
+          </p>
+        </header>
+      )}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="payment-breakdown-title">
