@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { Language } from '../types';
-import { VERIFIED_LEDGER_TOTALS, TOTAL_AVAILABLE_TAX_CREDIT, formatBDT } from '../data/mockTaxData';
+import { VERIFIED_LEDGER_TOTALS, TOTAL_AVAILABLE_TAX_CREDIT } from '../data/mockTaxData';
 
 interface TaxPaymentStatusPageProps {
   lang: Language;
@@ -11,7 +11,7 @@ interface TaxPaymentStatusPageProps {
 
 const rows = [
   ['Source Tax', VERIFIED_LEDGER_TOTALS.sourceTax, true],
-  ['Advance Income Tax', VERIFIED_LEDGER_TOTALS.advanceIncomeTax, true],
+  ['Advance Income Tax (AIT)', VERIFIED_LEDGER_TOTALS.advanceIncomeTax, true],
   ['Tax Paid With Return', VERIFIED_LEDGER_TOTALS.taxPaidWithReturn, false],
   ['Environmental Surcharge', VERIFIED_LEDGER_TOTALS.environmentalSurcharge, false],
   ['Adjustment of Tax Refund', VERIFIED_LEDGER_TOTALS.adjustmentOfTaxRefund, false],
@@ -50,7 +50,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
                   )}
                 </div>
                 <div className="px-5 py-4 text-right font-semibold text-[#172033]">
-                  {formatBDT(amount)}
+                  {amount.toLocaleString('en-IN')}
                 </div>
               </div>
 
@@ -59,7 +59,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
 
           <div className="grid grid-cols-[minmax(0,1fr)_220px] items-center bg-slate-50 text-base">
             <div className="px-5 py-4 font-bold text-[#172033]">{isBn ? 'মোট' : 'Total'}</div>
-            <div className="px-5 py-4 text-right font-bold text-[#0B6FA4]">{formatBDT(TOTAL_AVAILABLE_TAX_CREDIT)}</div>
+            <div className="px-5 py-4 text-right font-bold text-[#0B6FA4]">{TOTAL_AVAILABLE_TAX_CREDIT.toLocaleString('en-IN')}</div>
           </div>
         </div>
       </section>
