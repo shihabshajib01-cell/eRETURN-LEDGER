@@ -32,6 +32,7 @@ export const BankFiLeanPage: React.FC<{
   const [rows, setRows] = usePersistentState<BankRow[]>('ereturn-ledger:v2:bank-fi-rows', INITIAL_ROWS);
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [draftRows, setDraftRows] = useState<BankRow[]>(INITIAL_ROWS);
   const { updateCategoryAmount } = useLedgerRuntime();
   const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const totalTds = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.tds), 0), [rows]);
@@ -46,13 +47,23 @@ export const BankFiLeanPage: React.FC<{
     );
   };
 
+  const openSync = () => {
+    setDraftRows(INITIAL_ROWS.map((row) => ({ ...row })));
+    setSelectedIds(INITIAL_ROWS.map((row) => row.id));
+    setSyncOpen(true);
+  };
+
+  const updateDraftTds = (id: number, value: string) => {
+    setDraftRows((current) => current.map((row) => row.id === id ? { ...row, tds: value } : row));
+  };
+
   const closeSync = () => {
     setSyncOpen(false);
     setSelectedIds([]);
   };
 
   const syncSelected = () => {
-    const selectedRows = INITIAL_ROWS.filter((row) => selectedIds.includes(row.id));
+    const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
     setRows((current) => {
       const byId = new Map(current.map((row) => [row.id, row]));
       selectedRows.forEach((row) => byId.set(row.id, row));
@@ -76,7 +87,7 @@ export const BankFiLeanPage: React.FC<{
         </div>
         <button
           type="button"
-          onClick={() => setSyncOpen(true)}
+          onClick={openSync}
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
@@ -138,8 +149,8 @@ export const BankFiLeanPage: React.FC<{
                       <label className="inline-flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={selectedIds.length === INITIAL_ROWS.length}
-                          onChange={(event) => setSelectedIds(event.target.checked ? INITIAL_ROWS.map((row) => row.id) : [])}
+                          checked={selectedIds.length === draftRows.length}
+                          onChange={(event) => setSelectedIds(event.target.checked ? draftRows.map((row) => row.id) : [])}
                           className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4] focus:ring-[#0B6FA4]"
                         />
                         Select
@@ -154,7 +165,7 @@ export const BankFiLeanPage: React.FC<{
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {INITIAL_ROWS.map((row) => (
+                  {draftRows.map((row) => (
                     <tr key={row.id}>
                       <td className="px-4 py-3">
                         <input
@@ -170,7 +181,16 @@ export const BankFiLeanPage: React.FC<{
                       <td className="px-4 py-3 text-[#263247]">{row.branch}</td>
                       <td className="px-4 py-3 text-[#263247]">{row.accountNumber}</td>
                       <td className="px-4 py-3 text-right font-medium">{row.interest}</td>
-                      <td className="px-4 py-3 text-right font-semibold">{row.tds}</td>
+                      <td className="px-4 py-3">
+                        <input
+                          value={row.tds}
+                          disabled={!selectedIds.includes(row.id)}
+                          onChange={(event) => updateDraftTds(row.id, event.target.value)}
+                          inputMode="decimal"
+                          aria-label={isBn ? `${row.bank} উৎস কর` : `${row.bank} TDS`}
+                          className="w-full min-w-[110px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2 text-right font-semibold disabled:bg-slate-100"
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -185,7 +205,7 @@ export const BankFiLeanPage: React.FC<{
                 className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RefreshCw className="h-4 w-4" />
-                {isBn ? 'সিঙ্ক' : 'Sync'}
+                {isBn ? 'সংরক্ষণ' : 'Save'}
               </button>
             </div>
           </div>
