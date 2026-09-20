@@ -271,7 +271,7 @@ export const LookupClaimPage: React.FC<{
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => { if (event.key === 'Enter') void search(); }}
+              onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); void (directSaveLookup ? directSave() : search()); } }}
               placeholder={label(config.placeholder)}
               className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-2.5 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
             />
