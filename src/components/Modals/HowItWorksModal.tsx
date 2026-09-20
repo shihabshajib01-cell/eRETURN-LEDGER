@@ -64,7 +64,15 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClos
           })}
         </div>
 
-        <div className="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <div className="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            type="button"
+            onClick={() => window.open('https://nbr.gov.bd/publications/income-tax/60', '_blank', 'noopener,noreferrer')}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-[#C8D4E1] bg-white text-[#0B6FA4] text-xs font-semibold hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            {lang === 'bn' ? 'বর্তমান NBR আয়কর নির্দেশিকা' : 'Current NBR Income Tax Guide'}
+          </button>
           <button type="button" onClick={onClose} className="px-5 py-2 rounded-lg bg-[#0B6FA4] hover:bg-[#095782] text-white text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/40">
             {lang === 'bn' ? 'বন্ধ করুন' : 'Close'}
           </button>
