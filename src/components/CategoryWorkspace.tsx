@@ -20,6 +20,7 @@ type CategoryConfig = {
   summaryValue?: string;
   lookupLabel?: string;
   lookupPrimary?: 'Search' | 'Save';
+  showReset?: boolean;
   tableTitle?: string;
 };
 
@@ -152,6 +153,7 @@ const configs: Record<string, CategoryConfig> = {
     title: 'AIT under Section 154',
     lookupLabel: 'Challan No.',
     lookupPrimary: 'Save',
+    showReset: true,
     deletable: true,
     targetCount: 3,
     tableTitle: 'AIT Details',
@@ -174,6 +176,7 @@ const configs: Record<string, CategoryConfig> = {
     title: 'Regular Tax under Section 173',
     lookupLabel: 'Challan No.',
     lookupPrimary: 'Save',
+    showReset: true,
     deletable: true,
     targetCount: 5,
     columns: [
@@ -389,21 +392,43 @@ export const CategoryWorkspace: React.FC<{
                 className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-2.5 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setQuery('')}
-              className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2.5 text-sm font-semibold text-[#263247] hover:bg-slate-50"
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              onClick={lookupAction}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
-            >
-              {config.lookupPrimary === 'Search' && <Search className="h-4 w-4" />}
-              {config.lookupPrimary || 'Search'}
-            </button>
+            {config.showReset && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2.5 text-sm font-semibold text-[#263247] hover:bg-slate-50"
+              >
+                Reset
+              </button>
+            )}
+            {categoryId === 'ait-car' ? (
+              <>
+                <button
+                  type="button"
+                  onClick={lookupAction}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50"
+                >
+                  <Search className="h-4 w-4" />
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={lookupAction}
+                  className="rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
+                >
+                  Save
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={lookupAction}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
+              >
+                {config.lookupPrimary === 'Search' && <Search className="h-4 w-4" />}
+                {config.lookupPrimary || 'Search'}
+              </button>
+            )}
           </div>
         </section>
       )}
