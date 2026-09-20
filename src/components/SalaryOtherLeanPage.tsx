@@ -109,14 +109,14 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
           </h1>
           <p className="mt-1 text-sm leading-relaxed text-[#5F6B7A]">
-            {isBn ? 'বেতন [ ধারা-৮৬ ]' : 'Salary [ Section-86 ]'}
+            {isBn ? 'বেতন [ ধারা-৮৬]' : 'Salary [ Section-86]'}
           </p>
         </div>
 
         <div className="flex flex-wrap items-end gap-5">
           <div className="text-left sm:text-right">
             <p className="text-xs font-medium text-[#5F6B7A]">{isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">৳ 36,36,074</p>
+            <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">36,36,074</p>
           </div>
           <div className="text-left sm:text-right">
             <p className="text-xs font-medium text-[#5F6B7A]">Count</p>
