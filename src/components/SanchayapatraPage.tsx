@@ -5,6 +5,7 @@ import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type SanchayRow = {
   id: number;
@@ -49,6 +50,7 @@ export const SanchayapatraPage: React.FC<{
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<SanchayRow[]>(SOURCE_ROWS);
+  const [syncLoading, setSyncLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingClaim, setEditingClaim] = useState('');
   const { updateCategoryAmount } = useLedgerRuntime();
@@ -94,10 +96,25 @@ export const SanchayapatraPage: React.FC<{
     onUnavailableAction(isBn ? 'সঞ্চয়পত্রের তথ্য লেজারে সংরক্ষিত হয়েছে।' : 'Sanchayapatra record saved to Ledger.');
   };
 
-  const openSync = () => {
-    setDraftRows(SOURCE_ROWS.map((row) => ({ ...row })));
-    setSelectedIds(SOURCE_ROWS.map((row) => row.id));
-    setSyncOpen(true);
+  const openSync = async () => {
+    setSyncLoading(true);
+    try {
+      const sourceRows = await fetchIncomeSyncRecords<SanchayRow>('sanchayapatra', SOURCE_ROWS);
+      setDraftRows(sourceRows);
+      setSelectedIds(sourceRows.map((row) => row.id));
+      setSyncOpen(true);
+      if (sourceRows.length === 0) {
+        onUnavailableAction(
+          isBn
+            ? 'Income > Financial Asset-এ Sanchayapatra তথ্য নেই, তাই সিঙ্ক করার মতো কোনো রেকর্ড পাওয়া যায়নি।'
+            : 'No Sanchayapatra records are available to sync because the related Income > Financial Asset data is not available.'
+        );
+      }
+    } catch {
+      onUnavailableAction(isBn ? 'Income থেকে Sanchayapatra তথ্য আনা যায়নি। পরে আবার চেষ্টা করুন।' : 'Sanchayapatra Income data could not be loaded. Please try again.');
+    } finally {
+      setSyncLoading(false);
+    }
   };
 
   const updateDraftClaim = (id: number, value: string) => {
@@ -166,9 +183,9 @@ export const SanchayapatraPage: React.FC<{
               className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-2.5 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
             />
           </div>
-          <button type="button" onClick={openSync} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#149DB2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#108A9D]">
+          <button type="button" onClick={() => void openSync()} disabled={syncLoading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#149DB2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#108A9D] disabled:cursor-not-allowed disabled:opacity-50">
             <RefreshCw className="h-4 w-4" />
-            {isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income'}
+            {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income')}
           </button>
           <button type="button" onClick={reset} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2.5 text-sm font-semibold text-[#263247] hover:bg-slate-50">
             {isBn ? 'রিসেট' : 'Reset'}
@@ -270,7 +287,7 @@ export const SanchayapatraPage: React.FC<{
               <button type="button" onClick={() => setSyncOpen(false)} aria-label={isBn ? 'বন্ধ করুন' : 'Close'} className="rounded-md p-2 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="overflow-auto">
-              <table className="w-full min-w-[1000px] text-sm">
+              <table className="ledger-responsive-table w-full min-w-[1000px] text-sm">
                 <thead className="bg-slate-50 text-[#5F6B7A]">
                   <tr>
                     <th className="px-4 py-3 text-left">{isBn ? 'নির্বাচন' : 'Select'}</th>
@@ -288,15 +305,15 @@ export const SanchayapatraPage: React.FC<{
                     const invalid = parseMoney(row.claim) > parseMoney(row.available);
                     return (
                       <tr key={row.id}>
-                        <td className="px-4 py-3">
+                        <td data-label={isBn ? "নির্বাচন" : "Select"} className="px-4 py-3">
                           <input type="checkbox" checked={selected} onChange={() => setSelectedIds((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])} />
                         </td>
-                        <td className="px-4 py-3">{row.scheme}</td>
-                        <td className="px-4 py-3">{row.registration}</td>
-                        <td className="px-4 py-3">{row.date}</td>
-                        <td className="px-4 py-3 text-right">{row.value}</td>
-                        <td className="px-4 py-3 text-right font-semibold">{row.available}</td>
-                        <td className="px-4 py-3">
+                        <td data-label={isBn ? "স্কিমের নাম" : "Name of Scheme"} className="px-4 py-3">{row.scheme}</td>
+                        <td data-label={isBn ? "রেজিস্ট্রেশন নং" : "Registration No."} className="px-4 py-3">{row.registration}</td>
+                        <td data-label={isBn ? "ইস্যুর তারিখ" : "Issue Date"} className="px-4 py-3">{row.date}</td>
+                        <td data-label={isBn ? "মূল্য" : "Value"} className="px-4 py-3 text-right">{row.value}</td>
+                        <td data-label={isBn ? "TDS উপলভ্য" : "TDS Available"} className="px-4 py-3 text-right font-semibold">{row.available}</td>
+                        <td data-label={isBn ? "TDS দাবি" : "TDS Claim"} className="px-4 py-3">
                           <input
                             value={row.claim}
                             disabled={!selected}
