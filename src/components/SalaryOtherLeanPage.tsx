@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Check, Edit2, Plus, Search, Trash2, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
 
 type SalaryRow = {
@@ -49,22 +49,12 @@ const columns: Column[] = [
 export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const isBn = lang === 'bn';
   const [rows, setRows] = useState<SalaryRow[]>(initialRows);
-  const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editing, setEditing] = useState<SalaryRow | null>(null);
 
-  const filteredRows = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return rows;
-    return rows.filter((row) =>
-      Object.values(row).some((value) => String(value).toLowerCase().includes(normalized))
-    );
-  }, [query, rows]);
-
   const openAdd = () => {
     setEditing(null);
-    setQuery('');
     setForm(emptyForm);
     setAdding(true);
   };
@@ -118,15 +108,19 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
           <h1 id="salary-other-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
             {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
           </h1>
-          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
+          <p className="mt-1 text-sm leading-relaxed text-[#5F6B7A]">
             {isBn ? 'বেতন [ ধারা-৮৬ ]' : 'Salary [ Section-86 ]'}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-wrap items-end gap-5">
           <div className="text-left sm:text-right">
             <p className="text-xs font-medium text-[#5F6B7A]">{isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'}</p>
             <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">৳ 36,36,074</p>
+          </div>
+          <div className="text-left sm:text-right">
+            <p className="text-xs font-medium text-[#5F6B7A]">Count</p>
+            <p className="mt-0.5 text-xl font-bold text-[#172033]">{rows.length}</p>
           </div>
           <button
             type="button"
@@ -135,44 +129,31 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
-            {isBn ? 'যোগ করুন' : 'Add'}
+            Add
           </button>
         </div>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="salary-other-records-title">
-        <div className="flex flex-col gap-3 border-b border-[#E2E8F0] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 id="salary-other-records-title" className="font-bold text-[#172033]">{isBn ? 'রেকর্ডসমূহ' : 'Records'}</h2>
-            <p className="mt-0.5 text-xs text-[#5F6B7A]">{rows.length} {isBn ? 'টি রেকর্ড' : 'records'}</p>
-          </div>
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" aria-hidden="true" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={isBn ? 'রেকর্ড খুঁজুন...' : 'Search records...'}
-              aria-label={isBn ? 'রেকর্ড খুঁজুন' : 'Search records'}
-              className="w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
-            />
-          </div>
-        </div>
-
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-slate-600">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">SL</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">SL</th>
                 {columns.map((column) => (
-                  <th key={column.key} className={`px-4 py-3 font-semibold ${column.numeric ? 'text-right' : 'text-left'}`}>
+                  <th
+                    scope="col"
+                    key={column.key}
+                    className={`px-4 py-3 font-semibold ${column.numeric ? 'text-right' : 'text-left'}`}
+                  >
                     {column.label}
                   </th>
                 ))}
-                <th className="px-4 py-3 text-right font-semibold">{isBn ? 'অ্যাকশন' : 'Action'}</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredRows.map((row, index) => (
+              {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td className="px-4 py-3 text-slate-500">{index + 1}</td>
                   <td className="px-4 py-3">{row.authority}</td>
@@ -186,8 +167,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                       <button
                         type="button"
                         onClick={() => openEdit(row)}
-                        aria-label={isBn ? 'সম্পাদনা করুন' : 'Edit record'}
-                        title={isBn ? 'সম্পাদনা' : 'Edit'}
+                        aria-label="Edit"
+                        title="Edit"
                         className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -195,8 +176,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                       <button
                         type="button"
                         onClick={() => removeRow(row.id)}
-                        aria-label={isBn ? 'মুছে ফেলুন' : 'Delete record'}
-                        title={isBn ? 'মুছে ফেলুন' : 'Delete'}
+                        aria-label="Delete"
+                        title="Delete"
                         className="rounded-md p-2 text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -208,7 +189,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
-                  <td className="px-4 py-3 font-semibold text-[#0B6FA4]">{isBn ? 'নতুন' : 'New'}</td>
+                  <td className="px-4 py-3 font-semibold text-[#0B6FA4]">New</td>
                   {columns.map((column, index) => (
                     <td key={column.key} className="px-2 py-2.5">
                       <input
@@ -227,33 +208,13 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   ))}
                   <td className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={saveAdd}
-                        aria-label={isBn ? 'এন্ট্রি সংরক্ষণ করুন' : 'Save entry'}
-                        title={isBn ? 'সংরক্ষণ' : 'Save'}
-                        className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
-                      >
+                      <button type="button" onClick={saveAdd} aria-label="Save" title="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700">
                         <Check className="h-4 w-4" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={cancelAdd}
-                        aria-label={isBn ? 'নতুন এন্ট্রি বাতিল করুন' : 'Cancel new entry'}
-                        title={isBn ? 'বাতিল' : 'Cancel'}
-                        className="rounded-md border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
-                      >
+                      <button type="button" onClick={cancelAdd} aria-label="Cancel" title="Cancel" className="rounded-md border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-50">
                         <X className="h-4 w-4" />
                       </button>
                     </div>
-                  </td>
-                </tr>
-              )}
-
-              {filteredRows.length === 0 && !adding && (
-                <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-slate-500">
-                    {isBn ? 'কোনো রেকর্ড পাওয়া যায়নি।' : 'No records found.'}
                   </td>
                 </tr>
               )}
@@ -266,8 +227,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
           <div role="dialog" aria-modal="true" aria-labelledby="salary-edit-title" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 id="salary-edit-title" className="font-bold text-[#172033]">{isBn ? 'এন্ট্রি সম্পাদনা করুন' : 'Edit Entry'}</h2>
-              <button type="button" onClick={() => setEditing(null)} aria-label={isBn ? 'বন্ধ করুন' : 'Close'} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
+              <h2 id="salary-edit-title" className="font-bold text-[#172033]">Edit</h2>
+              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -284,12 +245,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
               ))}
             </div>
             <div className="flex justify-end gap-2 border-t px-5 py-4">
-              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                {isBn ? 'বাতিল' : 'Cancel'}
-              </button>
-              <button type="button" onClick={saveEdit} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A]">
-                {isBn ? 'সংরক্ষণ' : 'Save'}
-              </button>
+              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button>
+              <button type="button" onClick={saveEdit} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white">Save</button>
             </div>
           </div>
         </div>
