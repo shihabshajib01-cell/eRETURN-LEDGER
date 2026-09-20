@@ -40,9 +40,9 @@ type Column = {
 const columns: Column[] = [
   { key: 'authority', label: 'Depositing Authority' },
   { key: 'documentType', label: 'Payment Document Type' },
-  { key: 'reference', label: 'Challan / Certificate Reference No.' },
-  { key: 'date', label: 'Date' },
-  { key: 'amount', label: 'Certificate Amount', numeric: true },
+  { key: 'reference', label: 'Challan/ Certificate Reference No.' },
+  { key: 'date', label: 'Challan/ Certificate Date' },
+  { key: 'amount', label: 'Challan/ Certificate Amount', numeric: true },
   { key: 'claimed', label: 'Claimed Amount', numeric: true },
 ];
 
@@ -119,9 +119,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
           </h1>
           <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
-            <span className="font-semibold text-[#0B6FA4]">{isBn ? 'ধারা ৮৬' : 'Section 86'}</span>
-            <span aria-hidden="true"> · </span>
-            {isBn ? 'iBAS++ বেতন ফ্লোর বাইরে বেতন উৎস কর রেকর্ড পরিচালনা করুন।' : 'Manage salary TDS records outside the iBAS++ salary flow.'}
+            {isBn ? 'বেতন [ ধারা-৮৬ ]' : 'Salary [ Section-86 ]'}
           </p>
         </div>
 
@@ -137,7 +135,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
-            {isBn ? 'এন্ট্রি যোগ করুন' : 'Add Entry'}
+            {isBn ? 'যোগ করুন' : 'Add'}
           </button>
         </div>
       </header>
