@@ -16,13 +16,17 @@ const files = {
   dividend: read('src/components/DividendLeanPage.tsx'),
   service: read('src/components/ServicePaymentLeanPage.tsx'),
   sanchay: read('src/components/SanchayapatraPage.tsx'),
+  importPage: read('src/components/ImportReadOnlyPage.tsx'),
+  otherTds: read('src/components/OtherTdsPage.tsx'),
   lookup: read('src/components/LookupClaimPage.tsx'),
   refund: read('src/components/TaxRefundPage.tsx'),
   environmental: read('src/components/EnvironmentalSurchargeLeanPage.tsx'),
-  workspace: read('src/components/CategoryWorkspace.tsx'),
+  carryForward: read('src/components/CarryForwardPage.tsx'),
   status: read('src/components/TaxPaymentStatusPage.tsx'),
   goto: read('src/components/Modals/GoToEReturnModal.tsx'),
   runtime: read('src/state/LedgerRuntimeContext.tsx'),
+  totals: read('src/domain/ledgerTotals.ts'),
+  validation: read('src/utils/validation.ts'),
   lookupService: read('src/services/eledgerLookup.ts'),
   lookupData: read('src/data/eledgerVerificationData.ts'),
 };
@@ -46,15 +50,14 @@ expectContains('Home', files.home, [
 
 expectContains('iBAS', files.ibas, [
   'iBAS++ (Salary) TDS',
-  'Search',
   'const [searched, setSearched] = useState(false)',
   'fetchIbasSalaryTds',
   'TDS Available',
   'TDS Claim',
-  'Save',
+  'isValidMoneyInput',
 ]);
 
-expectContains('iBAS integration boundary', files.ibasService, [
+expectContains('iBAS integration', files.ibasService, [
   'VITE_IBAS_TDS_LOOKUP_API',
   'Bogura Technical Training Centre, Bogura',
   'tdsAvailable: 500450',
@@ -65,40 +68,37 @@ expectContains('Salary Others', files.salaryOther, [
   'Salary [ Section-86]',
   'Bank Name',
   'Branch Name',
-  'Challan/ Certificate Reference No.',
-  'Challan/ Certificate Date',
   'Challan/ Certificate Amount',
   'Claimed Amount',
-  'usePersistentState',
+  'isValidLedgerDate',
+  'parseMoneyStrict',
 ]);
 
 expectContains('Bank TDS', files.bank, [
   'Bank TDS',
   'Sync From Income',
   'fetchIncomeSyncRecords',
-  'draftRows',
   'updateDraftTds',
-  'Save',
+  'parseMoneyStrict',
 ]);
 
 expectContains('Dividend', files.dividend, [
   'Dividend [ Section-117]',
   'Sync From Income',
   'fetchIncomeSyncRecords',
-  'Certificate Reference No',
-  'Certificate Reference Date',
-  'Save',
+  'isValidLedgerDate',
+  'parseMoneyStrict',
 ]);
 
 expectContains('Service Payment', files.service, [
   'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [Section-90]',
   'Sync From Income',
-  'fetchIncomeSyncRecords',
   'Bank Name',
   'Branch Name',
   'Add',
   'Edit',
   'Delete',
+  'isValidLedgerDate',
 ]);
 
 expectContains('Sanchayapatra', files.sanchay, [
@@ -107,24 +107,43 @@ expectContains('Sanchayapatra', files.sanchay, [
   'TDS Available',
   'TDS Claim',
   'For joint holding, enter only your applicable portion as TDS Claim.',
-  'fetchIncomeSyncRecords',
   'SOURCE_ROWS.find',
   'saveSearchResult',
+  'parseMoneyStrict',
 ]);
 
-const sanchaySourceCount = (files.sanchay.match(/scheme: 'Poribar Sanchayapatra'/g) || []).length;
-if (sanchaySourceCount !== 17) fail(`Sanchayapatra expected 17 source records, found ${sanchaySourceCount}`);
+const sanchayCount = (files.sanchay.match(/scheme: 'Poribar Sanchayapatra'/g) || []).length;
+if (sanchayCount !== 17) fail(`Sanchayapatra expected 17 source records, found ${sanchayCount}`);
+
+expectContains('Import', files.importPage, [
+  'Import (120) TDS Details',
+  'Total TDS Claimed',
+  'updateCategoryAmount',
+]);
+const importCount = (files.importPage.match(/\{ id: \d+, bin:/g) || []).length;
+if (importCount !== 7) fail(`Import expected 7 records, found ${importCount}`);
+
+expectContains('Other TDS', files.otherTds, [
+  'Other TDS Entry',
+  'Purpose of Payment',
+  'Bank Name',
+  'Branch Name',
+  'Challan/ Certificate Amount',
+  'Claimed Amount',
+  'other-tds-purpose-options',
+  'isValidLedgerDate',
+  'parseMoneyStrict',
+]);
+const otherTdsCount = (files.otherTds.match(/\{ id: \d+, purpose:/g) || []).length;
+if (otherTdsCount !== 7) fail(`Other TDS expected 7 baseline records, found ${otherTdsCount}`);
 
 expectContains('Lookup flows', files.lookup, [
-  "kind: LookupKind",
   "'commercial-vehicle'",
   "'ait-car'",
   "'ait-154'",
   "'tax-paid-return'",
   'Unique Key (Transaction No.)',
-  'directSaveLookup',
-  'resolveRecord',
-  'saveResult',
+  'directSaveLookup ? directSave() : search()',
   'lookupExternalLedgerRecord',
 ]);
 
@@ -135,28 +154,32 @@ expectContains('Lookup source data', files.lookupData, [
   'AIT_CAR_SOURCE',
 ]);
 
-expectContains('External lookup boundary', files.lookupService, [
+const ait154Count = (files.lookupData.match(/challan: '2526-0003/g) || []).length;
+if (ait154Count < 3) fail('AIT 154 source catalogue is incomplete.');
+const section173Count = (files.lookupData.match(/challan: '2526-00(?:01951606|19899715|23059430|23558743|60340578)'/g) || []).length;
+if (section173Count !== 5) fail(`Section 173 expected 5 verified records, found ${section173Count}`);
+
+expectContains('External lookup integration', files.lookupService, [
   'VITE_ELEDGER_LOOKUP_API',
-  'credentials: \'include\'',
+  "credentials: 'include'",
   'LookupCategory',
 ]);
 
-expectContains('Income sync boundary', files.incomeSync, [
+expectContains('Income sync integration', files.incomeSync, [
   'VITE_ERETURN_INCOME_SYNC_API',
   "category: IncomeSyncCategory",
   "credentials: 'include'",
   "response.status === 204 || response.status === 404",
 ]);
 
-expectContains('Tax refund', files.refund, [
+expectContains('Tax Refund', files.refund, [
   'Adjustment of Tax Refund',
   'Pending DCT Verification',
   'Deputy Commissioner of Taxes',
   'Refund Amount',
   'Adjustment Claim Amount',
-  'Add',
-  'Edit',
-  'Delete',
+  'isValidLedgerDate',
+  'parseMoneyStrict',
 ]);
 
 expectContains('Environmental Surcharge', files.environmental, [
@@ -164,16 +187,14 @@ expectContains('Environmental Surcharge', files.environmental, [
   'Surcharge Declared By Assessee',
   'Total Paid Amount',
   'environmental-bank-options',
+  'isValidLedgerDate',
+  'isValidMoneyInput',
 ]);
 
-expectContains('Other TDS manual claim', files.workspace, [
-  "title: 'Other TDS Entry'",
-  "label: 'Purpose of Payment'",
-  "label: 'Bank Name'",
-  "label: 'Branch Name'",
-  "label: 'Challan/ Certificate Amount'",
-  "label: 'Claimed Amount'",
-  'other-tds-purpose-options',
+expectContains('Carry forward', files.carryForward, [
+  'Adjustment of carry forward tax u/s 163',
+  'carry-forward-active',
+  "updateCategoryAmount('carry-forward'",
 ]);
 
 expectContains('Tax Payment Status', files.status, [
@@ -194,7 +215,7 @@ expectContains('Header shell', files.header, [
   'Taxpayer Profile',
   'Log Out',
   'Notifications',
-  'There are no new notifications right now.',
+  'VITE_ERETURN_LOGOUT_URL',
 ]);
 
 expectContains('User guide', files.guide, [
@@ -202,22 +223,57 @@ expectContains('User guide', files.guide, [
   'https://nbr.gov.bd/publications/income-tax/60',
 ]);
 
-expectContains('Shared runtime', files.runtime, [
-  'sourceTax',
-  'advanceIncomeTax',
-  'taxPaidWithReturn',
-  'environmentalSurcharge',
-  'adjustmentOfTaxRefund',
-  'carryForwardTax',
+expectContains('Single-source totals', files.runtime, [
+  'DEFAULT_CATEGORY_AMOUNTS',
+  'computeLedgerTotals',
+  'categoryAmounts',
   'updateCategoryAmount',
 ]);
+if (files.runtime.includes('BASE_TOTALS')) fail('Ledger runtime still contains hidden base-total residuals.');
 
-if (!files.app.includes('<SanchayapatraPage')) fail('App is not routing to the dedicated Sanchayapatra flow.');
-if (!files.app.includes('<LookupClaimPage kind="ait-car"')) fail('AIT on Car is not routed to Search -> Result -> Save flow.');
-if (!files.app.includes('<LookupClaimPage kind="ait-154"')) fail('AIT 154 is not routed to challan Save flow.');
-if (!files.app.includes('<LookupClaimPage kind="tax-paid-return"')) fail('Section 173 is not routed to challan Save flow.');
-if (!files.app.includes('<TaxRefundPage')) fail('Tax refund is not routed to its verification-aware page.');
-if (!files.status.includes('useLedgerRuntime')) fail('Tax Payment Status is not connected to live Ledger totals.');
-if (!files.workspace.includes('ledger-responsive-table')) fail('Generic Ledger tables are missing responsive card behavior.');
+expectContains('Totals domain', files.totals, [
+  'SOURCE_TAX_CATEGORY_IDS',
+  'AIT_CATEGORY_IDS',
+  'DEFAULT_CATEGORY_AMOUNTS',
+  'computeLedgerTotals',
+  "'other-tds': 6970044",
+  "'ait-154': 118365",
+]);
 
-if (!process.exitCode) console.log('Ledger functional parity audit passed.');
+expectContains('Validation', files.validation, [
+  'isValidMoneyInput',
+  'parseMoneyStrict',
+  'isValidLedgerDate',
+  'hasText',
+]);
+
+const dedicatedRoutes = [
+  '<SalaryIbasLeanPage',
+  '<SalaryOtherLeanPage',
+  '<BankFiLeanPage',
+  '<DividendLeanPage',
+  '<ServicePaymentLeanPage',
+  '<EnvironmentalSurchargeLeanPage',
+  '<SanchayapatraPage',
+  '<ImportReadOnlyPage',
+  '<OtherTdsPage',
+  '<LookupClaimPage kind="commercial-vehicle"',
+  '<LookupClaimPage kind="ait-car"',
+  '<LookupClaimPage kind="ait-154"',
+  '<LookupClaimPage kind="tax-paid-return"',
+  '<TaxRefundPage',
+  '<CarryForwardPage',
+];
+for (const route of dedicatedRoutes) {
+  if (!files.app.includes(route)) fail(`App is missing dedicated route: ${route}`);
+}
+
+if (files.app.includes('CategoryWorkspace')) {
+  fail('App still depends on the obsolete generic CategoryWorkspace implementation.');
+}
+
+if (!files.status.includes('useLedgerRuntime')) {
+  fail('Tax Payment Status is not connected to shared Ledger totals.');
+}
+
+if (!process.exitCode) console.log('Ledger functional freeze audit passed.');
