@@ -39,8 +39,8 @@ export const DividendLeanPage: React.FC<{
   }, [totalClaimed, updateCategoryAmount]);
 
   const openSync = () => {
-    setDraftRows(rows.map((row) => ({ ...row })));
-    setSelectedIds(rows.map((row) => row.id));
+    setDraftRows(INITIAL_ROWS.map((row) => ({ ...row })));
+    setSelectedIds(INITIAL_ROWS.map((row) => row.id));
     setSyncOpen(true);
   };
 
@@ -66,12 +66,12 @@ export const DividendLeanPage: React.FC<{
   };
 
   const saveSync = () => {
-    setRows((current) =>
-      current.map((row) => {
-        if (!selectedIds.includes(row.id)) return row;
-        return draftRows.find((draft) => draft.id === row.id) ?? row;
-      })
-    );
+    const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
+    setRows((current) => {
+      const byId = new Map(current.map((row) => [row.id, row]));
+      selectedRows.forEach((row) => byId.set(row.id, row));
+      return Array.from(byId.values()).sort((a, b) => a.id - b.id);
+    });
     closeSync();
     onUnavailableAction(isBn ? 'নির্বাচিত Dividend রেকর্ড সংরক্ষিত হয়েছে।' : 'Selected Dividend records saved.');
   };
