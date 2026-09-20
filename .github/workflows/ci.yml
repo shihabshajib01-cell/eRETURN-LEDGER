@@ -19,5 +19,7 @@ jobs:
         run: npm install
       - name: Typecheck
         run: npm run lint
+      - name: Ledger fidelity audit
+        run: npm run audit:ledger
       - name: Build
         run: npm run build
