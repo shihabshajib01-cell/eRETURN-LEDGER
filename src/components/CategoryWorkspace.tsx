@@ -56,6 +56,7 @@ const configs: Record<string, CategoryConfig> = {
   },
   sanchayapatra: {
     title: 'Sanchayapatra',
+    syncable: true,
     targetCount: 17,
     columns: [
       { key: 'scheme', label: 'Name of Scheme' },
@@ -500,7 +501,10 @@ export const CategoryWorkspace: React.FC<{
           {config.syncable && (
             <button
               type="button"
-              onClick={() => setSyncOpen(true)}
+              onClick={() => {
+                setSelectedSync([]);
+                setSyncOpen(true);
+              }}
               className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50"
             >
               <RefreshCw className="h-4 w-4" />
@@ -855,7 +859,7 @@ export const CategoryWorkspace: React.FC<{
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {rows.map((row) => (
+                  {config.rows.map((row) => (
                     <tr key={row.id}>
                       <td className="px-4 py-3">
                         <input
@@ -886,8 +890,15 @@ export const CategoryWorkspace: React.FC<{
                   type="button"
                   disabled={selectedSync.length === 0}
                   onClick={() => {
+                    const selectedRows = config.rows.filter((row) => selectedSync.includes(row.id));
+                    setRows((current) => {
+                      const byId = new Map(current.map((row) => [row.id, row]));
+                      selectedRows.forEach((row) => byId.set(row.id, { ...row }));
+                      return Array.from(byId.values()).sort((a, b) => a.id - b.id);
+                    });
                     setSyncOpen(false);
-                    onUnavailableAction(isBn ? 'Sync API এখনো সংযুক্ত নয়।' : 'Sync API is not connected yet.');
+                    setSelectedSync([]);
+                    onUnavailableAction(isBn ? 'নির্বাচিত রেকর্ডগুলো সিঙ্ক করা হয়েছে।' : 'Selected records synced.');
                   }}
                   className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                 >
