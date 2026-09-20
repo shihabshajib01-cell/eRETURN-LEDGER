@@ -23,6 +23,7 @@ const files = {
   environmental: read('src/components/EnvironmentalSurchargeLeanPage.tsx'),
   carryForward: read('src/components/CarryForwardPage.tsx'),
   status: read('src/components/TaxPaymentStatusPage.tsx'),
+  statusModal: read('src/components/Modals/TaxPaymentStatusModal.tsx'),
   goto: read('src/components/Modals/GoToEReturnModal.tsx'),
   runtime: read('src/state/LedgerRuntimeContext.tsx'),
   totals: read('src/domain/ledgerTotals.ts'),
@@ -272,12 +273,27 @@ if (files.app.includes('CategoryWorkspace')) {
   fail('App still depends on the obsolete generic CategoryWorkspace implementation.');
 }
 
-if (!files.app.includes("currentTab === 'dashboard'") || !files.app.includes('<TaxPaymentStatusPage')) {
-  fail('Tax Payment Status must remain the eLedger Home page.');
+if (!files.app.includes('taxPaymentStatusModalOpen') || !files.app.includes('<TaxPaymentStatusModal')) {
+  fail('Tax Payment Status must be available through the shared modal.');
 }
+
+if (!files.app.includes("tab === 'dashboard' || tab === 'payment-status'")) {
+  fail('Home and Tax Payment Status navigation must trigger the Tax Payment Status modal.');
+}
+
+expectContains('Tax Payment Status modal', files.statusModal, [
+  'TaxPaymentStatusPage',
+  'useDialogFocusTrap',
+  'role="dialog"',
+  'aria-modal="true"',
+]);
 
 if (!files.app.includes("currentTab === 'overview-dashboard'") || !files.app.includes('<LedgerDashboardPage')) {
   fail('The separate eLedger Dashboard route is missing.');
+}
+
+if (!files.app.includes('onViewPaymentStatus={() => setTaxPaymentStatusModalOpen(true)}')) {
+  fail('Dashboard View Tax Payment Status action is not wired to the modal.');
 }
 
 if (!files.app.includes("currentTab === 'ledger-guide'") || !files.app.includes('<LedgerHomePage')) {
