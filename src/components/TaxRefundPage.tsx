@@ -1,0 +1,237 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
+import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { formatLedgerNumber, parseMoney } from '../utils/money';
+
+type RefundRow = {
+  id: number;
+  year: string;
+  reference: string;
+  date: string;
+  zone: string;
+  circle: string;
+  refund: string;
+  claimed: string;
+  verificationStatus: 'Pending DCT Verification' | 'Verified';
+};
+
+const INITIAL_ROWS: RefundRow[] = [
+  {
+    id: 1,
+    year: '2025-2026',
+    reference: '112233',
+    date: '31-08-2026',
+    zone: 'Taxes Zone, Rajshahi',
+    circle: 'Circle-08',
+    refund: '10,03,333',
+    claimed: '10,03,333',
+    verificationStatus: 'Pending DCT Verification',
+  },
+];
+
+const EMPTY = {
+  year: '2025-2026',
+  reference: '',
+  date: '',
+  zone: '',
+  circle: '',
+  refund: '',
+  claimed: '',
+};
+
+type FormState = typeof EMPTY;
+
+export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
+  const isBn = lang === 'bn';
+  const [rows, setRows] = usePersistentState<RefundRow[]>('ereturn-ledger:v4:tax-refund-rows', INITIAL_ROWS);
+  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<RefundRow | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY);
+  const { updateCategoryAmount } = useLedgerRuntime();
+
+  const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
+
+  useEffect(() => {
+    updateCategoryAmount('tax-refund', totalClaimed);
+  }, [totalClaimed, updateCategoryAmount]);
+
+  const valid =
+    form.year &&
+    form.reference.trim() &&
+    form.date.trim() &&
+    form.zone.trim() &&
+    form.circle.trim() &&
+    parseMoney(form.refund) >= 0 &&
+    parseMoney(form.claimed) >= 0 &&
+    parseMoney(form.claimed) <= parseMoney(form.refund);
+
+  const openAdd = () => {
+    setEditing(null);
+    setForm(EMPTY);
+    setAdding(true);
+  };
+
+  const saveAdd = () => {
+    if (!valid) return;
+    setRows((current) => [
+      ...current,
+      {
+        id: Math.max(0, ...current.map((row) => row.id)) + 1,
+        ...form,
+        verificationStatus: 'Pending DCT Verification',
+      },
+    ]);
+    setAdding(false);
+    setForm(EMPTY);
+  };
+
+  const openEdit = (row: RefundRow) => {
+    setAdding(false);
+    setEditing(row);
+    setForm({
+      year: row.year,
+      reference: row.reference,
+      date: row.date,
+      zone: row.zone,
+      circle: row.circle,
+      refund: row.refund,
+      claimed: row.claimed,
+    });
+  };
+
+  const saveEdit = () => {
+    if (!editing || !valid) return;
+    setRows((current) => current.map((row) =>
+      row.id === editing.id
+        ? { ...row, ...form, verificationStatus: row.verificationStatus }
+        : row
+    ));
+    setEditing(null);
+    setForm(EMPTY);
+  };
+
+  const remove = (id: number) => {
+    if (window.confirm(isBn ? 'এই সমন্বয়টি মুছে ফেলবেন?' : 'Delete this refund adjustment?')) {
+      setRows((current) => current.filter((row) => row.id !== id));
+    }
+  };
+
+  return (
+    <section className="w-full space-y-4" aria-labelledby="tax-refund-title">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 id="tax-refund-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
+            {isBn ? 'কর রিফান্ড সমন্বয়' : 'Adjustment of Tax Refund'}
+          </h1>
+          <p className="mt-1 max-w-3xl text-sm text-[#5F6B7A]">
+            {isBn
+              ? 'পূর্ববর্তী বছরের অতিরিক্ত পরিশোধিত করের সমন্বয় দাবি করুন। উপ কর কমিশনার যাচাই করার পর সমন্বয়টি সম্পূর্ণ কার্যকর হবে।'
+              : 'Claim adjustment of excess tax paid in a previous year. The adjustment becomes fully effective after verification by the Deputy Commissioner of Taxes.'}
+          </p>
+        </div>
+        <button type="button" onClick={openAdd} disabled={adding} className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
+          <Plus className="h-4 w-4" />
+          {isBn ? 'যোগ করুন' : 'Add'}
+        </button>
+      </header>
+
+      <div className="flex justify-end">
+        <div className="text-right">
+          <p className="text-xs text-[#5F6B7A]">{isBn ? 'মোট সমন্বয় দাবি' : 'Total Adjustment Claim'}</p>
+          <p className="text-xl font-bold text-[#0B6FA4]">{formatLedgerNumber(totalClaimed)}</p>
+        </div>
+      </div>
+
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+        <div className="overflow-x-auto">
+          <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
+            <thead className="bg-slate-50 text-[#5F6B7A]">
+              <tr>
+                <th className="px-4 py-3 text-left">SL.</th>
+                <th className="px-4 py-3 text-left">{isBn ? 'করবর্ষ' : 'Assessment Year'}</th>
+                <th className="px-4 py-3 text-left">{isBn ? 'রিটার্ন রেজিস্টার / রেফারেন্স নং' : 'Return Register / Reference No.'}</th>
+                <th className="px-4 py-3 text-left">{isBn ? 'দাখিলের তারিখ' : 'Date of Submission'}</th>
+                <th className="px-4 py-3 text-left">{isBn ? 'জোন' : 'Return Filing Zone'}</th>
+                <th className="px-4 py-3 text-left">{isBn ? 'সার্কেল' : 'Return Filing Circle'}</th>
+                <th className="px-4 py-3 text-right">{isBn ? 'রিফান্ডের পরিমাণ' : 'Refund Amount'}</th>
+                <th className="px-4 py-3 text-right">{isBn ? 'সমন্বয় দাবি' : 'Adjustment Claim Amount'}</th>
+                <th className="px-4 py-3 text-left">{isBn ? 'যাচাই অবস্থা' : 'Verification Status'}</th>
+                <th className="px-4 py-3 text-right">{isBn ? 'অ্যাকশন' : 'Action'}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {rows.map((row, index) => (
+                <tr key={row.id}>
+                  <td data-label="SL." className="px-4 py-3">{index + 1}</td>
+                  <td data-label="Assessment Year" className="px-4 py-3">{row.year}</td>
+                  <td data-label="Return Register / Reference No." className="px-4 py-3">{row.reference}</td>
+                  <td data-label="Date of Submission" className="px-4 py-3">{row.date}</td>
+                  <td data-label="Return Filing Zone" className="px-4 py-3">{row.zone}</td>
+                  <td data-label="Return Filing Circle" className="px-4 py-3">{row.circle}</td>
+                  <td data-label="Refund Amount" className="px-4 py-3 text-right">{row.refund}</td>
+                  <td data-label="Adjustment Claim Amount" className="px-4 py-3 text-right font-semibold">{row.claimed}</td>
+                  <td data-label="Verification Status" className="px-4 py-3">
+                    <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                      {row.verificationStatus}
+                    </span>
+                  </td>
+                  <td data-label="Action" className="px-4 py-2">
+                    <div className="flex justify-end gap-1">
+                      <button type="button" onClick={() => openEdit(row)} aria-label="Edit" className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50"><Edit2 className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => remove(row.id)} aria-label="Delete" className="rounded-md p-2 text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {adding && (
+                <tr className="bg-[#F5FAFD] align-top">
+                  <td data-label="SL." className="px-4 py-3">{rows.length + 1}</td>
+                  <td data-label="Assessment Year" className="px-2 py-2"><select value={form.year} onChange={(e) => setForm((s) => ({ ...s, year: e.target.value }))} className="w-full rounded-md border px-2 py-2"><option>2025-2026</option></select></td>
+                  <td data-label="Reference" className="px-2 py-2"><input value={form.reference} onChange={(e) => setForm((s) => ({ ...s, reference: e.target.value }))} className="w-full rounded-md border px-2 py-2" /></td>
+                  <td data-label="Date" className="px-2 py-2"><input value={form.date} onChange={(e) => setForm((s) => ({ ...s, date: e.target.value }))} placeholder="DD-MM-YYYY" className="w-full rounded-md border px-2 py-2" /></td>
+                  <td data-label="Zone" className="px-2 py-2"><input value={form.zone} onChange={(e) => setForm((s) => ({ ...s, zone: e.target.value }))} className="w-full rounded-md border px-2 py-2" /></td>
+                  <td data-label="Circle" className="px-2 py-2"><input value={form.circle} onChange={(e) => setForm((s) => ({ ...s, circle: e.target.value }))} className="w-full rounded-md border px-2 py-2" /></td>
+                  <td data-label="Refund Amount" className="px-2 py-2"><input value={form.refund} onChange={(e) => setForm((s) => ({ ...s, refund: e.target.value }))} inputMode="decimal" className="w-full rounded-md border px-2 py-2 text-right" /></td>
+                  <td data-label="Claim Amount" className="px-2 py-2"><input value={form.claimed} onChange={(e) => setForm((s) => ({ ...s, claimed: e.target.value }))} inputMode="decimal" className="w-full rounded-md border px-2 py-2 text-right" /></td>
+                  <td data-label="Verification Status" className="px-4 py-3 text-xs text-amber-700">{isBn ? 'DCT যাচাই অপেক্ষমাণ' : 'Pending DCT Verification'}</td>
+                  <td data-label="Action" className="px-3 py-2">
+                    <div className="flex justify-end gap-1">
+                      <button type="button" onClick={saveAdd} disabled={!valid} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white disabled:opacity-40"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label="Cancel" className="rounded-md border p-2 text-slate-600"><X className="h-4 w-4" /></button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+          <div role="dialog" aria-modal="true" className="w-full max-w-3xl rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <h2 className="font-bold">{isBn ? 'রিফান্ড সমন্বয় সম্পাদনা' : 'Edit Refund Adjustment'}</h2>
+              <button type="button" onClick={() => setEditing(null)} aria-label="Close"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
+              {Object.entries(form).map(([key, value]) => (
+                <label key={key} className="text-sm font-semibold text-[#172033]">
+                  {key}
+                  <input value={value} onChange={(e) => setForm((s) => ({ ...s, [key]: e.target.value }))} className="mt-1 w-full rounded-lg border px-3 py-2.5 font-normal" />
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2 border-t px-5 py-4">
+              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border px-4 py-2 text-sm font-semibold">{isBn ? 'বাতিল' : 'Cancel'}</button>
+              <button type="button" onClick={saveEdit} disabled={!valid} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{isBn ? 'সংরক্ষণ' : 'Save'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
