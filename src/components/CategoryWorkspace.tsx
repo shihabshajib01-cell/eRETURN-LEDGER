@@ -42,6 +42,8 @@ const configs: Record<string, CategoryConfig> = {
       { key: 'documentType', label: 'Payment Document Type' },
       { key: 'reference', label: 'Challan/ Certificate Reference No.' },
       { key: 'date', label: 'Challan/ Certificate Date' },
+      { key: 'bank', label: 'Bank Name' },
+      { key: 'branch', label: 'Branch Name' },
       { key: 'amount', label: 'Challan/ Certificate Amount', numeric: true },
       { key: 'claimed', label: 'Claimed Amount', numeric: true },
     ],
@@ -312,6 +314,8 @@ const bnLabels: Record<string, string> = {
   'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
   'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
   'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
+  'Bank Name': 'ব্যাংকের নাম',
+  'Branch Name': 'শাখার নাম',
   'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
   'Claimed Amount': 'দাবিকৃত পরিমাণ',
   'Total Claimed Amount': 'মোট দাবিকৃত পরিমাণ',
@@ -398,7 +402,14 @@ export const CategoryWorkspace: React.FC<{
   };
 
   const formComplete = config
-    ? config.columns.every((column) => String(form[column.key] ?? '').trim().length > 0)
+    ? config.columns.every((column) => {
+        if (
+          categoryId === 'other-tds' &&
+          (column.key === 'bank' || column.key === 'branch') &&
+          (form.documentType !== 'Challan' || editing !== null)
+        ) return true;
+        return String(form[column.key] ?? '').trim().length > 0;
+      })
     : false;
   const claimedWithinAmount =
     form.claimed === undefined ||
