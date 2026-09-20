@@ -272,6 +272,18 @@ if (files.app.includes('CategoryWorkspace')) {
   fail('App still depends on the obsolete generic CategoryWorkspace implementation.');
 }
 
+if (!files.app.includes("currentTab === 'dashboard'") || !files.app.includes('<TaxPaymentStatusPage')) {
+  fail('Tax Payment Status must remain the eLedger Home page.');
+}
+
+if (!files.app.includes("currentTab === 'ledger-guide'") || !files.app.includes('<LedgerHomePage')) {
+  fail('Former eLedger Home guidance must remain available through Ledger Guide.');
+}
+
+if (!files.sidebar.includes("select('ledger-guide')")) {
+  fail('Ledger Guide is missing from the primary navigation.');
+}
+
 if (!files.status.includes('useLedgerRuntime')) {
   fail('Tax Payment Status is not connected to shared Ledger totals.');
 }
