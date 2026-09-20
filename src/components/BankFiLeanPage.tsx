@@ -81,6 +81,17 @@ export const BankFiLeanPage: React.FC<{
 
   const syncSelected = () => {
     const selectedRows = draftRows.filter((row) => selectedIds.includes(row.id));
+    const invalid = selectedRows.some((row) =>
+      parseMoney(row.tds) < 0 || parseMoney(row.tds) > parseMoney(row.interest)
+    );
+    if (invalid) {
+      onUnavailableAction(
+        isBn
+          ? 'দাবিকৃত Bank/FI TDS সংশ্লিষ্ট সুদ/মুনাফার পরিমাণের বেশি হতে পারবে না।'
+          : 'Bank/FI TDS cannot exceed the related interest/profit amount.'
+      );
+      return;
+    }
     setRows((current) => {
       const byId = new Map(current.map((row) => [row.id, row]));
       selectedRows.forEach((row) => byId.set(row.id, row));
