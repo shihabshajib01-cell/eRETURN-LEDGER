@@ -181,7 +181,7 @@ export const ServicePaymentLeanPage: React.FC<{
 
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
-                  <td className="px-4 py-3 font-semibold text-[#0B6FA4]">New</td>
+                  <td className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
                   {columns.map(([key, label], index) => (
                     <td key={key} className="px-2 py-2.5">
                       {key === 'documentType' ? (
@@ -201,7 +201,7 @@ export const ServicePaymentLeanPage: React.FC<{
                           value={form[key]}
                           onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
                           aria-label={label}
-                          placeholder={label}
+                          placeholder={key === 'authority' ? 'Enter Depositing Authority' : key === 'reference' ? 'Enter Reference No' : key === 'date' ? 'Enter Date' : key === 'amount' ? 'Enter Amount' : key === 'claimed' ? 'Enter Claimed Amount' : label}
                           className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm ${['amount','claimed'].includes(key) ? 'text-right' : ''}`}
                         />
                       )}
@@ -210,7 +210,7 @@ export const ServicePaymentLeanPage: React.FC<{
                   <td className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <button type="button" onClick={saveAdd} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label="Cancel" className="rounded-md border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-50"><X className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label="Cancel" className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
