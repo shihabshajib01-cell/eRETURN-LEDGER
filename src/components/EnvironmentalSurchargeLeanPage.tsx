@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { formatLedgerNumber, parseMoney } from '../utils/money';
 
 type SurchargeRow = {
   id: number;
@@ -23,8 +26,15 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
-  const [rows, setRows] = useState<SurchargeRow[]>(INITIAL_ROWS);
-  const [declared, setDeclared] = useState('50000');
+  const [rows, setRows] = usePersistentState<SurchargeRow[]>('ereturn-ledger:v2:environmental-surcharge-rows', INITIAL_ROWS);
+  const [declared, setDeclared] = usePersistentState('ereturn-ledger:v2:environmental-surcharge-declared', '50000');
+  const { updateCategoryAmount } = useLedgerRuntime();
+  const totalPaid = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.amount), 0), [rows]);
+  const declaredAmount = useMemo(() => parseMoney(declared), [declared]);
+
+  useEffect(() => {
+    updateCategoryAmount('environmental-surcharge', declaredAmount);
+  }, [declaredAmount, updateCategoryAmount]);
 
   const updateRow = (id: number, key: keyof Omit<SurchargeRow, 'id'>, value: string) => {
     setRows((current) => current.map((row) => row.id === id ? { ...row, [key]: value } : row));
@@ -67,7 +77,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1080px] text-sm">
+          <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
                 <th scope="col" className="px-3 py-3 text-left font-semibold">Motor Vehicle Registration No</th>
@@ -82,19 +92,19 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
             <tbody className="divide-y divide-slate-100">
               {rows.map((row) => (
                 <tr key={row.id}>
-                  <td className="px-3 py-2.5"><input value={row.registration} onChange={(e) => updateRow(row.id, 'registration', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td className="px-3 py-2.5"><input value={row.transaction} onChange={(e) => updateRow(row.id, 'transaction', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td className="px-3 py-2.5">
+                  <td data-label="Motor Vehicle Registration No" className="px-3 py-2.5"><input value={row.registration} onChange={(e) => updateRow(row.id, 'registration', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label="Transaction ID" className="px-3 py-2.5"><input value={row.transaction} onChange={(e) => updateRow(row.id, 'transaction', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label="Bank Name" className="px-3 py-2.5">
                     <select value={row.bank} onChange={(e) => updateRow(row.id, 'bank', e.target.value)} className="w-full min-w-[220px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2">
                       <option value="">Select Bank</option>
                       <option value="Community Bank Bangladesh PLC">Community Bank Bangladesh PLC</option>
                       <option value="AB Bank PLC">AB Bank PLC</option>
                     </select>
                   </td>
-                  <td className="px-3 py-2.5"><input value={row.branch} onChange={(e) => updateRow(row.id, 'branch', e.target.value)} className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td className="px-3 py-2.5"><input value={row.date} onChange={(e) => updateRow(row.id, 'date', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td className="px-3 py-2.5"><input value={row.amount} onChange={(e) => updateRow(row.id, 'amount', e.target.value)} inputMode="decimal" className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2 text-right" /></td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td data-label="Branch Name" className="px-3 py-2.5"><input value={row.branch} onChange={(e) => updateRow(row.id, 'branch', e.target.value)} className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label="Payment Date" className="px-3 py-2.5"><input value={row.date} onChange={(e) => updateRow(row.id, 'date', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label="Paid Amount" className="px-3 py-2.5"><input value={row.amount} onChange={(e) => updateRow(row.id, 'amount', e.target.value)} inputMode="decimal" className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2 text-right" /></td>
+                  <td data-label="Action" className="px-3 py-2.5 text-right">
                     <button type="button" onClick={() => removeRow(row.id)} aria-label="Delete" className="rounded-md p-2 text-red-600 hover:bg-red-50">
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -105,7 +115,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
             <tfoot>
               <tr className="bg-slate-50">
                 <td colSpan={5} className="px-4 py-3 font-bold text-[#172033]">Total Paid Amount</td>
-                <td className="px-4 py-3 text-right font-semibold text-[#172033]">50,000</td>
+                <td className="px-4 py-3 text-right font-semibold text-[#172033]">{formatLedgerNumber(totalPaid)}</td>
                 <td />
               </tr>
             </tfoot>
@@ -129,7 +139,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
       <div className="flex justify-end">
         <button
           type="button"
-          onClick={() => onUnavailableAction(isBn ? 'Save API এখনো সংযুক্ত নয়।' : 'Save API is not connected yet.')}
+          onClick={() => onUnavailableAction(isBn ? 'Environmental Surcharge সংরক্ষিত হয়েছে।' : 'Environmental Surcharge saved.')}
           className="rounded-lg bg-[#0B6FA4] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
         >
           Save
