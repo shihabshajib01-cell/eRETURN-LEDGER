@@ -33,7 +33,7 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="tax-payment-status-modal-title"
-        className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.34)] sm:h-[88vh] sm:max-w-[930px] sm:rounded-[20px] sm:border sm:border-white/70"
+        className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.34)] sm:h-auto sm:max-h-[calc(100vh-96px)] sm:max-w-[930px] sm:rounded-[20px] sm:border sm:border-white/70"
       >
         <header className="flex shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-5 py-4 sm:px-6">
           <div className="min-w-0">
