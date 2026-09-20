@@ -22,7 +22,7 @@ const initialRows: SalaryRow[] = [
 
 const emptyForm = {
   authority: '',
-  documentType: '',
+  documentType: 'Challan',
   reference: '',
   date: '',
   amount: '',
@@ -189,30 +189,45 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
-                  <td className="px-4 py-3 font-semibold text-[#0B6FA4]">New</td>
-                  {columns.map((column, index) => (
-                    <td key={column.key} className="px-2 py-2.5">
-                      <input
-                        autoFocus={index === 0}
-                        value={form[column.key]}
-                        onChange={(event) => setForm((current) => ({ ...current, [column.key]: event.target.value }))}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Escape') cancelAdd();
-                          if (event.key === 'Enter') saveAdd();
-                        }}
-                        aria-label={column.label}
-                        placeholder={column.label}
-                        className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm text-[#172033] shadow-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20 ${column.numeric ? 'text-right' : 'text-left'}`}
-                      />
-                    </td>
-                  ))}
+                  <td className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
+                  <td className="px-2 py-2.5">
+                    <input
+                      autoFocus
+                      value={form.authority}
+                      onChange={(event) => setForm((current) => ({ ...current, authority: event.target.value }))}
+                      placeholder="Enter Depositing Authority"
+                      className="w-full min-w-[160px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
+                    />
+                  </td>
+                  <td className="px-2 py-2.5">
+                    <select
+                      value={form.documentType}
+                      onChange={(event) => setForm((current) => ({ ...current, documentType: event.target.value }))}
+                      className="w-full min-w-[145px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
+                    >
+                      <option value="Challan">Challan</option>
+                      <option value="Certificate">Certificate</option>
+                    </select>
+                  </td>
+                  <td className="px-2 py-2.5">
+                    <input value={form.reference} onChange={(event) => setForm((current) => ({ ...current, reference: event.target.value }))} placeholder="Enter Challan No." className="w-full min-w-[180px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                  </td>
+                  <td className="px-2 py-2.5">
+                    <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} placeholder="Enter Date" className="w-full min-w-[135px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                  </td>
+                  <td className="px-2 py-2.5">
+                    <input value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} placeholder="Enter Amount" className="w-full min-w-[125px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
+                  </td>
+                  <td className="px-2 py-2.5">
+                    <input value={form.claimed} onChange={(event) => setForm((current) => ({ ...current, claimed: event.target.value }))} placeholder="Enter Claimed Amount" className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
+                  </td>
                   <td className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <button type="button" onClick={saveAdd} aria-label="Save" title="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700">
                         <Check className="h-4 w-4" />
                       </button>
-                      <button type="button" onClick={cancelAdd} aria-label="Cancel" title="Cancel" className="rounded-md border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-50">
-                        <X className="h-4 w-4" />
+                      <button type="button" onClick={cancelAdd} aria-label="Cancel" title="Cancel" className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700">
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
