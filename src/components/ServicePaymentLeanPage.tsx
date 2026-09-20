@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
+import { parseMoney } from '../utils/money';
 
 type ServiceRow = {
   id: number;
@@ -22,7 +25,7 @@ const INITIAL_ROWS: ServiceRow[] = [
 ];
 
 type FormState = Omit<ServiceRow, 'id'>;
-const EMPTY: FormState = { authority: '', documentType: '', reference: '', date: '', amount: '', claimed: '' };
+const EMPTY: FormState = { authority: '', documentType: 'Challan', reference: '', date: '', amount: '', claimed: '' };
 
 const columns = [
   ['authority', 'Depositing Authority'],
@@ -38,13 +41,28 @@ export const ServicePaymentLeanPage: React.FC<{
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
   const isBn = lang === 'bn';
-  const [rows, setRows] = useState<ServiceRow[]>(INITIAL_ROWS);
+  const [rows, setRows] = usePersistentState<ServiceRow[]>('ereturn-ledger:v2:service-payment-rows', INITIAL_ROWS);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [editing, setEditing] = useState<ServiceRow | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<ServiceRow[]>(INITIAL_ROWS);
+  const { updateCategoryAmount } = useLedgerRuntime();
+  const totalClaimed = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0), [rows]);
+
+  useEffect(() => {
+    updateCategoryAmount('service-payment', totalClaimed);
+  }, [totalClaimed, updateCategoryAmount]);
+
+  const formValid =
+    form.authority.trim().length > 0 &&
+    form.documentType.trim().length > 0 &&
+    form.reference.trim().length > 0 &&
+    form.date.trim().length > 0 &&
+    parseMoney(form.amount) >= 0 &&
+    parseMoney(form.claimed) >= 0 &&
+    parseMoney(form.claimed) <= parseMoney(form.amount);
 
   const openAdd = () => {
     setEditing(null);
@@ -53,6 +71,7 @@ export const ServicePaymentLeanPage: React.FC<{
   };
 
   const saveAdd = () => {
+    if (!formValid) return;
     setRows((current) => [
       ...current,
       { id: Math.max(0, ...current.map((row) => row.id)) + 1, ...form },
@@ -75,7 +94,7 @@ export const ServicePaymentLeanPage: React.FC<{
   };
 
   const saveEdit = () => {
-    if (!editing) return;
+    if (!editing || !formValid) return;
     setRows((current) => current.map((row) => (row.id === editing.id ? { ...row, ...form } : row)));
     setEditing(null);
     setForm(EMPTY);
@@ -107,7 +126,7 @@ export const ServicePaymentLeanPage: React.FC<{
       current.map((row) => selectedIds.includes(row.id) ? (draftRows.find((draft) => draft.id === row.id) || row) : row)
     );
     closeSync();
-    onUnavailableAction(isBn ? 'Save API এখনো সংযুক্ত নয়।' : 'Save API is not connected yet.');
+    onUnavailableAction(isBn ? 'নির্বাচিত Service Payment রেকর্ড সংরক্ষিত হয়েছে।' : 'Selected Service Payment records saved.');
   };
 
   return (
@@ -144,7 +163,7 @@ export const ServicePaymentLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1080px] text-sm">
+          <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
@@ -159,14 +178,14 @@ export const ServicePaymentLeanPage: React.FC<{
             <tbody className="divide-y divide-slate-100">
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td className="px-4 py-3">{row.authority}</td>
-                  <td className="px-4 py-3">{row.documentType}</td>
-                  <td className="px-4 py-3">{row.reference}</td>
-                  <td className="px-4 py-3">{row.date}</td>
-                  <td className="px-4 py-3 text-right font-medium">{row.amount}</td>
-                  <td className="px-4 py-3 text-right font-medium">{row.claimed}</td>
-                  <td className="px-4 py-2">
+                  <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
+                  <td data-label="Depositing Authority" className="px-4 py-3">{row.authority}</td>
+                  <td data-label="Payment Document Type" className="px-4 py-3">{row.documentType}</td>
+                  <td data-label="Challan/ Certificate Reference No." className="px-4 py-3">{row.reference}</td>
+                  <td data-label="Challan/ Certificate Date" className="px-4 py-3">{row.date}</td>
+                  <td data-label="Challan/ Certificate Amount" className="px-4 py-3 text-right font-medium">{row.amount}</td>
+                  <td data-label="Claimed Amount" className="px-4 py-3 text-right font-medium">{row.claimed}</td>
+                  <td data-label="Action" className="px-4 py-2">
                     <div className="flex justify-end gap-1">
                       <button type="button" onClick={() => openEdit(row)} aria-label="Edit" className="rounded-md p-2 text-[#149DB2] hover:bg-cyan-50">
                         <Edit2 className="h-4 w-4" />
@@ -181,14 +200,18 @@ export const ServicePaymentLeanPage: React.FC<{
 
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
-                  <td className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
+                  <td data-label="SL." className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
                   {columns.map(([key, label], index) => (
-                    <td key={key} className="px-2 py-2.5">
+                    <td key={key} data-label={label} className="px-2 py-2.5">
                       {key === 'documentType' ? (
                         <select
                           autoFocus={index === 0}
                           value={form.documentType}
                           onChange={(event) => setForm((current) => ({ ...current, documentType: event.target.value }))}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') { setAdding(false); setForm(EMPTY); }
+                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                          }}
                           className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
                         >
                           <option value="">Select One</option>
@@ -200,6 +223,10 @@ export const ServicePaymentLeanPage: React.FC<{
                           autoFocus={index === 0}
                           value={form[key]}
                           onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') { setAdding(false); setForm(EMPTY); }
+                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
+                          }}
                           aria-label={label}
                           placeholder={key === 'authority' ? 'Enter Depositing Authority' : key === 'reference' ? 'Enter Reference No' : key === 'date' ? 'Enter Date' : key === 'amount' ? 'Enter Amount' : key === 'claimed' ? 'Enter Claimed Amount' : label}
                           className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm ${['amount','claimed'].includes(key) ? 'text-right' : ''}`}
@@ -207,9 +234,9 @@ export const ServicePaymentLeanPage: React.FC<{
                       )}
                     </td>
                   ))}
-                  <td className="px-3 py-2.5">
+                  <td data-label="Action" className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
-                      <button type="button" onClick={saveAdd} aria-label="Save" className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label="Save" className="rounded-md bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 p-2 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /></button>
                       <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label="Cancel" className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
@@ -319,7 +346,7 @@ export const ServicePaymentLeanPage: React.FC<{
             </div>
             <div className="flex justify-end gap-2 border-t px-5 py-4">
               <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Close</button>
-              <button type="button" onClick={saveEdit} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white">Save</button>
+              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] disabled:cursor-not-allowed disabled:opacity-40 px-4 py-2 text-sm font-semibold text-white">Save</button>
             </div>
           </div>
         </div>
