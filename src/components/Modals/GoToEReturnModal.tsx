@@ -1,7 +1,9 @@
 import React from 'react';
 import { X, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { Language } from '../../types';
-import { TOTAL_AVAILABLE_TAX_CREDIT, formatBDT } from '../../data/mockTaxData';
+import { useLedgerRuntime } from '../../state/LedgerRuntimeContext';
+import { formatLedgerNumber } from '../../utils/money';
+import { useDialogFocusTrap } from '../../hooks/useDialogFocusTrap';
 
 interface GoToEReturnModalProps {
   isOpen: boolean;
@@ -10,11 +12,15 @@ interface GoToEReturnModalProps {
 }
 
 export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onClose, lang }) => {
+  const runtime = useLedgerRuntime();
+  const dialogRef = useDialogFocusTrap(isOpen, onClose);
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="goto-ereturn-title"
@@ -38,7 +44,7 @@ export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onCl
         <div className="p-5 sm:p-6 space-y-4 text-sm">
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between gap-4">
             <span className="text-[#5F6B7A]">{lang === 'bn' ? 'বর্তমান লেজার মোট' : 'Current Ledger total'}</span>
-            <span className="font-bold text-lg text-[#006A4E] whitespace-nowrap">{formatBDT(TOTAL_AVAILABLE_TAX_CREDIT)}</span>
+            <span className="font-bold text-lg text-[#006A4E] whitespace-nowrap">{formatLedgerNumber(runtime.total)}</span>
           </div>
 
           <div className="flex items-start gap-2.5 text-xs leading-relaxed text-slate-700 bg-blue-50/60 border border-blue-100 rounded-lg p-3">
