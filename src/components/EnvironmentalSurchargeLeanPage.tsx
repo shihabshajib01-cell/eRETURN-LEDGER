@@ -4,6 +4,7 @@ import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
+import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 
 type SurchargeRow = {
   id: number;
@@ -55,14 +56,18 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   const declaredAmount = useMemo(() => parseMoney(declared), [declared]);
   const savedDeclaredAmount = useMemo(() => parseMoney(savedDeclared), [savedDeclared]);
   const rowsValid = rows.length > 0 && rows.every((row) =>
-    row.registration.trim() &&
-    row.transaction.trim() &&
-    row.bank.trim() &&
-    row.branch.trim() &&
-    row.date.trim() &&
-    parseMoney(row.amount) >= 0
+    hasText(row.registration) &&
+    hasText(row.transaction) &&
+    hasText(row.bank) &&
+    hasText(row.branch) &&
+    isValidLedgerDate(row.date) &&
+    isValidMoneyInput(row.amount) &&
+    parseMoneyStrict(row.amount) !== null
   );
-  const canSave = rowsValid && declared.trim().length > 0 && declaredAmount >= 0;
+  const canSave =
+    rowsValid &&
+    isValidMoneyInput(declared) &&
+    parseMoneyStrict(declared) !== null;
 
   useEffect(() => {
     updateCategoryAmount('environmental-surcharge', savedDeclaredAmount);
