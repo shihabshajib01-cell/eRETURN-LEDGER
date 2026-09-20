@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Check } from 'lucide-react';
 import { Language } from '../types';
 import { usePersistentState } from '../hooks/usePersistentState';
@@ -9,19 +9,22 @@ export const SalaryIbasLeanPage: React.FC<{
   lang: Language;
   onUnavailableAction: (message: string) => void;
 }> = ({ lang, onUnavailableAction }) => {
-  const [claim, setClaim] = usePersistentState('ereturn-ledger:v2:salary-ibas-claim', '1,50,000');
+  const [savedClaim, setSavedClaim] = usePersistentState('ereturn-ledger:v2:salary-ibas-claim', '1,50,000');
+  const [claim, setClaim] = useState(savedClaim);
   const { updateCategoryAmount } = useLedgerRuntime();
   const isBn = lang === 'bn';
   const available = 500450;
   const claimAmount = useMemo(() => parseMoney(claim), [claim]);
+  const savedClaimAmount = useMemo(() => parseMoney(savedClaim), [savedClaim]);
   const invalid = claimAmount < 0 || claimAmount > available;
 
   useEffect(() => {
-    updateCategoryAmount('salary-ibas', invalid ? 0 : claimAmount);
-  }, [claimAmount, invalid, updateCategoryAmount]);
+    updateCategoryAmount('salary-ibas', savedClaimAmount);
+  }, [savedClaimAmount, updateCategoryAmount]);
 
   const save = () => {
     if (invalid) return;
+    setSavedClaim(claim);
     onUnavailableAction(isBn ? 'TDS Claim সংরক্ষিত হয়েছে।' : 'TDS Claim saved.');
   };
 
