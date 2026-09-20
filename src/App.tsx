@@ -61,7 +61,7 @@ export default function App() {
         <main id="main-content" className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-7 max-w-[1600px] w-full mx-auto space-y-6">
           {currentTab === 'dashboard' && <LedgerHomePage lang={lang} />}
 
-          {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} />}
+          {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'salary-other' && <SalaryOtherLeanPage lang={lang} />}
           {currentCategory?.id === 'bank-fi' && <BankFiLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'dividend' && <DividendLeanPage lang={lang} onUnavailableAction={showToast} />}
@@ -70,6 +70,7 @@ export default function App() {
 
           {currentCategory && !['salary-ibas', 'salary-other', 'bank-fi', 'dividend', 'service-payment', 'environmental-surcharge'].includes(currentCategory.id) && (
             <CategoryWorkspace
+              key={currentCategory.id}
               categoryId={currentCategory.id}
               lang={lang}
               onBack={() => setCurrentTab('dashboard')}
