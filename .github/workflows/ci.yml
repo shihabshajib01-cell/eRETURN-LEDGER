@@ -21,5 +21,7 @@ jobs:
         run: npm run lint
       - name: Ledger fidelity audit
         run: npm run audit:ledger
+      - name: Ledger domain tests
+        run: npm run test:ledger
       - name: Build
         run: npm run build
