@@ -39,8 +39,12 @@ export default function App() {
       setGoToEReturnModalOpen(true);
       return;
     }
-    if (tab === 'user-guide' || tab === 'faqs') {
+    if (tab === 'user-guide') {
       setHowItWorksModalOpen(true);
+      return;
+    }
+    if (tab === 'faqs') {
+      window.open('https://nbr.gov.bd/faq/income-tax-faq', '_blank', 'noopener,noreferrer');
       return;
     }
     setCurrentTab(tab);
