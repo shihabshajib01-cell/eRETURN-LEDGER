@@ -108,7 +108,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
           <h1 id="salary-other-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
             {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
           </h1>
-          <p className="mt-1 text-sm leading-relaxed text-[#5F6B7A]">
+          <p className="mt-1 text-sm italic leading-relaxed text-[#0B6FA4]">
             {isBn ? 'বেতন [ ধারা-৮৬]' : 'Salary [ Section-86]'}
           </p>
         </div>
@@ -139,7 +139,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
           <table className="w-full min-w-[980px] text-sm">
             <thead className="bg-slate-50 text-slate-600">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">SL</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 {columns.map((column) => (
                   <th
                     scope="col"
