@@ -5,6 +5,7 @@ import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { parseMoney } from '../utils/money';
+import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
 type ServiceRow = {
   id: number;
@@ -53,6 +54,7 @@ export const ServicePaymentLeanPage: React.FC<{
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<ServiceRow[]>(INITIAL_ROWS);
+  const [syncLoading, setSyncLoading] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
   const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
@@ -139,10 +141,25 @@ export const ServicePaymentLeanPage: React.FC<{
     }
   };
 
-  const openSync = () => {
-    setDraftRows(INITIAL_ROWS.map((row) => ({ ...row })));
-    setSelectedIds(INITIAL_ROWS.map((row) => row.id));
-    setSyncOpen(true);
+  const openSync = async () => {
+    setSyncLoading(true);
+    try {
+      const sourceRows = await fetchIncomeSyncRecords<ServiceRow>('service-payment', INITIAL_ROWS);
+      setDraftRows(sourceRows);
+      setSelectedIds(sourceRows.map((row) => row.id));
+      setSyncOpen(true);
+      if (sourceRows.length === 0) {
+        onUnavailableAction(
+          isBn
+            ? 'Income-এ সংশ্লিষ্ট Service Payment তথ্য নেই, তাই সিঙ্ক করার মতো কোনো রেকর্ড পাওয়া যায়নি।'
+            : 'No Service Payment records are available to sync because the related Income data is not available.'
+        );
+      }
+    } catch {
+      onUnavailableAction(isBn ? 'Income থেকে Service Payment তথ্য আনা যায়নি। পরে আবার চেষ্টা করুন।' : 'Service Payment Income data could not be loaded. Please try again.');
+    } finally {
+      setSyncLoading(false);
+    }
   };
 
   const closeSync = () => {
@@ -194,11 +211,12 @@ export const ServicePaymentLeanPage: React.FC<{
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={openSync}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#149DB2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#108A9D]"
+            onClick={() => void openSync()}
+            disabled={syncLoading}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#149DB2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#108A9D] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw className="h-4 w-4" />
-            {labelText('Sync From Income')}
+            {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : labelText('Sync From Income')}
           </button>
           <button
             type="button"
