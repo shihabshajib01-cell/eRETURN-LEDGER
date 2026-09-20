@@ -20,6 +20,7 @@ type CategoryConfig = {
   summaryValue?: string;
   lookupLabel?: string;
   lookupPrimary?: 'Search' | 'Save';
+  lookupPlaceholder?: string;
   showReset?: boolean;
   tableTitle?: string;
 };
@@ -87,7 +88,7 @@ const configs: Record<string, CategoryConfig> = {
     targetCount: 7,
     showCount: true,
     columns: [
-      { key: 'bin', label: 'BIN' },
+      { key: 'bin', label: 'Bin' },
       { key: 'office', label: 'Office Code' },
       { key: 'bill', label: 'Bill of Entry' },
       { key: 'billDate', label: 'Bill of Entry Date' },
@@ -112,6 +113,7 @@ const configs: Record<string, CategoryConfig> = {
     title: 'Commercial Vehicle',
     lookupLabel: 'Unique Key (Transaction No.)',
     lookupPrimary: 'Search',
+    lookupPlaceholder: 'Transaction No.',
     showReset: true,
     deletable: true,
     targetCount: 4,
@@ -161,6 +163,7 @@ const configs: Record<string, CategoryConfig> = {
     title: 'AIT on Car',
     lookupLabel: 'Transaction No.',
     lookupPrimary: 'Search',
+    lookupPlaceholder: 'Transaction No.',
     targetCount: 0,
     columns: [
       { key: 'registration', label: 'Registration No.' },
@@ -174,6 +177,7 @@ const configs: Record<string, CategoryConfig> = {
     title: 'AIT under Section 154',
     lookupLabel: 'Challan No.',
     lookupPrimary: 'Save',
+    lookupPlaceholder: 'Enter Challan No.',
     showReset: true,
     deletable: true,
     targetCount: 3,
@@ -198,9 +202,11 @@ const configs: Record<string, CategoryConfig> = {
     title: 'Regular Tax under Section 173',
     lookupLabel: 'Challan No.',
     lookupPrimary: 'Save',
+    lookupPlaceholder: 'Enter Challan No.',
     showReset: true,
     deletable: true,
     targetCount: 5,
+    tableTitle: 'Regular Tax under Section 173',
     columns: [
       { key: 'challan', label: 'Challan No.' },
       { key: 'date', label: 'Date' },
@@ -249,7 +255,7 @@ const configs: Record<string, CategoryConfig> = {
     targetCount: 1,
     columns: [
       { key: 'year', label: 'Assessment Year' },
-      { key: 'reference', label: 'Return Register / Reference No.' },
+      { key: 'reference', label: 'Return Register No. / Reference No.' },
       { key: 'date', label: 'Date of Submission' },
       { key: 'zone', label: 'Return Filing Zone' },
       { key: 'circle', label: 'Return Filing Circle' },
@@ -413,6 +419,7 @@ export const CategoryWorkspace: React.FC<{
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
+                placeholder={config.lookupPlaceholder}
                 className="w-full rounded-lg border border-[#C8D4E1] bg-white px-3 py-2.5 text-sm focus:border-[#0B6FA4] focus:outline-none focus:ring-2 focus:ring-[#0B6FA4]/20"
               />
             </div>
@@ -467,7 +474,7 @@ export const CategoryWorkspace: React.FC<{
           <table className="w-full min-w-[900px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">SL</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 {config.columns.map((column) => (
                   <th
                     scope="col"
@@ -477,7 +484,7 @@ export const CategoryWorkspace: React.FC<{
                     {column.label}
                   </th>
                 ))}
-                {hasActions && <th scope="col" className="px-4 py-3 text-right font-semibold">Action</th>}
+                {hasActions && <th scope="col" className="px-4 py-3 text-right font-semibold">{categoryId === 'commercial-vehicle' ? '' : 'Action'}</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -710,10 +717,12 @@ const CarryForwardPage = ({ lang }: { lang: Language }) => {
         Adjustment of carry forward tax u/s 163
       </h1>
       <section className="rounded-xl border border-[#E2E8F0] bg-white p-5">
-        <div className="max-w-xl">
-          <p className="text-sm text-[#5F6B7A]">Claimed Amount</p>
-          <p className="mt-1 text-2xl font-bold text-[#0B6FA4]">৳ 10,03,333</p>
-          <div className="mt-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm font-bold text-[#172033]">Adjustment of carry forward tax u/s 163</p>
+              <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Claimed</span>
+            </div>
             <button
               type="button"
               onClick={() => window.confirm(isBn ? 'দাবিটি মুছে ফেলবেন?' : 'Delete this claim?')}
@@ -722,6 +731,10 @@ const CarryForwardPage = ({ lang }: { lang: Language }) => {
               <Trash2 className="h-4 w-4" />
               Delete
             </button>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-[#C8D4E1] bg-white px-4 py-4">
+            <span className="text-sm text-[#5F6B7A]">Claimed Amount</span>
+            <span className="text-xl font-bold text-[#0B6FA4]">10,03,333</span>
           </div>
         </div>
       </section>
