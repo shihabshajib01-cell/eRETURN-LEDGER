@@ -44,7 +44,7 @@ expectContains('Home', files.home, [
 expectContains('iBAS', files.ibas, [
   'iBAS++ (Salary) TDS',
   'Search',
-  'setSearched(false)',
+  'const [searched, setSearched] = useState(false)',
   'Bogura Technical Training Centre, Bogura',
   '5,00,450',
   'TDS Claim',
