@@ -63,9 +63,9 @@ export const GoToEReturnModal: React.FC<GoToEReturnModalProps> = ({ isOpen, onCl
           </button>
           <button
             type="button"
-            disabled
-            title={lang === 'bn' ? 'প্রোডাকশন হ্যান্ডঅফ URL/API সংযুক্ত করতে হবে' : 'Connect the production handoff URL/API before enabling navigation'}
-            className="px-5 py-2 rounded-lg bg-[#006A4E] text-white text-xs font-semibold flex items-center gap-2 opacity-50 cursor-not-allowed disabled:pointer-events-none"
+            onClick={() => { window.location.href = 'https://etaxnbr.gov.bd/'; }}
+            title={lang === 'bn' ? 'ই-রিটার্ন পোর্টালে ফিরে যান' : 'Return to the official e-Return portal'}
+            className="px-5 py-2 rounded-lg bg-[#006A4E] text-white text-xs font-semibold flex items-center gap-2 hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"
           >
             <span>{lang === 'bn' ? 'ই-রিটার্নে যান' : 'Go to eReturn'}</span>
             <ArrowUpRight className="w-4 h-4" />
