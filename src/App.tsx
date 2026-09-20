@@ -11,6 +11,7 @@ import { DividendLeanPage } from './components/DividendLeanPage';
 import { TaxPaymentStatusPage } from './components/TaxPaymentStatusPage';
 import { HowItWorksModal } from './components/Modals/HowItWorksModal';
 import { GoToEReturnModal } from './components/Modals/GoToEReturnModal';
+import { LedgerHomePage } from './components/LedgerHomePage';
 import { ServicePaymentLeanPage } from './components/ServicePaymentLeanPage';
 import { EnvironmentalSurchargeLeanPage } from './components/EnvironmentalSurchargeLeanPage';
 import { SanchayapatraPage } from './components/SanchayapatraPage';
@@ -74,6 +75,8 @@ export default function App() {
               onGoToEReturn={() => setGoToEReturnModalOpen(true)}
             />
           )}
+
+          {currentTab === 'ledger-guide' && <LedgerHomePage lang={lang} />}
 
           {currentCategory?.id === 'salary-ibas' && <SalaryIbasLeanPage lang={lang} onUnavailableAction={showToast} />}
           {currentCategory?.id === 'salary-other' && <SalaryOtherLeanPage lang={lang} />}
