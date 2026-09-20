@@ -44,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 sm:gap-4">
         <div className="relative hidden md:block">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-[#5F6B7A] hidden xl:inline">{t.assessmentYear}:</span>
+            <span className="text-xs font-medium text-[#5F6B7A] hidden xl:inline">{t.assessmentYear} :</span>
             <button
               type="button"
               onClick={() => setYearDropdownOpen((open) => !open)}
