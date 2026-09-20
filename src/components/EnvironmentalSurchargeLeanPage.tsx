@@ -29,6 +29,26 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   const [rows, setRows] = usePersistentState<SurchargeRow[]>('ereturn-ledger:v2:environmental-surcharge-rows', INITIAL_ROWS);
   const [declared, setDeclared] = usePersistentState('ereturn-ledger:v2:environmental-surcharge-declared', '50000');
   const { updateCategoryAmount } = useLedgerRuntime();
+  const labelText = (label: string) => {
+    if (!isBn) return label;
+    const labels: Record<string, string> = {
+      'Environmental Surcharge': 'পরিবেশ সারচার্জ',
+      'Motor Vehicle Registration No': 'মোটরযানের রেজিস্ট্রেশন নং',
+      'Transaction ID': 'ট্রানজ্যাকশন আইডি',
+      'Bank Name': 'ব্যাংকের নাম',
+      'Branch Name': 'শাখার নাম',
+      'Payment Date': 'পেমেন্টের তারিখ',
+      'Paid Amount': 'পরিশোধিত পরিমাণ',
+      'Action': 'অ্যাকশন',
+      'Total Paid Amount': 'মোট পরিশোধিত পরিমাণ',
+      'Surcharge Declared By Assessee': 'করদাতা কর্তৃক ঘোষিত সারচার্জ',
+      'Add': 'যোগ করুন',
+      'Save': 'সংরক্ষণ',
+      'Delete': 'মুছুন',
+      'Select Bank': 'ব্যাংক নির্বাচন করুন',
+    };
+    return labels[label] || label;
+  };
   const totalPaid = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.amount), 0), [rows]);
   const declaredAmount = useMemo(() => parseMoney(declared), [declared]);
 
@@ -63,7 +83,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
     <section className="w-full space-y-4" aria-labelledby="environmental-surcharge-title">
       <header className="flex items-center justify-between gap-4">
         <h1 id="environmental-surcharge-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
-          Environmental Surcharge
+          {labelText('Environmental Surcharge')}
         </h1>
         <button
           type="button"
@@ -71,7 +91,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
           className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50"
         >
           <Plus className="h-4 w-4" />
-          Add
+          {labelText('Add')}
         </button>
       </header>
 
@@ -80,32 +100,32 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
           <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
             <thead className="bg-slate-50 text-[#5F6B7A]">
               <tr>
-                <th scope="col" className="px-3 py-3 text-left font-semibold">Motor Vehicle Registration No</th>
-                <th scope="col" className="px-3 py-3 text-left font-semibold">Transaction ID</th>
-                <th scope="col" className="px-3 py-3 text-left font-semibold">Bank Name</th>
-                <th scope="col" className="px-3 py-3 text-left font-semibold">Branch Name</th>
-                <th scope="col" className="px-3 py-3 text-left font-semibold">Payment Date</th>
-                <th scope="col" className="px-3 py-3 text-right font-semibold">Paid Amount</th>
-                <th scope="col" className="px-3 py-3 text-right font-semibold">Action</th>
+                <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Motor Vehicle Registration No')}</th>
+                <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Transaction ID')}</th>
+                <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Bank Name')}</th>
+                <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Branch Name')}</th>
+                <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Payment Date')}</th>
+                <th scope="col" className="px-3 py-3 text-right font-semibold">{labelText('Paid Amount')}</th>
+                <th scope="col" className="px-3 py-3 text-right font-semibold">{labelText('Action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((row) => (
                 <tr key={row.id}>
-                  <td data-label="Motor Vehicle Registration No" className="px-3 py-2.5"><input value={row.registration} onChange={(e) => updateRow(row.id, 'registration', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td data-label="Transaction ID" className="px-3 py-2.5"><input value={row.transaction} onChange={(e) => updateRow(row.id, 'transaction', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td data-label="Bank Name" className="px-3 py-2.5">
+                  <td data-label={labelText("Motor Vehicle Registration No")} className="px-3 py-2.5"><input value={row.registration} onChange={(e) => updateRow(row.id, 'registration', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label={labelText("Transaction ID")} className="px-3 py-2.5"><input value={row.transaction} onChange={(e) => updateRow(row.id, 'transaction', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label={labelText("Bank Name")} className="px-3 py-2.5">
                     <select value={row.bank} onChange={(e) => updateRow(row.id, 'bank', e.target.value)} className="w-full min-w-[220px] rounded-md border border-[#C8D4E1] bg-white px-2.5 py-2">
-                      <option value="">Select Bank</option>
+                      <option value="">{labelText('Select Bank')}</option>
                       <option value="Community Bank Bangladesh PLC">Community Bank Bangladesh PLC</option>
                       <option value="AB Bank PLC">AB Bank PLC</option>
                     </select>
                   </td>
-                  <td data-label="Branch Name" className="px-3 py-2.5"><input value={row.branch} onChange={(e) => updateRow(row.id, 'branch', e.target.value)} className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td data-label="Payment Date" className="px-3 py-2.5"><input value={row.date} onChange={(e) => updateRow(row.id, 'date', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
-                  <td data-label="Paid Amount" className="px-3 py-2.5"><input value={row.amount} onChange={(e) => updateRow(row.id, 'amount', e.target.value)} inputMode="decimal" className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2 text-right" /></td>
-                  <td data-label="Action" className="px-3 py-2.5 text-right">
-                    <button type="button" onClick={() => removeRow(row.id)} aria-label="Delete" className="rounded-md p-2 text-red-600 hover:bg-red-50">
+                  <td data-label={labelText("Branch Name")} className="px-3 py-2.5"><input value={row.branch} onChange={(e) => updateRow(row.id, 'branch', e.target.value)} className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label={labelText("Payment Date")} className="px-3 py-2.5"><input value={row.date} onChange={(e) => updateRow(row.id, 'date', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
+                  <td data-label={labelText("Paid Amount")} className="px-3 py-2.5"><input value={row.amount} onChange={(e) => updateRow(row.id, 'amount', e.target.value)} inputMode="decimal" className="w-full min-w-[120px] rounded-md border border-[#C8D4E1] px-2.5 py-2 text-right" /></td>
+                  <td data-label={labelText("Action")} className="px-3 py-2.5 text-right">
+                    <button type="button" onClick={() => removeRow(row.id)} aria-label={labelText("Delete")} className="rounded-md p-2 text-red-600 hover:bg-red-50">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
@@ -114,7 +134,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
             </tbody>
             <tfoot>
               <tr className="bg-slate-50">
-                <td colSpan={5} className="px-4 py-3 font-bold text-[#172033]">Total Paid Amount</td>
+                <td colSpan={5} className="px-4 py-3 font-bold text-[#172033]">{labelText('Total Paid Amount')}</td>
                 <td className="px-4 py-3 text-right font-semibold text-[#172033]">{formatLedgerNumber(totalPaid)}</td>
                 <td />
               </tr>
@@ -124,7 +144,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
 
         <div className="border-t border-[#E2E8F0] px-4 py-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_360px] md:items-center">
-            <label htmlFor="surcharge-declared" className="font-bold text-[#172033]">Surcharge Declared By Assessee</label>
+            <label htmlFor="surcharge-declared" className="font-bold text-[#172033]">{labelText('Surcharge Declared By Assessee')}</label>
             <input
               id="surcharge-declared"
               value={declared}
@@ -142,7 +162,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
           onClick={() => onUnavailableAction(isBn ? 'Environmental Surcharge সংরক্ষিত হয়েছে।' : 'Environmental Surcharge saved.')}
           className="rounded-lg bg-[#0B6FA4] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A]"
         >
-          Save
+          {labelText('Save')}
         </button>
       </div>
     </section>
