@@ -33,7 +33,7 @@ export const BankFiLeanPage: React.FC<{
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const { updateCategoryAmount } = useLedgerRuntime();
-  const syncDialogRef = useDialogFocusTrap(syncOpen, closeSync);
+  const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
   const totalTds = useMemo(() => rows.reduce((sum, row) => sum + parseMoney(row.tds), 0), [rows]);
 
   useEffect(() => {
