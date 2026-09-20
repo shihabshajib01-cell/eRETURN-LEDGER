@@ -25,12 +25,21 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
   ] as const;
 
   const groupItems = {
-    source: isBn
-      ? ['বেতন (iBAS++)', 'বেতন (অন্যান্য)', 'ব্যাংক/এফআই সুদ/মুনাফা', 'লভ্যাংশ', 'সেবা পেমেন্ট', 'সঞ্চয়পত্র', 'আমদানি', 'বাণিজ্যিক যানবাহন', 'অন্যান্য']
-      : ['Salary (iBAS++)', 'Salary (Others)', 'Bank/FI Interest/Profit', 'Dividend', 'Service Payment', 'Sanchayapatra', 'Import', 'Commercial Vehicle', 'Others'],
-    ait: isBn
-      ? ['গাড়ির উপর AIT', 'AIT (154)']
-      : ['AIT on Car', 'AIT (154)'],
+    source: [
+      { id: 'salary-ibas', label: isBn ? 'বেতন (iBAS++)' : 'Salary (iBAS++)' },
+      { id: 'salary-other', label: isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)' },
+      { id: 'bank-fi', label: isBn ? 'ব্যাংক/এফআই সুদ/মুনাফা' : 'Bank/FI Interest/Profit' },
+      { id: 'dividend', label: isBn ? 'লভ্যাংশ' : 'Dividend' },
+      { id: 'service-payment', label: isBn ? 'সেবা পেমেন্ট' : 'Service Payment' },
+      { id: 'sanchayapatra', label: isBn ? 'সঞ্চয়পত্র' : 'Sanchayapatra' },
+      { id: 'import', label: isBn ? 'আমদানি' : 'Import' },
+      { id: 'commercial-vehicle', label: isBn ? 'বাণিজ্যিক যানবাহন' : 'Commercial Vehicle' },
+      { id: 'other-tds', label: isBn ? 'অন্যান্য' : 'Others' },
+    ],
+    ait: [
+      { id: 'ait-car', label: isBn ? 'গাড়ির উপর AIT' : 'AIT on Car' },
+      { id: 'ait-154', label: isBn ? 'AIT (154)' : 'AIT (154)' },
+    ],
   };
 
   return (
@@ -75,8 +84,14 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({ lang
                 <div className="border-t border-slate-100 bg-slate-50/70 px-5 py-3">
                   <div className="flex flex-wrap gap-2">
                     {groupItems[group].map((item) => (
-                      <span key={item} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-[#5F6B7A]">
-                        {item}
+                      <span
+                        key={item.id}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-[#5F6B7A]"
+                      >
+                        <span>{item.label}</span>
+                        <strong className="font-semibold text-[#172033]">
+                          {formatLedgerNumber(runtime.categoryAmounts[item.id] ?? 0)}
+                        </strong>
                       </span>
                     ))}
                   </div>
