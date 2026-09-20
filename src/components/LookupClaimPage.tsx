@@ -145,6 +145,7 @@ export const LookupClaimPage: React.FC<{
   const [result, setResult] = useState<LookupRecord | null>(null);
   const [searching, setSearching] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
+  const directSaveLookup = kind === 'ait-154' || kind === 'tax-paid-return';
 
   const total = useMemo(
     () => rows.reduce((sum, row) => sum + parseMoney((row as Record<string, unknown>)[config.amountKey] as string ?? 0), 0),
@@ -154,6 +155,22 @@ export const LookupClaimPage: React.FC<{
   useEffect(() => {
     updateCategoryAmount(kind, total);
   }, [kind, total, updateCategoryAmount]);
+
+  const resolveRecord = async (value: string): Promise<LookupRecord | null> => {
+    const localMatch = config.sourceRows.find((row) =>
+      String((row as Record<string, unknown>)[config.lookupKey] ?? '').toLowerCase() === value.toLowerCase()
+    ) ?? null;
+    if (localMatch) return localMatch;
+
+    const external = await lookupExternalLedgerRecord(kind, value);
+    if (!external) return null;
+
+    return {
+      id: Number(external.id ?? Date.now()),
+      ...external,
+      [config.lookupKey]: external[config.lookupKey] ?? value,
+    } as LookupRecord;
+  };
 
   const search = async () => {
     const value = query.trim();
@@ -165,23 +182,9 @@ export const LookupClaimPage: React.FC<{
 
     setSearching(true);
     try {
-      const localMatch = config.sourceRows.find((row) =>
-        String((row as Record<string, unknown>)[config.lookupKey] ?? '').toLowerCase() === value.toLowerCase()
-      ) ?? null;
-
-      if (localMatch) {
-        setResult(localMatch);
-        return;
-      }
-
-      const external = await lookupExternalLedgerRecord(kind, value);
-      if (external) {
-        const normalized = {
-          id: Number(external.id ?? Date.now()),
-          ...external,
-          [config.lookupKey]: external[config.lookupKey] ?? value,
-        } as LookupRecord;
-        setResult(normalized);
+      const match = await resolveRecord(value);
+      if (match) {
+        setResult(match);
         return;
       }
 
@@ -195,6 +198,37 @@ export const LookupClaimPage: React.FC<{
       } else {
         onMessage(isBn ? 'কোনো মিল পাওয়া যায়নি।' : 'No matching record found.');
       }
+    } catch {
+      setResult(null);
+      onMessage(isBn ? 'ভেরিফিকেশন সার্ভিসে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।' : 'The verification service is unavailable. Please try again.');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const directSave = async () => {
+    const value = query.trim();
+    if (!value) {
+      onMessage(isBn ? 'চালান নম্বর লিখুন।' : 'Enter a challan number.');
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const match = await resolveRecord(value);
+      if (!match) {
+        setResult(null);
+        onMessage(isBn ? 'কোনো মিল পাওয়া যায়নি।' : 'No matching record found.');
+        return;
+      }
+
+      setResult(match);
+      const key = String((match as Record<string, unknown>)[config.lookupKey] ?? '');
+      setRows((current) => {
+        const exists = current.some((row) => String((row as Record<string, unknown>)[config.lookupKey] ?? '') === key);
+        return exists ? current : [...current, match];
+      });
+      onMessage(isBn ? 'রেকর্ডটি লেজারে সংরক্ষিত হয়েছে।' : 'Record saved to Ledger.');
     } catch {
       setResult(null);
       onMessage(isBn ? 'ভেরিফিকেশন সার্ভিসে সংযোগ করা যাচ্ছে না। পরে আবার চেষ্টা করুন।' : 'The verification service is unavailable. Please try again.');
@@ -245,9 +279,18 @@ export const LookupClaimPage: React.FC<{
           <button type="button" onClick={reset} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2.5 text-sm font-semibold text-[#263247] hover:bg-slate-50">
             {isBn ? 'রিসেট' : 'Reset'}
           </button>
-          <button type="button" onClick={() => void search()} disabled={searching} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50">
-            <Search className="h-4 w-4" />
-            {searching ? (isBn ? 'অনুসন্ধান হচ্ছে...' : 'Searching...') : (isBn ? 'অনুসন্ধান' : 'Search')}
+          <button
+            type="button"
+            onClick={() => void (directSaveLookup ? directSave() : search())}
+            disabled={searching}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {directSaveLookup ? <Check className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            {searching
+              ? (isBn ? 'যাচাই হচ্ছে...' : 'Checking...')
+              : directSaveLookup
+                ? (isBn ? 'সংরক্ষণ' : 'Save')
+                : (isBn ? 'অনুসন্ধান' : 'Search')}
           </button>
         </div>
       </section>
@@ -264,12 +307,14 @@ export const LookupClaimPage: React.FC<{
               </div>
             ))}
           </div>
-          <div className="mt-4 flex justify-end">
-            <button type="button" onClick={saveResult} className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A]">
-              <Check className="h-4 w-4" />
-              {isBn ? 'সংরক্ষণ' : 'Save'}
-            </button>
-          </div>
+          {!directSaveLookup && (
+            <div className="mt-4 flex justify-end">
+              <button type="button" onClick={saveResult} className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A]">
+                <Check className="h-4 w-4" />
+                {isBn ? 'সংরক্ষণ' : 'Save'}
+              </button>
+            </div>
+          )}
         </section>
       )}
 
