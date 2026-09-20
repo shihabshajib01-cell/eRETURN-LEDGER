@@ -24,17 +24,9 @@ export const SalaryIbasLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       </section>
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white" aria-labelledby="tds-claim-title">
-        <div className="border-b border-[#E2E8F0] px-5 py-3">
-          <h2 id="tds-claim-title" className="text-base font-bold text-[#172033]">
-            TDS Claim
-          </h2>
-        </div>
-
         <div className="px-5 py-4">
           <div className="max-w-2xl">
-            <label htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
-              TDS Claim
-            </label>
+            <label id="tds-claim-title" htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">TDS Claim</label>
             <input
               id="tds-claim"
               value={claim}
