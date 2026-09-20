@@ -276,8 +276,16 @@ if (!files.app.includes("currentTab === 'dashboard'") || !files.app.includes('<T
   fail('Tax Payment Status must remain the eLedger Home page.');
 }
 
+if (!files.app.includes("currentTab === 'overview-dashboard'") || !files.app.includes('<LedgerDashboardPage')) {
+  fail('The separate eLedger Dashboard route is missing.');
+}
+
 if (!files.app.includes("currentTab === 'ledger-guide'") || !files.app.includes('<LedgerHomePage')) {
   fail('Former eLedger Home guidance must remain available through Ledger Guide.');
+}
+
+if (!files.sidebar.includes("select('overview-dashboard')")) {
+  fail('Dashboard is missing from the primary navigation.');
 }
 
 if (!files.sidebar.includes("select('ledger-guide')")) {
