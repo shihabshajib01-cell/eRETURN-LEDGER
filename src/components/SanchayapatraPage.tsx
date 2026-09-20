@@ -45,6 +45,7 @@ export const SanchayapatraPage: React.FC<{
   const [rows, setRows] = usePersistentState<SanchayRow[]>('ereturn-ledger:v3:sanchayapatra-rows', SOURCE_ROWS);
   const [registration, setRegistration] = useState('');
   const [searchedRegistration, setSearchedRegistration] = useState('');
+  const [searchResult, setSearchResult] = useState<SanchayRow | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [draftRows, setDraftRows] = useState<SanchayRow[]>(SOURCE_ROWS);
@@ -66,14 +67,31 @@ export const SanchayapatraPage: React.FC<{
   const search = () => {
     const value = registration.trim();
     setSearchedRegistration(value);
-    if (!value) return;
-    const found = rows.some((row) => row.registration.toLowerCase() === value.toLowerCase());
-    if (!found) onUnavailableAction(isBn ? 'এই রেজিস্ট্রেশন নম্বরে কোনো তথ্য পাওয়া যায়নি।' : 'Data not found for this registration number.');
+    if (!value) {
+      setSearchResult(null);
+      onUnavailableAction(isBn ? 'রেজিস্ট্রেশন নম্বর লিখুন।' : 'Enter a registration number.');
+      return;
+    }
+    const found = SOURCE_ROWS.find((row) => row.registration.toLowerCase() === value.toLowerCase()) ?? null;
+    setSearchResult(found);
+    if (!found) {
+      onUnavailableAction(isBn ? 'এই রেজিস্ট্রেশন নম্বরে কোনো তথ্য পাওয়া যায়নি।' : 'Data not found for this registration number.');
+    }
   };
 
   const reset = () => {
     setRegistration('');
     setSearchedRegistration('');
+    setSearchResult(null);
+  };
+
+  const saveSearchResult = () => {
+    if (!searchResult) return;
+    setRows((current) => {
+      const exists = current.some((row) => row.registration === searchResult.registration);
+      return exists ? current : [...current, searchResult].sort((a, b) => a.id - b.id);
+    });
+    onUnavailableAction(isBn ? 'সঞ্চয়পত্রের তথ্য লেজারে সংরক্ষিত হয়েছে।' : 'Sanchayapatra record saved to Ledger.');
   };
 
   const openSync = () => {
@@ -161,6 +179,25 @@ export const SanchayapatraPage: React.FC<{
           </button>
         </div>
       </section>
+
+      {searchResult && (
+        <section className="rounded-xl border border-[#D7E8F2] bg-[#F5FAFD] p-4" aria-live="polite">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            <div><p className="text-xs font-semibold text-[#5F6B7A]">{isBn ? 'স্কিমের নাম' : 'Name of Scheme'}</p><p className="mt-1 text-sm font-medium">{searchResult.scheme}</p></div>
+            <div><p className="text-xs font-semibold text-[#5F6B7A]">{isBn ? 'রেজিস্ট্রেশন নং' : 'Registration No.'}</p><p className="mt-1 text-sm font-medium">{searchResult.registration}</p></div>
+            <div><p className="text-xs font-semibold text-[#5F6B7A]">{isBn ? 'ইস্যুর তারিখ' : 'Issue Date'}</p><p className="mt-1 text-sm font-medium">{searchResult.date}</p></div>
+            <div><p className="text-xs font-semibold text-[#5F6B7A]">{isBn ? 'মূল্য' : 'Value'}</p><p className="mt-1 text-sm font-medium">{searchResult.value}</p></div>
+            <div><p className="text-xs font-semibold text-[#5F6B7A]">{isBn ? 'TDS উপলভ্য' : 'TDS Available'}</p><p className="mt-1 text-sm font-semibold">{searchResult.available}</p></div>
+            <div><p className="text-xs font-semibold text-[#5F6B7A]">{isBn ? 'TDS দাবি' : 'TDS Claim'}</p><p className="mt-1 text-sm font-semibold">{searchResult.claim}</p></div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button type="button" onClick={saveSearchResult} className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A]">
+              <Check className="h-4 w-4" />
+              {isBn ? 'সংরক্ষণ' : 'Save'}
+            </button>
+          </div>
+        </section>
+      )}
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
