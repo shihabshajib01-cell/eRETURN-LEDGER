@@ -78,6 +78,7 @@ export const ServicePaymentLeanPage: React.FC<{
       'Edit': 'সম্পাদনা',
       'Delete': 'মুছুন',
       'Select all': 'সব নির্বাচন করুন',
+      'Cancel': 'বাতিল',
     };
     return labels[label] || label;
   };
@@ -305,10 +306,10 @@ export const ServicePaymentLeanPage: React.FC<{
                       )}
                     </td>
                   ))}
-                  <td data-label="Action" className="px-3 py-2.5">
+                  <td data-label={labelText("Action")} className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
-                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label="Save" className="rounded-md bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 p-2 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label="Cancel" className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"><Trash2 className="h-4 w-4" /></button>
+                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} className="rounded-md bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 p-2 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label={labelText("Cancel")} className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -358,7 +359,7 @@ export const ServicePaymentLeanPage: React.FC<{
                             type="checkbox"
                             checked={selected}
                             onChange={() => setSelectedIds((current) => current.includes(row.id) ? current.filter((id) => id !== row.id) : [...current, row.id])}
-                            aria-label={`Select ${row.authority}`}
+                            aria-label={`${isBn ? "নির্বাচন করুন" : "Select"} ${row.authority}`}
                             className="h-4 w-4 rounded border-slate-300 text-[#0B6FA4]"
                           />
                         </td>
@@ -409,7 +410,7 @@ export const ServicePaymentLeanPage: React.FC<{
           <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 className="font-bold text-[#172033]">{labelText('Service Payment')}</h2>
-              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+              <button type="button" onClick={() => setEditing(null)} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="grid grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
               {columns.map(([key, label]) => (
@@ -424,8 +425,8 @@ export const ServicePaymentLeanPage: React.FC<{
               ))}
             </div>
             <div className="flex justify-end gap-2 border-t px-5 py-4">
-              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Close</button>
-              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] disabled:cursor-not-allowed disabled:opacity-40 px-4 py-2 text-sm font-semibold text-white">Save</button>
+              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">{labelText("Close")}</button>
+              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] disabled:cursor-not-allowed disabled:opacity-40 px-4 py-2 text-sm font-semibold text-white">{labelText("Save")}</button>
             </div>
           </div>
         </div>
