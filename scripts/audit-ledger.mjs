@@ -284,9 +284,16 @@ if (!files.app.includes("tab === 'dashboard' || tab === 'payment-status'")) {
 expectContains('Tax Payment Status modal', files.statusModal, [
   'TaxPaymentStatusPage',
   'useDialogFocusTrap',
+  'useLedgerRuntime',
   'role="dialog"',
   'aria-modal="true"',
+  '<header',
+  'min-h-0 flex-1 overflow-y-auto',
+  '<footer',
   'showHeader={false}',
+  'showTotalRow={false}',
+  'showSidebar={false}',
+  'formatLedgerNumber(runtime.total)',
 ]);
 
 if (!files.app.includes("currentTab === 'overview-dashboard'") || !files.app.includes('<LedgerDashboardPage')) {
