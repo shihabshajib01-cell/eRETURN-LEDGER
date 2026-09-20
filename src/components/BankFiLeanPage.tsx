@@ -62,12 +62,10 @@ export const BankFiLeanPage: React.FC<{
       <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <h1 id="bank-fi-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
-            {isBn ? 'ব্যাংক/এফআই সুদ/মুনাফা উৎস কর' : 'Bank/FI Interest/Profit TDS'}
+            {isBn ? 'ব্যাংক উৎস কর' : 'Bank TDS'}
           </h1>
           <p className="mt-1 max-w-3xl text-sm leading-relaxed text-[#5F6B7A]">
-            {isBn
-              ? 'eReturn Income-এ থাকা ব্যাংক ও আর্থিক প্রতিষ্ঠানের উৎস কর রেকর্ড পর্যালোচনা ও সিঙ্ক করুন।'
-              : 'Review and sync Bank/FI TDS records linked with eReturn Income.'}
+            {isBn ? 'Interest/Profit (Bank & FI - With TDS Deduction)' : 'Interest/Profit (Bank & FI - With TDS Deduction)'}
           </p>
         </div>
         <button
@@ -76,7 +74,7 @@ export const BankFiLeanPage: React.FC<{
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
         >
           <RefreshCw className="h-4 w-4" />
-          {isBn ? 'Income থেকে সিঙ্ক করুন' : 'Sync from Income'}
+          {isBn ? 'Sync From Income' : 'Sync From Income'}
         </button>
       </header>
 
@@ -145,10 +143,10 @@ export const BankFiLeanPage: React.FC<{
             <div className="flex items-start justify-between border-b border-[#E2E8F0] px-5 py-4">
               <div>
                 <h2 id="bank-sync-title" className="text-base font-bold text-[#172033]">
-                  {isBn ? 'eReturn Income থেকে ব্যাংক/এফআই উৎস কর সিঙ্ক' : 'Sync Bank/FI TDS from eReturn Income'}
+                  {isBn ? 'Interest/Profit (Bank & FI - With TDS Deduction)' : 'Interest/Profit (Bank & FI - With TDS Deduction)'}
                 </h2>
                 <p className="mt-1 text-xs text-[#5F6B7A]">
-                  {isBn ? 'লেজারে আনতে চান এমন রেকর্ড নির্বাচন করুন।' : 'Select the records you want to bring into Ledger.'}
+                  {isBn ? 'Select the records you want to sync.' : 'Select the records you want to sync.'}
                 </p>
               </div>
               <button type="button" onClick={closeSync} aria-label={isBn ? 'বন্ধ করুন' : 'Close'} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
@@ -208,7 +206,7 @@ export const BankFiLeanPage: React.FC<{
                   className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  {isBn ? 'নির্বাচিত রেকর্ড সিঙ্ক করুন' : 'Sync Selected'}
+                  {isBn ? 'Sync' : 'Sync'}
                 </button>
               </div>
             </div>
