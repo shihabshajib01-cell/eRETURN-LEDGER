@@ -8,6 +8,9 @@ const files = {
   header: read('src/components/Header.tsx'),
   sidebar: read('src/components/Sidebar.tsx'),
   ibas: read('src/components/SalaryIbasLeanPage.tsx'),
+  ibasService: read('src/services/iBasLookup.ts'),
+  incomeSync: read('src/services/eReturnIncomeSync.ts'),
+  guide: read('src/components/Modals/HowItWorksModal.tsx'),
   salaryOther: read('src/components/SalaryOtherLeanPage.tsx'),
   bank: read('src/components/BankFiLeanPage.tsx'),
   dividend: read('src/components/DividendLeanPage.tsx'),
@@ -45,10 +48,17 @@ expectContains('iBAS', files.ibas, [
   'iBAS++ (Salary) TDS',
   'Search',
   'const [searched, setSearched] = useState(false)',
-  'Bogura Technical Training Centre, Bogura',
-  '5,00,450',
+  'fetchIbasSalaryTds',
+  'TDS Available',
   'TDS Claim',
   'Save',
+]);
+
+expectContains('iBAS integration boundary', files.ibasService, [
+  'VITE_IBAS_TDS_LOOKUP_API',
+  'Bogura Technical Training Centre, Bogura',
+  'tdsAvailable: 500450',
+  "credentials: 'include'",
 ]);
 
 expectContains('Salary Others', files.salaryOther, [
@@ -65,6 +75,7 @@ expectContains('Salary Others', files.salaryOther, [
 expectContains('Bank TDS', files.bank, [
   'Bank TDS',
   'Sync From Income',
+  'fetchIncomeSyncRecords',
   'draftRows',
   'updateDraftTds',
   'Save',
@@ -72,6 +83,8 @@ expectContains('Bank TDS', files.bank, [
 
 expectContains('Dividend', files.dividend, [
   'Dividend [ Section-117]',
+  'Sync From Income',
+  'fetchIncomeSyncRecords',
   'Certificate Reference No',
   'Certificate Reference Date',
   'Save',
@@ -80,6 +93,9 @@ expectContains('Dividend', files.dividend, [
 expectContains('Service Payment', files.service, [
   'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [Section-90]',
   'Sync From Income',
+  'fetchIncomeSyncRecords',
+  'Bank Name',
+  'Branch Name',
   'Add',
   'Edit',
   'Delete',
@@ -91,6 +107,7 @@ expectContains('Sanchayapatra', files.sanchay, [
   'TDS Available',
   'TDS Claim',
   'For joint holding, enter only your applicable portion as TDS Claim.',
+  'fetchIncomeSyncRecords',
   'SOURCE_ROWS.find',
   'saveSearchResult',
 ]);
@@ -124,6 +141,13 @@ expectContains('External lookup boundary', files.lookupService, [
   'LookupCategory',
 ]);
 
+expectContains('Income sync boundary', files.incomeSync, [
+  'VITE_ERETURN_INCOME_SYNC_API',
+  "category: IncomeSyncCategory",
+  "credentials: 'include'",
+  "response.status === 204 || response.status === 404",
+]);
+
 expectContains('Tax refund', files.refund, [
   'Adjustment of Tax Refund',
   'Pending DCT Verification',
@@ -149,6 +173,7 @@ expectContains('Other TDS manual claim', files.workspace, [
   "label: 'Branch Name'",
   "label: 'Challan/ Certificate Amount'",
   "label: 'Claimed Amount'",
+  'other-tds-purpose-options',
 ]);
 
 expectContains('Tax Payment Status', files.status, [
@@ -170,6 +195,11 @@ expectContains('Header shell', files.header, [
   'Log Out',
   'Notifications',
   'There are no new notifications right now.',
+]);
+
+expectContains('User guide', files.guide, [
+  'Current NBR Income Tax Guide',
+  'https://nbr.gov.bd/publications/income-tax/60',
 ]);
 
 expectContains('Shared runtime', files.runtime, [
