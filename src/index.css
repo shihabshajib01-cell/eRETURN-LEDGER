@@ -83,3 +83,19 @@
     padding: 0.85rem 1rem !important;
   }
 }
+
+
+@media (max-width: 639px) {
+  .fixed.inset-0:has(> [role="dialog"]) {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .fixed.inset-0 > [role="dialog"] {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+  }
+}
