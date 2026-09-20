@@ -12,13 +12,13 @@ export const TRANSLATIONS = {
     
     // Sidebar
     ledger: "LEDGER",
-    dashboard: "Dashboard",
+    dashboard: "Home",
     claimSourceTax: "CLAIM SOURCE TAX",
     salary: "Salary",
     financialAssets: "Financial Assets",
     serviceProfessional: "Service & Professional",
     tradeOther: "Trade & Other",
-    advanceIncomeTax: "ADVANCE INCOME TAX",
+    advanceIncomeTax: "CLAIM AIT",
     aitOnCar: "AIT on Car",
     aitUnder154: "AIT under Section 154",
     otherTaxCredits: "OTHER TAX CREDITS",
@@ -116,13 +116,13 @@ export const TRANSLATIONS = {
 
     // Sidebar
     ledger: "লেজার",
-    dashboard: "ড্যাশবোর্ড",
+    dashboard: "হোম",
     claimSourceTax: "উৎস কর দাবি করুন",
     salary: "বেতন",
     financialAssets: "আর্থিক সম্পদ ও মুনাফা",
     serviceProfessional: "সেবা ও পেশাগত কর",
     tradeOther: "বাণিজ্য ও অন্যান্য",
-    advanceIncomeTax: "অগ্রিম আয়কর (AIT)",
+    advanceIncomeTax: "AIT দাবি করুন",
     aitOnCar: "মোটরযানের এআইটি",
     aitUnder154: "ধারা ১৫৪ এর অধীন এআইটি",
     otherTaxCredits: "অন্যান্য ট্যাক্স ক্রেডিট",
