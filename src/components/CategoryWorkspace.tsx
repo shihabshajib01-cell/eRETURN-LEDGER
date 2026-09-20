@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -352,6 +353,8 @@ export const CategoryWorkspace: React.FC<{
   const [form, setForm] = useState<Record<string, string>>({});
   const [syncOpen, setSyncOpen] = useState(false);
   const [selectedSync, setSelectedSync] = useState<number[]>([]);
+  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
+  const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
 
   const isBn = lang === 'bn';
   const filteredRows = rows;
@@ -781,7 +784,7 @@ export const CategoryWorkspace: React.FC<{
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
+          <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 className="font-bold text-[#172033]">Edit</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
@@ -832,7 +835,7 @@ export const CategoryWorkspace: React.FC<{
 
       {syncOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-5xl flex-col rounded-xl bg-white shadow-xl">
+          <div ref={syncDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-5xl flex-col rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h2 className="font-bold text-[#172033]">{config.title}</h2>
               <button type="button" onClick={() => setSyncOpen(false)} aria-label="Close" className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100">
