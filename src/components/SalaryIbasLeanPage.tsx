@@ -126,41 +126,44 @@ export const SalaryIbasLeanPage: React.FC<{
         </div>
 
         <div className="mt-6 border-t border-[#E2E8F0] pt-5">
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-            <div className="max-w-2xl">
-              <label htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
-                {isBn ? 'TDS দাবি' : 'TDS Claim'}
-              </label>
-              <input
-                id="tds-claim"
-                value={claim}
-                onChange={(event) => setClaim(event.target.value)}
-                inputMode="decimal"
-                disabled={!salaryRecord || loadState !== 'ready'}
-                aria-invalid={claimInvalid}
-                aria-describedby={claimInvalid ? 'tds-claim-error' : undefined}
-                className={`w-full rounded-lg border px-3 py-3 text-base font-medium text-[#172033] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-[#F1F3F5] disabled:text-[#8A96A6] ${
-                  claimInvalid
-                    ? 'border-red-400 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-200'
-                    : 'border-[#C8D4E1] bg-white focus:border-[#0B6FA4] focus:ring-2 focus:ring-[#0B6FA4]/20'
-                }`}
-              />
-              {claimInvalid && (
-                <p id="tds-claim-error" className="mt-2 text-sm text-red-600">
-                  {isBn ? 'দাবির পরিমাণ উপলভ্য TDS-এর বেশি হতে পারবে না।' : 'TDS Claim cannot exceed the available amount.'}
-                </p>
-              )}
-            </div>
+          <div className="max-w-2xl">
+            <label htmlFor="tds-claim" className="mb-2 block text-sm font-semibold text-[#172033]">
+              {isBn ? 'TDS দাবি' : 'TDS Claim'}
+            </label>
 
-            <button
-              type="button"
-              onClick={save}
-              disabled={saveDisabled}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2 md:w-auto"
-            >
-              <Check className="h-4 w-4" aria-hidden="true" />
-              {isBn ? 'সংরক্ষণ' : 'Save'}
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div className="min-w-0 flex-1">
+                <input
+                  id="tds-claim"
+                  value={claim}
+                  onChange={(event) => setClaim(event.target.value)}
+                  inputMode="decimal"
+                  disabled={!salaryRecord || loadState !== 'ready'}
+                  aria-invalid={claimInvalid}
+                  aria-describedby={claimInvalid ? 'tds-claim-error' : undefined}
+                  className={`w-full rounded-lg border px-3 py-3 text-base font-medium text-[#172033] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-[#F1F3F5] disabled:text-[#8A96A6] ${
+                    claimInvalid
+                      ? 'border-red-400 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                      : 'border-[#C8D4E1] bg-white focus:border-[#0B6FA4] focus:ring-2 focus:ring-[#0B6FA4]/20'
+                  }`}
+                />
+                {claimInvalid && (
+                  <p id="tds-claim-error" className="mt-2 text-sm text-red-600">
+                    {isBn ? 'দাবির পরিমাণ উপলভ্য TDS-এর বেশি হতে পারবে না।' : 'TDS Claim cannot exceed the available amount.'}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={save}
+                disabled={saveDisabled}
+                className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2 sm:w-auto"
+              >
+                <Check className="h-4 w-4" aria-hidden="true" />
+                {isBn ? 'সংরক্ষণ' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       </section>
