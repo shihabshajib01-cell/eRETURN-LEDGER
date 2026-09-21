@@ -313,8 +313,12 @@ if (!files.sidebar.includes("select('overview-dashboard')")) {
   fail('Dashboard is missing from the primary navigation.');
 }
 
-if (!files.sidebar.includes("select('ledger-guide')")) {
-  fail('Ledger Guide is missing from the primary navigation.');
+if (files.sidebar.includes("select('ledger-guide')")) {
+  fail('Ledger Guide must not appear in the primary navigation; guidance remains available through the preserved guide route and User Guide modal.');
+}
+
+if (!files.sidebar.includes("select('user-guide')")) {
+  fail('User Guide access is missing from the help area.');
 }
 
 if (!files.status.includes('useLedgerRuntime')) {
