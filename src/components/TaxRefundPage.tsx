@@ -3,7 +3,6 @@ import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
 import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
-import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
 import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
@@ -53,7 +52,6 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const [editing, setEditing] = useState<RefundRow | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY);
   const { updateCategoryAmount } = useLedgerRuntime();
-  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
   const labelText = (key: string) => {
     const labels: Record<string, [string, string]> = {
       year: ['Assessment Year', 'করবর্ষ'],
@@ -143,6 +141,59 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
     }
   };
 
+  const cancelAdd = () => {
+    setAdding(false);
+    setForm(EMPTY);
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setForm(EMPTY);
+  };
+
+  const handleInlineKeyDown = (event: React.KeyboardEvent, mode: 'add' | 'edit') => {
+    if (event.key === 'Escape') {
+      if (mode === 'add') cancelAdd();
+      else cancelEdit();
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (mode === 'add') saveAdd();
+      else saveEdit();
+    }
+  };
+
+  const renderInlineControl = (key: keyof FormState, mode: 'add' | 'edit', autoFocus = false) => {
+    if (key === 'year') {
+      return (
+        <select
+          autoFocus={autoFocus}
+          value={form.year}
+          onChange={(event) => setForm((current) => ({ ...current, year: event.target.value }))}
+          onKeyDown={(event) => handleInlineKeyDown(event, mode)}
+          aria-label={labelText(key)}
+          className="ledger-inline-control w-full min-w-[130px] bg-white text-sm"
+        >
+          <option value="2025-2026">2025-2026</option>
+        </select>
+      );
+    }
+
+    const numeric = key === 'refund' || key === 'claimed';
+    return (
+      <input
+        autoFocus={autoFocus}
+        value={form[key]}
+        onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
+        onKeyDown={(event) => handleInlineKeyDown(event, mode)}
+        inputMode={numeric ? 'decimal' : undefined}
+        aria-label={labelText(key)}
+        placeholder={key === 'date' ? 'DD-MM-YYYY' : labelText(key)}
+        className={`ledger-inline-control w-full min-w-[135px] bg-white text-sm ${numeric ? 'text-right' : ''}`}
+      />
+    );
+  };
+
   return (
     <section className="ledger-page w-full" aria-labelledby="tax-refund-title">
       <header className="min-w-0">
@@ -160,7 +211,7 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
         <LedgerTableToolbar>
           <LedgerTableSummaryGroup>
             <LedgerTableSummaryItem label={isBn ? 'মোট সমন্বয় দাবি' : 'Total Adjustment Claim'} value={formatLedgerNumber(totalClaimed)} accent />
-            <div className="h-9 w-px bg-[#E2E8F0]" aria-hidden="true" />
+            <div className="h-9 w-px bg-[#E3E8F0]" aria-hidden="true" />
             <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={rows.length} />
           </LedgerTableSummaryGroup>
           <button
@@ -190,45 +241,68 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
               </tr>
             </LedgerTableHead>
             <LedgerTableBody>
-              {rows.map((row, index) => (
-                <tr key={row.id}>
-                  <td data-label="SL." className="px-4 py-3">{index + 1}</td>
-                  <td data-label={labelText("year")} className="px-4 py-3">{row.year}</td>
-                  <td data-label={labelText("reference")} className="px-4 py-3">{row.reference}</td>
-                  <td data-label={labelText("date")} className="px-4 py-3">{row.date}</td>
-                  <td data-label={labelText("zone")} className="px-4 py-3">{row.zone}</td>
-                  <td data-label={labelText("circle")} className="px-4 py-3">{row.circle}</td>
-                  <td data-label={labelText("refund")} className="px-4 py-3 text-right">{row.refund}</td>
-                  <td data-label={labelText("claimed")} className="px-4 py-3 text-right font-semibold">{row.claimed}</td>
-                  <td data-label={isBn ? "যাচাই অবস্থা" : "Verification Status"} className="px-4 py-3">
-                    <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-                      {statusText(row.verificationStatus)}
-                    </span>
-                  </td>
-                  <td data-label={isBn ? "অ্যাকশন" : "Action"} className="px-4 py-2">
-                    <div className="flex justify-end gap-1">
-                      <button type="button" onClick={() => openEdit(row)} aria-label={isBn ? "সম্পাদনা" : "Edit"} className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50"><Edit2 className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => remove(row.id)} aria-label={isBn ? "মুছুন" : "Delete"} className="rounded-md p-2 text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {rows.map((row, index) => {
+                const isEditingRow = editing?.id === row.id;
+                if (isEditingRow) {
+                  return (
+                    <tr key={row.id} className="ledger-table-editor-row align-top">
+                      <td data-label="SL." className="text-slate-500">{index + 1}</td>
+                      {(Object.keys(form) as Array<keyof FormState>).map((key, columnIndex) => (
+                        <td key={key} data-label={labelText(key)}>
+                          {renderInlineControl(key, 'edit', columnIndex === 0)}
+                        </td>
+                      ))}
+                      <td data-label={isBn ? "যাচাই অবস্থা" : "Verification Status"} className="text-xs text-amber-700">
+                        {statusText(row.verificationStatus)}
+                      </td>
+                      <td data-label={isBn ? "অ্যাকশন" : "Action"}>
+                        <div className="flex justify-end gap-1.5">
+                          <button type="button" onClick={saveEdit} disabled={!valid} aria-label={isBn ? "সংরক্ষণ" : "Save"} className="ledger-inline-action ledger-inline-save"><Check className="h-4 w-4" /></button>
+                          <button type="button" onClick={cancelEdit} aria-label={isBn ? "বাতিল" : "Cancel"} className="ledger-inline-action ledger-inline-cancel"><X className="h-4 w-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
+                  <tr key={row.id}>
+                    <td data-label="SL." className="text-slate-500">{index + 1}</td>
+                    <td data-label={labelText("year")}>{row.year}</td>
+                    <td data-label={labelText("reference")}>{row.reference}</td>
+                    <td data-label={labelText("date")}>{row.date}</td>
+                    <td data-label={labelText("zone")}>{row.zone}</td>
+                    <td data-label={labelText("circle")}>{row.circle}</td>
+                    <td data-label={labelText("refund")} className="text-right tabular-nums">{row.refund}</td>
+                    <td data-label={labelText("claimed")} className="text-right font-semibold tabular-nums">{row.claimed}</td>
+                    <td data-label={isBn ? "যাচাই অবস্থা" : "Verification Status"}>
+                      <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">{statusText(row.verificationStatus)}</span>
+                    </td>
+                    <td data-label={isBn ? "অ্যাকশন" : "Action"}>
+                      <div className="flex justify-end gap-1">
+                        <button type="button" onClick={() => openEdit(row)} aria-label={isBn ? "সম্পাদনা" : "Edit"} className="ledger-row-action text-[#0B6FA4]"><Edit2 className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => remove(row.id)} aria-label={isBn ? "মুছুন" : "Delete"} className="ledger-row-action text-red-600"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
 
               {adding && (
-                <tr className="bg-[#F5FAFD] align-top">
-                  <td data-label="SL." className="px-4 py-3">{rows.length + 1}</td>
-                  <td data-label="Assessment Year" className="px-2 py-2"><select value={form.year} onChange={(e) => setForm((s) => ({ ...s, year: e.target.value }))} className="w-full rounded-md border px-2 py-2"><option>2025-2026</option></select></td>
-                  <td data-label="Reference" className="px-2 py-2"><input value={form.reference} onChange={(e) => setForm((s) => ({ ...s, reference: e.target.value }))} className="w-full rounded-md border px-2 py-2" /></td>
-                  <td data-label="Date" className="px-2 py-2"><input value={form.date} onChange={(e) => setForm((s) => ({ ...s, date: e.target.value }))} placeholder="DD-MM-YYYY" className="w-full rounded-md border px-2 py-2" /></td>
-                  <td data-label="Zone" className="px-2 py-2"><input value={form.zone} onChange={(e) => setForm((s) => ({ ...s, zone: e.target.value }))} className="w-full rounded-md border px-2 py-2" /></td>
-                  <td data-label="Circle" className="px-2 py-2"><input value={form.circle} onChange={(e) => setForm((s) => ({ ...s, circle: e.target.value }))} className="w-full rounded-md border px-2 py-2" /></td>
-                  <td data-label="Refund Amount" className="px-2 py-2"><input value={form.refund} onChange={(e) => setForm((s) => ({ ...s, refund: e.target.value }))} inputMode="decimal" className="w-full rounded-md border px-2 py-2 text-right" /></td>
-                  <td data-label="Claim Amount" className="px-2 py-2"><input value={form.claimed} onChange={(e) => setForm((s) => ({ ...s, claimed: e.target.value }))} inputMode="decimal" className="w-full rounded-md border px-2 py-2 text-right" /></td>
-                  <td data-label="Verification Status" className="px-4 py-3 text-xs text-amber-700">{isBn ? 'DCT যাচাই অপেক্ষমাণ' : 'Pending DCT Verification'}</td>
-                  <td data-label="Action" className="px-3 py-2">
-                    <div className="flex justify-end gap-1">
-                      <button type="button" onClick={saveAdd} disabled={!valid} aria-label={isBn ? "সংরক্ষণ" : "Save"} className="rounded-md bg-emerald-600 p-2 text-white disabled:opacity-40"><Check className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label={isBn ? "বাতিল" : "Cancel"} className="rounded-md border p-2 text-slate-600"><X className="h-4 w-4" /></button>
+                <tr className="ledger-table-editor-row align-top">
+                  <td data-label="SL." className="text-slate-500">{rows.length + 1}</td>
+                  {(Object.keys(form) as Array<keyof FormState>).map((key, columnIndex) => (
+                    <td key={key} data-label={labelText(key)}>
+                      {renderInlineControl(key, 'add', columnIndex === 0)}
+                    </td>
+                  ))}
+                  <td data-label={isBn ? "যাচাই অবস্থা" : "Verification Status"} className="text-xs text-amber-700">
+                    {isBn ? 'DCT যাচাই অপেক্ষমাণ' : 'Pending DCT Verification'}
+                  </td>
+                  <td data-label={isBn ? "অ্যাকশন" : "Action"}>
+                    <div className="flex justify-end gap-1.5">
+                      <button type="button" onClick={saveAdd} disabled={!valid} aria-label={isBn ? "সংরক্ষণ" : "Save"} className="ledger-inline-action ledger-inline-save"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={cancelAdd} aria-label={isBn ? "বাতিল" : "Cancel"} className="ledger-inline-action ledger-inline-cancel ledger-inline-cancel-danger"><X className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -238,43 +312,6 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
         </LedgerTableViewport>
       </LedgerTableFrame>
 
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="w-full max-w-3xl rounded-xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 className="font-bold">{isBn ? 'রিফান্ড সমন্বয় সম্পাদনা' : 'Edit Refund Adjustment'}</h2>
-              <button type="button" onClick={() => setEditing(null)} aria-label={isBn ? "বন্ধ করুন" : "Close"}><X className="h-5 w-5" /></button>
-            </div>
-            <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
-              {(Object.entries(form) as [keyof FormState, string][]).map(([key, value]) => (
-                <label key={key} className="text-sm font-semibold text-[#172033]">
-                  {labelText(key)}
-                  {key === 'year' ? (
-                    <select
-                      value={value}
-                      onChange={(e) => setForm((s) => ({ ...s, year: e.target.value }))}
-                      className="mt-1 w-full rounded-lg border bg-white px-3 py-2.5 font-normal"
-                    >
-                      <option value="2025-2026">2025-2026</option>
-                    </select>
-                  ) : (
-                    <input
-                      value={value}
-                      onChange={(e) => setForm((s) => ({ ...s, [key]: e.target.value }))}
-                      inputMode={key === 'refund' || key === 'claimed' ? 'decimal' : undefined}
-                      className={`mt-1 w-full rounded-lg border px-3 py-2.5 font-normal ${key === 'refund' || key === 'claimed' ? 'text-right' : ''}`}
-                    />
-                  )}
-                </label>
-              ))}
-            </div>
-            <div className="flex justify-end gap-2 border-t px-5 py-4">
-              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border px-4 py-2 text-sm font-semibold">{isBn ? 'বাতিল' : 'Cancel'}</button>
-              <button type="button" onClick={saveEdit} disabled={!valid} className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{isBn ? 'সংরক্ষণ' : 'Save'}</button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
