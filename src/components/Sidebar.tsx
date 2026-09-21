@@ -114,15 +114,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab, lang,
             <span>{t.overviewDashboard}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => select('ledger-guide')}
-            className={itemClass(currentTab === 'ledger-guide')}
-          >
-            <BookOpen className="w-4 h-4 shrink-0" />
-            <span>{t.ledgerGuide}</span>
-          </button>
-
           <div className="pt-2">
             {groupButton('source', t.claimSourceTax, Receipt)}
             {openGroup === 'source' && (
