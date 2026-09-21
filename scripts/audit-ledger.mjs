@@ -147,6 +147,41 @@ if (files.salaryOther.includes("'Bank Name':") || files.salaryOther.includes("'B
   fail('Salary Others must not introduce Bank Name or Branch Name fields beyond the current-system field set.');
 }
 
+expectContains('Manual table inline editing', files.salaryOther, [
+  'ledger-table-editor-row',
+  "renderInlineField(column, 'edit'",
+  "renderInlineField(column, 'add'",
+]);
+
+expectContains('Service Payment inline editing', files.service, [
+  'ledger-table-editor-row',
+  "renderManualControl(key, label, 'edit'",
+  "renderManualControl(key, label, 'add'",
+]);
+
+expectContains('Other TDS inline editing', files.otherTds, [
+  'ledger-table-editor-row',
+  "renderEditor(field.key, 'edit')",
+  "renderEditor(field.key, 'add')",
+]);
+
+expectContains('Tax Refund inline editing', files.refund, [
+  'ledger-table-editor-row',
+  "renderInlineControl(key, 'edit'",
+  "renderInlineControl(key, 'add'",
+]);
+
+for (const [name, content] of Object.entries({
+  'Salary Others': files.salaryOther,
+  'Service Payment': files.service,
+  'Other TDS': files.otherTds,
+  'Tax Refund': files.refund,
+})) {
+  if (content.includes('editDialogRef')) {
+    fail(`${name} must edit within the table row, not in an edit modal.`);
+  }
+}
+
 expectContains('Bank TDS', files.bank, [
   'Bank TDS',
   'Sync From Income',
