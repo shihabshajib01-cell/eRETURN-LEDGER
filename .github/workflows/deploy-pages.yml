@@ -53,7 +53,10 @@ jobs:
         shell: bash
         run: |
           test -f dist/index.html
-          grep -q '/eRETURN-LEDGER/assets/' dist/index.html
+          test -f dist/assets/app.js
+          test -f dist/assets/app.css
+          grep -q '/eRETURN-LEDGER/assets/app.js' dist/index.html
+          grep -q '/eRETURN-LEDGER/assets/app.css' dist/index.html
           if grep -q '/src/main.tsx' dist/index.html; then
             echo "Raw Vite source entry leaked into production index."
             exit 1
@@ -123,7 +126,7 @@ jobs:
           url="https://shihabshajib01-cell.github.io/eRETURN-LEDGER/?v=$SHA"
           for attempt in {1..24}; do
             html="$(curl -fsSL -H 'Cache-Control: no-cache' "$url" || true)"
-            if echo "$html" | grep -q '/eRETURN-LEDGER/assets/' && ! echo "$html" | grep -q '/src/main.tsx'; then
+            if echo "$html" | grep -q '/eRETURN-LEDGER/assets/app.js' && echo "$html" | grep -q '/eRETURN-LEDGER/assets/app.css' && ! echo "$html" | grep -q '/src/main.tsx'; then
               echo "Live Pages is serving the validated Vite build."
               exit 0
             fi
