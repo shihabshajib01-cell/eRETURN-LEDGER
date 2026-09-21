@@ -3,7 +3,7 @@ import React from 'react';
 const join = (...classes: Array<string | undefined | false>) => classes.filter(Boolean).join(' ');
 
 export const LedgerTableFrame: React.FC<React.HTMLAttributes<HTMLElement>> = ({ className, children, ...props }) => (
-  <section {...props} className={join('overflow-hidden rounded-xl border border-[#E2E8F0] bg-white', className)}>
+  <section {...props} className={join('overflow-hidden rounded-xl border border-[#E3E8F0] bg-white', className)}>
     {children}
   </section>
 );
@@ -59,7 +59,7 @@ export const LedgerTableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellEleme
 
 export const LedgerTableToolbar: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
   <div {...props} className={join(
-    'flex flex-col gap-4 border-b border-[#E2E8F0] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5',
+    'flex flex-col gap-4 border-b border-[#E3E8F0] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5',
     className
   )}>
     {children}
