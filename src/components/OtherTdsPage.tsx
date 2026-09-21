@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -236,36 +236,31 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="other-tds-title">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 id="other-tds-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
-            {isBn ? 'অন্যান্য উৎস কর' : 'Other TDS Entry'}
-          </h1>
-        </div>
-        <div className="flex flex-wrap items-end gap-5">
-          <div className="text-right">
-            <p className="text-xs text-[#5F6B7A]">{isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{formatLedgerNumber(totalClaimed)}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-[#5F6B7A]">{isBn ? 'সংখ্যা' : 'Count'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#172033]">{rows.length}</p>
-          </div>
+    <section className="ledger-page w-full" aria-labelledby="other-tds-title">
+      <header className="min-w-0">
+        <h1 id="other-tds-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
+          {isBn ? 'অন্যান্য উৎস কর' : 'Other TDS Entry'}
+        </h1>
+      </header>
+
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <LedgerTableSummaryGroup>
+            <LedgerTableSummaryItem label={isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'} value={formatLedgerNumber(totalClaimed)} accent />
+            <div className="h-9 w-px bg-[#E2E8F0]" aria-hidden="true" />
+            <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={rows.length} />
+          </LedgerTableSummaryGroup>
           <button
             type="button"
             onClick={openAdd}
             disabled={adding}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F2F8FC] disabled:opacity-50 sm:w-auto"
           >
             <Plus className="h-4 w-4" />
-            {isBn ? 'যোগ করুন' : 'Add'}
+            {isBn ? 'নতুন যোগ করুন' : 'Add new'}
           </button>
-        </div>
-      </header>
-
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="overflow-x-auto">
+        </LedgerTableToolbar>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[1320px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -352,8 +347,8 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
               )}
             </LedgerTableBody>
           </LedgerTable>
-        </div>
-      </section>
+        </LedgerTableViewport>
+      </LedgerTableFrame>
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">

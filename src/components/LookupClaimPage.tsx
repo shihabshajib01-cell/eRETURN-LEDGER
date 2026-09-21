@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Search, Trash2, X, Check } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -260,7 +260,7 @@ export const LookupClaimPage: React.FC<{
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby={`${kind}-title`}>
+    <section className="ledger-page w-full" aria-labelledby={`${kind}-title`}>
       <h1 id={`${kind}-title`} className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
         {label(config.title)}
       </h1>
@@ -319,14 +319,12 @@ export const LookupClaimPage: React.FC<{
         </section>
       )}
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="border-b border-[#E2E8F0] px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="font-bold text-[#172033]">{label(config.tableTitle)}</h2>
-            <span className="text-sm font-semibold text-[#0B6FA4]">{formatLedgerNumber(total)}</span>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <h2 className="font-bold text-[#172033]">{label(config.tableTitle)}</h2>
+          <span className="text-sm font-semibold tabular-nums text-[#0B6FA4]">{formatLedgerNumber(total)}</span>
+        </LedgerTableToolbar>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[900px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -366,8 +364,8 @@ export const LookupClaimPage: React.FC<{
               )}
             </LedgerTableBody>
           </LedgerTable>
-        </div>
-      </section>
+        </LedgerTableViewport>
+      </LedgerTableFrame>
     </section>
   );
 };

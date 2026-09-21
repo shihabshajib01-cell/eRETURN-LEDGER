@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -98,23 +98,26 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="environmental-surcharge-title">
-      <header className="flex items-center justify-between gap-4">
+    <section className="ledger-page w-full" aria-labelledby="environmental-surcharge-title">
+      <header className="min-w-0">
         <h1 id="environmental-surcharge-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
           {labelText('Environmental Surcharge')}
         </h1>
-        <button
-          type="button"
-          onClick={addRow}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50"
-        >
-          <Plus className="h-4 w-4" />
-          {labelText('Add')}
-        </button>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="overflow-x-auto">
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <div />
+          <button
+            type="button"
+            onClick={addRow}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F2F8FC] sm:w-auto"
+          >
+            <Plus className="h-4 w-4" />
+            {labelText('Add')}
+          </button>
+        </LedgerTableToolbar>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[1080px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -168,7 +171,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
               </tr>
             </tfoot>
           </LedgerTable>
-        </div>
+        </LedgerTableViewport>
 
         <div className="border-t border-[#E2E8F0] px-4 py-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_360px] md:items-center">
@@ -182,7 +185,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
             />
           </div>
         </div>
-      </section>
+      </LedgerTableFrame>
 
       {!canSave && (
         <p className="text-sm text-red-600">{isBn ? 'সংরক্ষণের আগে সব পেমেন্ট তথ্য পূরণ করুন।' : 'Complete all payment fields before saving.'}</p>

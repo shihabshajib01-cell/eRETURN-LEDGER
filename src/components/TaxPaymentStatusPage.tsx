@@ -61,7 +61,7 @@ export const TaxPaymentStatusPage: React.FC<TaxPaymentStatusPageProps> = ({
 
   return (
     <section
-      className={embedded ? 'w-full' : 'w-full space-y-5'}
+      className={embedded ? 'w-full' : 'ledger-page w-full'}
       aria-labelledby={showHeader ? 'payment-status-title' : undefined}
       aria-label={!showHeader ? (isBn ? 'কর পরিশোধের বিবরণী' : 'Tax Payment Status') : undefined}
     >

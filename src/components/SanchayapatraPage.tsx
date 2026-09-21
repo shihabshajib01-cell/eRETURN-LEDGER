@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -175,7 +175,7 @@ export const SanchayapatraPage: React.FC<{
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="sanchayapatra-title">
+    <section className="ledger-page w-full" aria-labelledby="sanchayapatra-title">
       <header>
         <h1 id="sanchayapatra-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
           {isBn ? 'সঞ্চয়পত্র' : 'Sanchayapatra'}
@@ -229,8 +229,8 @@ export const SanchayapatraPage: React.FC<{
         </section>
       )}
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="overflow-x-auto">
+      <LedgerTableFrame>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[980px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -286,8 +286,8 @@ export const SanchayapatraPage: React.FC<{
               )}
             </LedgerTableBody>
           </LedgerTable>
-        </div>
-      </section>
+        </LedgerTableViewport>
+      </LedgerTableFrame>
 
       {syncOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -213,40 +213,41 @@ export const ServicePaymentLeanPage: React.FC<{
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="service-payment-title">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 id="service-payment-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
-            {labelText('Service Payment')}
-          </h1>
-          <p className="mt-1 text-sm italic text-[#0B6FA4]">
-            {isBn ? 'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [ধারা-৯০]' : 'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [Section-90]'}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => void openSync()}
-            disabled={syncLoading}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#149DB2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#108A9D] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <RefreshCw className="h-4 w-4" />
-            {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : labelText('Sync From Income')}
-          </button>
-          <button
-            type="button"
-            onClick={openAdd}
-            disabled={adding}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B6FA4] hover:bg-blue-50 disabled:opacity-50"
-          >
-            <Plus className="h-4 w-4" />
-            {labelText('Add')}
-          </button>
-        </div>
+    <section className="ledger-page w-full" aria-labelledby="service-payment-title">
+      <header className="min-w-0">
+        <h1 id="service-payment-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
+          {labelText('Service Payment')}
+        </h1>
+        <p className="mt-1 text-sm italic text-[#0B6FA4]">
+          {isBn ? 'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [ধারা-৯০]' : 'Meeting Fees, Honorarium, Professional Service, Consultancy etc. [Section-90]'}
+        </p>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="overflow-x-auto">
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <div />
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <button
+              type="button"
+              onClick={() => void openSync()}
+              disabled={syncLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F2F8FC] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RefreshCw className="h-4 w-4" />
+              {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : labelText('Sync From Income')}
+            </button>
+            <button
+              type="button"
+              onClick={openAdd}
+              disabled={adding}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F2F8FC] disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4" />
+              {labelText('Add')}
+            </button>
+          </div>
+        </LedgerTableToolbar>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[1080px] text-sm">
             <LedgerTableHead>
               <tr>

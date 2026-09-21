@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
 
@@ -55,27 +55,22 @@ export const ImportReadOnlyPage: React.FC<{ lang: Language }> = ({ lang }) => {
   }, [total, updateCategoryAmount]);
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="import-title">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 id="import-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
-            {isBn ? 'Import (120) TDS Details' : 'Import (120) TDS Details'}
-          </h1>
-        </div>
-        <div className="flex gap-6">
-          <div className="text-right">
-            <p className="text-xs text-[#5F6B7A]">{isBn ? 'মোট দাবিকৃত TDS' : 'Total TDS Claimed'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{formatLedgerNumber(total)}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-[#5F6B7A]">{isBn ? 'সংখ্যা' : 'Count'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#172033]">{IMPORT_ROWS.length}</p>
-          </div>
-        </div>
+    <section className="ledger-page w-full" aria-labelledby="import-title">
+      <header className="min-w-0">
+        <h1 id="import-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
+          {isBn ? 'Import (120) TDS Details' : 'Import (120) TDS Details'}
+        </h1>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="overflow-x-auto">
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <LedgerTableSummaryGroup>
+            <LedgerTableSummaryItem label={isBn ? 'মোট দাবিকৃত TDS' : 'Total TDS Claimed'} value={formatLedgerNumber(total)} accent />
+            <div className="h-9 w-px bg-[#E2E8F0]" aria-hidden="true" />
+            <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={IMPORT_ROWS.length} />
+          </LedgerTableSummaryGroup>
+        </LedgerTableToolbar>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[1180px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -108,8 +103,8 @@ export const ImportReadOnlyPage: React.FC<{ lang: Language }> = ({ lang }) => {
               ))}
             </LedgerTableBody>
           </LedgerTable>
-        </div>
-      </section>
+        </LedgerTableViewport>
+      </LedgerTableFrame>
     </section>
   );
 };

@@ -21,7 +21,7 @@ export const CarryForwardPage: React.FC<{ lang: Language }> = ({ lang }) => {
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="carry-forward-title">
+    <section className="ledger-page w-full" aria-labelledby="carry-forward-title">
       <h1 id="carry-forward-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
         {isBn ? 'ধারা ১৬৩ অনুযায়ী জের টানা কর সমন্বয়' : 'Adjustment of carry forward tax u/s 163'}
       </h1>

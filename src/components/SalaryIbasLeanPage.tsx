@@ -62,7 +62,7 @@ export const SalaryIbasLeanPage: React.FC<{
         : (isBn ? 'iBAS++ সেবার সাথে সংযোগ করা যাচ্ছে না।' : 'Unable to connect to the iBAS++ verification service.');
 
   return (
-    <section className="w-full space-y-5" aria-labelledby="salary-ibas-title">
+    <section className="ledger-page w-full" aria-labelledby="salary-ibas-title">
       <header>
         <h1 id="salary-ibas-title" className="text-2xl font-bold tracking-tight text-[#172033] lg:text-[28px]">
           iBAS++ (Salary) TDS

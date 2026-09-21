@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -177,7 +177,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="salary-other-title">
+    <section className="ledger-page w-full" aria-labelledby="salary-other-title">
       <header className="min-w-0">
         <h1 id="salary-other-title" className="text-2xl font-bold tracking-tight text-[#172033] lg:text-[28px]">
           {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
@@ -187,19 +187,13 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
         </p>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="flex flex-col gap-4 border-b border-[#E2E8F0] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="flex items-center gap-5">
-            <div>
-              <p className="text-xs font-medium text-[#6B778A]">{isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'}</p>
-              <p className="mt-0.5 text-xl font-bold tabular-nums text-[#0B6FA4]">{formatLedgerNumber(totalClaimed)}</p>
-            </div>
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <LedgerTableSummaryGroup>
+            <LedgerTableSummaryItem label={isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'} value={formatLedgerNumber(totalClaimed)} accent />
             <div className="h-9 w-px bg-[#E2E8F0]" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-medium text-[#6B778A]">{isBn ? 'রেকর্ড' : 'Records'}</p>
-              <p className="mt-0.5 text-xl font-bold tabular-nums text-[#172033]">{normalizedRows.length}</p>
-            </div>
-          </div>
+            <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={normalizedRows.length} />
+          </LedgerTableSummaryGroup>
 
           <button
             type="button"
@@ -210,9 +204,9 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             <Plus className="h-4 w-4" aria-hidden="true" />
             {isBn ? 'নতুন যোগ করুন' : 'Add new'}
           </button>
-        </div>
+        </LedgerTableToolbar>
 
-        <div className="overflow-x-auto">
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[820px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -314,8 +308,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
               )}
             </LedgerTableBody>
           </LedgerTable>
-        </div>
-      </section>
+        </LedgerTableViewport>
+      </LedgerTableFrame>
 
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">

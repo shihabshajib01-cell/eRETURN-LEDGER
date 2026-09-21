@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -116,26 +116,27 @@ export const BankFiLeanPage: React.FC<{
   };
 
   return (
-    <section className="w-full space-y-4" aria-labelledby="bank-fi-title">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <h1 id="bank-fi-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
-            {isBn ? 'ব্যাংক উৎস কর' : 'Bank TDS'}
-          </h1>
-        </div>
-        <button
-          type="button"
-          onClick={() => void openSync()}
-          disabled={syncLoading}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
-        >
-          <RefreshCw className="h-4 w-4" />
-          {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income')}
-        </button>
+    <section className="ledger-page w-full" aria-labelledby="bank-fi-title">
+      <header className="min-w-0">
+        <h1 id="bank-fi-title" className="text-2xl lg:text-[28px] font-bold text-[#172033] tracking-tight">
+          {isBn ? 'ব্যাংক উৎস কর' : 'Bank TDS'}
+        </h1>
       </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
-        <div className="overflow-x-auto">
+      <LedgerTableFrame>
+        <LedgerTableToolbar>
+          <div />
+          <button
+            type="button"
+            onClick={() => void openSync()}
+            disabled={syncLoading}
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] transition-colors hover:bg-[#F2F8FC] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 sm:w-auto"
+          >
+            <RefreshCw className="h-4 w-4" />
+            {syncLoading ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'Income থেকে সিঙ্ক' : 'Sync From Income')}
+          </button>
+        </LedgerTableToolbar>
+        <LedgerTableViewport>
           <LedgerTable className="ledger-responsive-table w-full min-w-[980px] text-sm">
             <LedgerTableHead>
               <tr>
@@ -162,8 +163,8 @@ export const BankFiLeanPage: React.FC<{
               ))}
             </LedgerTableBody>
           </LedgerTable>
-        </div>
-      </section>
+        </LedgerTableViewport>
+      </LedgerTableFrame>
 
       {syncOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">

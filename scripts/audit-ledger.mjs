@@ -46,6 +46,33 @@ const expectContains = (name, content, expected) => {
 };
 
 
+
+expectContains('Unified page system', files.styles, [
+  'Shared eReturn Ledger page system',
+  '.ledger-page',
+]);
+
+const unifiedPageFiles = {
+  'Dashboard': files.app.includes('LedgerDashboardPage') ? read('src/components/LedgerDashboardPage.tsx') : '',
+  'iBAS Salary': files.ibas,
+  'Salary Others': files.salaryOther,
+  'Bank TDS': files.bank,
+  'Dividend': files.dividend,
+  'Service Payment': files.service,
+  'Sanchayapatra': files.sanchay,
+  'Import': files.importPage,
+  'Other TDS': files.otherTds,
+  'Lookup Claim': files.lookup,
+  'Tax Refund': files.refund,
+  'Environmental Surcharge': files.environmental,
+  'Carry Forward': files.carryForward,
+  'Tax Payment Status': files.status,
+};
+
+for (const [name, content] of Object.entries(unifiedPageFiles)) {
+  if (!content.includes('ledger-page')) fail(`${name} is not using the shared Ledger page shell.`);
+}
+
 expectContains('Unified table system', files.tableSystem, [
   'LedgerTable',
   'LedgerTableHead',

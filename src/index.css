@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+
+/* Shared eReturn Ledger page system */
+.ledger-page {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ledger-page > header,
+.ledger-page > h1 {
+  flex: none;
+}
+
+.ledger-page > header h1,
+.ledger-page > h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.ledger-page > header > p,
+.ledger-page > header > div > p {
+  max-width: 48rem;
+}
+
+@media (max-width: 639px) {
+  .ledger-page {
+    gap: 0.875rem;
+  }
+
+  .ledger-page > header h1,
+  .ledger-page > h1 {
+    font-size: 1.5rem;
+  }
+}
+
 /* Shared eReturn Ledger table system */
 .ledger-table-system {
   border-collapse: separate;

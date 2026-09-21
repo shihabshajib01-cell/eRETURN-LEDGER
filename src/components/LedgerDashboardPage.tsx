@@ -216,7 +216,7 @@ export const LedgerDashboardPage: React.FC<LedgerDashboardPageProps> = ({
   );
 
   return (
-    <section className="w-full space-y-5" aria-labelledby="ledger-dashboard-title">
+    <section className="ledger-page w-full" aria-labelledby="ledger-dashboard-title">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.06em] text-[#0B6FA4]">
