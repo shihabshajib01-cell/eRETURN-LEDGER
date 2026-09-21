@@ -19,6 +19,18 @@ type SalaryRow = {
   claimed: string;
 };
 
+const normalizeSalaryRow = (row: Partial<SalaryRow>, index: number): SalaryRow => ({
+  id: typeof row.id === 'number' && Number.isFinite(row.id) ? row.id : index + 1,
+  authority: typeof row.authority === 'string' ? row.authority : '',
+  documentType: typeof row.documentType === 'string' && row.documentType ? row.documentType : 'Challan',
+  reference: typeof row.reference === 'string' ? row.reference : '',
+  date: typeof row.date === 'string' ? row.date : '',
+  bank: typeof row.bank === 'string' ? row.bank : '',
+  branch: typeof row.branch === 'string' ? row.branch : '',
+  amount: typeof row.amount === 'string' ? row.amount : '',
+  claimed: typeof row.claimed === 'string' ? row.claimed : '',
+});
+
 const initialRows: SalaryRow[] = [
   { id: 1, authority: 'test', documentType: 'Certificate', reference: '123456', date: '04-09-2026', bank: '', branch: '', amount: '10,000', claimed: '1,000' },
   { id: 2, authority: 'test 2', documentType: 'Challan', reference: '2526-0003286477', date: '07-08-2025', bank: '', branch: '', amount: '32,73,823', claimed: '32,73,823' },
@@ -86,14 +98,19 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     return labels[label] || label;
   };
 
-  const totalClaimed = useMemo(
-    () => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0),
+  const normalizedRows = useMemo(
+    () => rows.map((row, index) => normalizeSalaryRow(row, index)),
     [rows]
   );
 
+  const totalClaimed = useMemo(
+    () => normalizedRows.reduce((sum, row) => sum + parseMoney(row.claimed), 0),
+    [normalizedRows]
+  );
+
   const showBankDetails = useMemo(
-    () => adding || rows.some((row) => hasText(row.bank) || hasText(row.branch)),
-    [adding, rows]
+    () => adding || normalizedRows.some((row) => hasText(row.bank) || hasText(row.branch)),
+    [adding, normalizedRows]
   );
 
   useEffect(() => {
@@ -130,7 +147,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     setRows((current) => [
       ...current,
       {
-        id: Math.max(0, ...current.map((row) => row.id)) + 1,
+        id: Math.max(0, ...current.map((row, index) => normalizeSalaryRow(row, index).id)) + 1,
         ...form,
       },
     ]);
@@ -193,7 +210,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
             <div className="h-9 w-px bg-[#E2E8F0]" aria-hidden="true" />
             <div>
               <p className="text-xs font-medium text-[#6B778A]">{isBn ? 'রেকর্ড' : 'Records'}</p>
-              <p className="mt-0.5 text-xl font-bold tabular-nums text-[#172033]">{rows.length}</p>
+              <p className="mt-0.5 text-xl font-bold tabular-nums text-[#172033]">{normalizedRows.length}</p>
             </div>
           </div>
 
@@ -233,7 +250,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {rows.map((row, index) => (
+              {normalizedRows.map((row, index) => (
                 <tr key={row.id} className="transition-colors hover:bg-[#F8FBFD]">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
                   <td data-label={labelText("Depositing Authority")} className="px-4 py-3">{row.authority}</td>
@@ -279,7 +296,7 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
               {adding && (
                 <tr className="bg-[#F5FAFD] align-top">
-                  <td data-label="SL." className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
+                  <td data-label="SL." className="px-4 py-3 text-slate-500">{normalizedRows.length + 1}</td>
                   <td data-label={labelText("Depositing Authority")} className="px-2 py-2.5">
                     <input
                       autoFocus
