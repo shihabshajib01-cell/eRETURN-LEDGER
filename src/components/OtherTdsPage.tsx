@@ -3,7 +3,6 @@ import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
 import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
-import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
 import {
@@ -70,7 +69,6 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
   const [editing, setEditing] = useState<OtherTdsRow | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY);
   const { updateCategoryAmount } = useLedgerRuntime();
-  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
 
   const totalClaimed = useMemo(
     () => rows.reduce((sum, row) => sum + parseMoney(row.claimed), 0),
@@ -163,11 +161,20 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
     }
   };
 
-  const handleInlineKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') cancelAdd();
+  const cancelEdit = () => {
+    setEditing(null);
+    setForm(EMPTY);
+  };
+
+  const handleInlineKeyDown = (event: React.KeyboardEvent, mode: 'add' | 'edit') => {
+    if (event.key === 'Escape') {
+      if (mode === 'add') cancelAdd();
+      else cancelEdit();
+    }
     if (event.key === 'Enter') {
       event.preventDefault();
-      saveAdd();
+      if (mode === 'add') saveAdd();
+      else saveEdit();
     }
   };
 
@@ -178,15 +185,16 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
     return field ? (isBn ? field.bn : field.en) : key;
   };
 
-  const renderEditor = (key: FormKey, compact = false) => {
+  const renderEditor = (key: FormKey, mode?: 'add' | 'edit') => {
+    const compact = Boolean(mode);
     if (key === 'documentType') {
       return (
         <select
           value={form.documentType}
           onChange={(event) => setForm((current) => ({ ...current, documentType: event.target.value }))}
-          onKeyDown={compact ? handleInlineKeyDown : undefined}
+          onKeyDown={mode ? (event) => handleInlineKeyDown(event, mode) : undefined}
           className={compact
-            ? 'w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm'
+            ? 'ledger-inline-control w-full min-w-[140px] bg-white text-sm'
             : 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5'}
         >
           <option value="Challan">Challan</option>
@@ -202,10 +210,10 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
             list={compact ? 'other-tds-purpose-options' : 'other-tds-purpose-options-edit'}
             value={form.purpose}
             onChange={(event) => setForm((current) => ({ ...current, purpose: event.target.value }))}
-            onKeyDown={compact ? handleInlineKeyDown : undefined}
+            onKeyDown={mode ? (event) => handleInlineKeyDown(event, mode) : undefined}
             placeholder={isBn ? 'পেমেন্টের উদ্দেশ্য নির্বাচন/লিখুন' : 'Select or enter Purpose of Payment'}
             className={compact
-              ? 'w-full min-w-[220px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm'
+              ? 'ledger-inline-control w-full min-w-[220px] bg-white text-sm'
               : 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5'}
           />
           <datalist id={compact ? 'other-tds-purpose-options' : 'other-tds-purpose-options-edit'}>
@@ -221,7 +229,7 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
       <input
         value={form[key]}
         onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
-        onKeyDown={compact ? handleInlineKeyDown : undefined}
+        onKeyDown={mode ? (event) => handleInlineKeyDown(event, mode) : undefined}
         inputMode={numeric ? 'decimal' : undefined}
         placeholder={
           key === 'date'
@@ -229,7 +237,7 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
             : labelFor(key)
         }
         className={compact
-          ? `w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm ${numeric ? 'text-right' : ''}`
+          ? `ledger-inline-control w-full min-w-[140px] bg-white text-sm ${numeric ? 'text-right' : ''}`
           : `w-full rounded-lg border border-slate-300 px-3 py-2.5 ${numeric ? 'text-right' : ''}`}
       />
     );
@@ -277,70 +285,62 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
               </tr>
             </LedgerTableHead>
             <LedgerTableBody>
-              {rows.map((row, index) => (
-                <tr key={row.id} className="hover:bg-slate-50/70">
-                  <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  {fields.map((field) => (
-                    <td
-                      key={field.key}
-                      data-label={isBn ? field.bn : field.en}
-                      className={`px-4 py-3 ${field.numeric ? 'text-right font-medium' : ''}`}
-                    >
-                      {String(row[field.key] ?? '—') || '—'}
-                    </td>
-                  ))}
-                  <td data-label={isBn ? 'অ্যাকশন' : 'Action'} className="px-4 py-2">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => openEdit(row)}
-                        aria-label={isBn ? 'সম্পাদনা' : 'Edit'}
-                        className="rounded-md p-2 text-[#0B6FA4] hover:bg-blue-50"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => remove(row.id)}
-                        aria-label={isBn ? 'মুছুন' : 'Delete'}
-                        className="rounded-md p-2 text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {rows.map((row, index) => {
+                const isEditingRow = editing?.id === row.id;
 
-              {adding && (
-                <tr className="bg-[#F5FAFD] align-top">
-                  <td data-label="SL." className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
-                  {fields.map((field, index) => (
-                    <td key={field.key} data-label={isBn ? field.bn : field.en} className="px-2 py-2.5">
-                      <div autoFocus={index === 0 ? undefined : undefined}>
-                        {renderEditor(field.key, true)}
+                if (isEditingRow) {
+                  return (
+                    <tr key={row.id} className="ledger-table-editor-row align-top">
+                      <td data-label="SL." className="text-slate-500">{index + 1}</td>
+                      {fields.map((field) => (
+                        <td key={field.key} data-label={isBn ? field.bn : field.en}>
+                          {renderEditor(field.key, 'edit')}
+                        </td>
+                      ))}
+                      <td data-label={isBn ? 'অ্যাকশন' : 'Action'}>
+                        <div className="flex justify-end gap-1.5">
+                          <button type="button" onClick={saveEdit} disabled={!formValid} aria-label={isBn ? 'সংরক্ষণ' : 'Save'} className="ledger-inline-action ledger-inline-save"><Check className="h-4 w-4" /></button>
+                          <button type="button" onClick={cancelEdit} aria-label={isBn ? 'বাতিল' : 'Cancel'} className="ledger-inline-action ledger-inline-cancel"><X className="h-4 w-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
+                  <tr key={row.id}>
+                    <td data-label="SL." className="text-slate-500">{index + 1}</td>
+                    {fields.map((field) => (
+                      <td
+                        key={field.key}
+                        data-label={isBn ? field.bn : field.en}
+                        className={field.numeric ? 'text-right font-medium tabular-nums' : ''}
+                      >
+                        {String(row[field.key] ?? '—') || '—'}
+                      </td>
+                    ))}
+                    <td data-label={isBn ? 'অ্যাকশন' : 'Action'}>
+                      <div className="flex justify-end gap-1">
+                        <button type="button" onClick={() => openEdit(row)} aria-label={isBn ? 'সম্পাদনা' : 'Edit'} className="ledger-row-action text-[#0B6FA4]"><Edit2 className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => remove(row.id)} aria-label={isBn ? 'মুছুন' : 'Delete'} className="ledger-row-action text-red-600"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </td>
+                  </tr>
+                );
+              })}
+
+              {adding && (
+                <tr className="ledger-table-editor-row align-top">
+                  <td data-label="SL." className="text-slate-500">{rows.length + 1}</td>
+                  {fields.map((field) => (
+                    <td key={field.key} data-label={isBn ? field.bn : field.en}>
+                      {renderEditor(field.key, 'add')}
+                    </td>
                   ))}
-                  <td data-label={isBn ? 'অ্যাকশন' : 'Action'} className="px-3 py-2.5">
+                  <td data-label={isBn ? 'অ্যাকশন' : 'Action'}>
                     <div className="flex justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={saveAdd}
-                        disabled={!formValid}
-                        aria-label={isBn ? 'সংরক্ষণ' : 'Save'}
-                        className="rounded-md bg-emerald-600 p-2 text-white disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <Check className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelAdd}
-                        aria-label={isBn ? 'বাতিল' : 'Cancel'}
-                        className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={isBn ? 'সংরক্ষণ' : 'Save'} className="ledger-inline-action ledger-inline-save"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={cancelAdd} aria-label={isBn ? 'বাতিল' : 'Cancel'} className="ledger-inline-action ledger-inline-cancel ledger-inline-cancel-danger"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -350,57 +350,6 @@ export const OtherTdsPage: React.FC<{ lang: Language }> = ({ lang }) => {
         </LedgerTableViewport>
       </LedgerTableFrame>
 
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div
-            ref={editDialogRef}
-            tabIndex={-1}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="other-tds-edit-title"
-            className="flex max-h-[88vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-xl"
-          >
-            <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 id="other-tds-edit-title" className="font-bold text-[#172033]">
-                {isBn ? 'অন্যান্য উৎস কর সম্পাদনা' : 'Edit Other TDS'}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setEditing(null)}
-                aria-label={isBn ? 'বন্ধ করুন' : 'Close'}
-                className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
-              {fields.map((field) => (
-                <label key={field.key} className="text-sm font-semibold text-[#172033]">
-                  {isBn ? field.bn : field.en}
-                  <div className="mt-1.5">{renderEditor(field.key)}</div>
-                </label>
-              ))}
-            </div>
-            <div className="flex justify-end gap-2 border-t px-5 py-4">
-              <button
-                type="button"
-                onClick={() => setEditing(null)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold"
-              >
-                {isBn ? 'বাতিল' : 'Cancel'}
-              </button>
-              <button
-                type="button"
-                onClick={saveEdit}
-                disabled={!formValid}
-                className="rounded-lg bg-[#0B6FA4] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-              >
-                {isBn ? 'সংরক্ষণ' : 'Save'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
