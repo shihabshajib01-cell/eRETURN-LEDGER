@@ -1,5 +1,50 @@
 @import "tailwindcss";
 
+/* Shared eReturn Ledger table system */
+.ledger-table-system {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ledger-table-system .ledger-table-head {
+  background: #F7F9FB;
+  color: #5F6B7A;
+}
+
+.ledger-table-system .ledger-table-head th {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #E8EDF2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.ledger-table-system .ledger-table-body tr {
+  transition: background-color 150ms ease;
+}
+
+.ledger-table-system .ledger-table-body tr:hover {
+  background: #F8FBFD;
+}
+
+.ledger-table-system .ledger-table-body td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #EDF1F5;
+  vertical-align: middle;
+}
+
+.ledger-table-system .ledger-table-body tr:last-child > td {
+  border-bottom: 0;
+}
+
+.ledger-table-system .ledger-table-body td.text-right {
+  font-variant-numeric: tabular-nums;
+}
+
+
 @media (max-width: 767px) {
   .ledger-responsive-table {
     display: block;

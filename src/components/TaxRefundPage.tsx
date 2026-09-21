@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -170,8 +171,8 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[1080px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th className="px-4 py-3 text-left">SL.</th>
                 <th className="px-4 py-3 text-left">{isBn ? 'করবর্ষ' : 'Assessment Year'}</th>
@@ -184,8 +185,8 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
                 <th className="px-4 py-3 text-left">{isBn ? 'যাচাই অবস্থা' : 'Verification Status'}</th>
                 <th className="px-4 py-3 text-right">{isBn ? 'অ্যাকশন' : 'Action'}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {rows.map((row, index) => (
                 <tr key={row.id}>
                   <td data-label="SL." className="px-4 py-3">{index + 1}</td>
@@ -229,8 +230,8 @@ export const TaxRefundPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, X } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -135,8 +136,8 @@ export const BankFiLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[980px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[980px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">SL.</th>
                 <th className="px-4 py-3 text-left font-semibold">{isBn ? 'ব্যাংকের নাম' : 'Bank Name'}</th>
@@ -146,8 +147,8 @@ export const BankFiLeanPage: React.FC<{
                 <th className="px-4 py-3 text-right font-semibold">{isBn ? 'সুদ/মুনাফার পরিমাণ' : 'Interest Amount'}</th>
                 <th className="px-4 py-3 text-right font-semibold">{isBn ? 'উৎস কর' : 'TDS'}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
@@ -159,8 +160,8 @@ export const BankFiLeanPage: React.FC<{
                   <td data-label={isBn ? "উৎস কর" : "TDS"} className="px-4 py-3 text-right font-semibold text-[#172033]">{row.tds}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
 
@@ -180,8 +181,8 @@ export const BankFiLeanPage: React.FC<{
             </div>
 
             <div className="overflow-auto">
-              <table className="ledger-responsive-table w-full min-w-[900px] text-sm">
-                <thead className="bg-slate-50 text-[#5F6B7A]">
+              <LedgerTable className="ledger-responsive-table w-full min-w-[900px] text-sm">
+                <LedgerTableHead>
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold">
                       <label className="inline-flex items-center gap-2">
@@ -201,8 +202,8 @@ export const BankFiLeanPage: React.FC<{
                     <th className="px-4 py-3 text-right font-semibold">{isBn ? 'সুদ/মুনাফা' : 'Interest Amount'}</th>
                     <th className="px-4 py-3 text-right font-semibold">{isBn ? 'উৎস কর' : 'TDS'}</th>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+                </LedgerTableHead>
+                <LedgerTableBody>
                   {draftRows.map((row) => (
                     <tr key={row.id}>
                       <td data-label={isBn ? "নির্বাচন" : "Select"} className="px-4 py-3">
@@ -231,8 +232,8 @@ export const BankFiLeanPage: React.FC<{
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
+                </LedgerTableBody>
+              </LedgerTable>
             </div>
 
             <div className="flex justify-end border-t border-[#E2E8F0] bg-slate-50/60 px-5 py-4">

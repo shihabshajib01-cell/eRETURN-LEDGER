@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
 
@@ -75,8 +76,8 @@ export const ImportReadOnlyPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[1180px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[1180px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 {columns.map(([key, en, bn]) => (
@@ -89,8 +90,8 @@ export const ImportReadOnlyPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   </th>
                 ))}
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {IMPORT_ROWS.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
@@ -105,8 +106,8 @@ export const ImportReadOnlyPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   ))}
                 </tr>
               ))}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
     </section>

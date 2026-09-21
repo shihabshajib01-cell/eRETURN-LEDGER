@@ -30,6 +30,8 @@ const files = {
   validation: read('src/utils/validation.ts'),
   lookupService: read('src/services/eledgerLookup.ts'),
   lookupData: read('src/data/eledgerVerificationData.ts'),
+  tableSystem: read('src/components/table/LedgerTable.tsx'),
+  styles: read('src/index.css'),
 };
 
 const fail = (message) => {
@@ -42,6 +44,40 @@ const expectContains = (name, content, expected) => {
     if (!content.includes(value)) fail(`${name} is missing: ${value}`);
   }
 };
+
+
+expectContains('Unified table system', files.tableSystem, [
+  'LedgerTable',
+  'LedgerTableHead',
+  'LedgerTableBody',
+  'LedgerTableFrame',
+  'LedgerTableViewport',
+  'LedgerTableToolbar',
+  'LedgerTableSummaryItem',
+  'ledger-table-system',
+]);
+
+if (!files.styles.includes('Shared eReturn Ledger table system') || !files.styles.includes('.ledger-table-system')) {
+  fail('Shared Ledger table CSS is missing.');
+}
+
+const unifiedTableFiles = {
+  'Bank TDS': files.bank,
+  'Dividend': files.dividend,
+  'Environmental Surcharge': files.environmental,
+  'Import': files.importPage,
+  'Lookup Claim': files.lookup,
+  'Other TDS': files.otherTds,
+  'Salary Others': files.salaryOther,
+  'Sanchayapatra': files.sanchay,
+  'Service Payment': files.service,
+  'Tax Refund': files.refund,
+};
+
+for (const [name, content] of Object.entries(unifiedTableFiles)) {
+  if (!content.includes('<LedgerTable')) fail(`${name} is not using the shared LedgerTable system.`);
+  if (content.includes('<table')) fail(`${name} still contains a raw table outside the shared table system.`);
+}
 
 expectContains('Home', files.home, [
   'How you will update your source tax and AIT payments made between 1 July 2025 to 30 June 2026',

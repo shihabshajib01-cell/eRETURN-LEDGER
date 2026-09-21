@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -114,8 +115,8 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[1080px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Motor Vehicle Registration No')}</th>
                 <th scope="col" className="px-3 py-3 text-left font-semibold">{labelText('Transaction ID')}</th>
@@ -125,8 +126,8 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
                 <th scope="col" className="px-3 py-3 text-right font-semibold">{labelText('Paid Amount')}</th>
                 <th scope="col" className="px-3 py-3 text-right font-semibold">{labelText('Action')}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {rows.map((row) => (
                 <tr key={row.id}>
                   <td data-label={labelText("Motor Vehicle Registration No")} className="px-3 py-2.5"><input value={row.registration} onChange={(e) => updateRow(row.id, 'registration', e.target.value)} className="w-full min-w-[130px] rounded-md border border-[#C8D4E1] px-2.5 py-2" /></td>
@@ -158,7 +159,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
                   </td>
                 </tr>
               ))}
-            </tbody>
+            </LedgerTableBody>
             <tfoot>
               <tr className="bg-slate-50">
                 <td colSpan={5} className="px-4 py-3 font-bold text-[#172033]">{labelText('Total Paid Amount')}</td>
@@ -166,7 +167,7 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
                 <td />
               </tr>
             </tfoot>
-          </table>
+          </LedgerTable>
         </div>
 
         <div className="border-t border-[#E2E8F0] px-4 py-4">

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -212,8 +213,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[820px] text-sm">
-            <thead className="bg-[#F7F9FB] text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[820px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th scope="col" className="w-14 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.02em]">SL.</th>
                 {columns.map((column) => (
@@ -227,8 +228,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   ))}
                 <th scope="col" className="w-24 px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.02em]">{labelText('Action')}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {normalizedRows.map((row, index) => (
                 <tr key={row.id} className="transition-colors hover:bg-[#F8FBFD]">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
@@ -311,8 +312,8 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
 

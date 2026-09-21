@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, RefreshCw, Search, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -230,8 +231,8 @@ export const SanchayapatraPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[980px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[980px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">SL.</th>
                 <th className="px-4 py-3 text-left font-semibold">{isBn ? 'স্কিমের নাম' : 'Name of Scheme'}</th>
@@ -242,8 +243,8 @@ export const SanchayapatraPage: React.FC<{
                 <th className="px-4 py-3 text-left font-semibold">{isBn ? 'অবস্থা' : 'Status'}</th>
                 <th className="px-4 py-3 text-right font-semibold">{isBn ? 'অ্যাকশন' : 'Action'}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {visibleRows.map((row, index) => (
                 <tr key={row.id}>
                   <td data-label="SL." className="px-4 py-3">{index + 1}</td>
@@ -283,8 +284,8 @@ export const SanchayapatraPage: React.FC<{
               {visibleRows.length === 0 && (
                 <tr><td colSpan={8} className="px-4 py-10 text-center text-sm text-[#5F6B7A]">{isBn ? 'কোনো তথ্য পাওয়া যায়নি।' : 'No records found.'}</td></tr>
               )}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
 
@@ -299,8 +300,8 @@ export const SanchayapatraPage: React.FC<{
               <button type="button" onClick={() => setSyncOpen(false)} aria-label={isBn ? 'বন্ধ করুন' : 'Close'} className="rounded-md p-2 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="overflow-auto">
-              <table className="ledger-responsive-table w-full min-w-[1000px] text-sm">
-                <thead className="bg-slate-50 text-[#5F6B7A]">
+              <LedgerTable className="ledger-responsive-table w-full min-w-[1000px] text-sm">
+                <LedgerTableHead>
                   <tr>
                     <th className="px-4 py-3 text-left">{isBn ? 'নির্বাচন' : 'Select'}</th>
                     <th className="px-4 py-3 text-left">{isBn ? 'স্কিমের নাম' : 'Name of Scheme'}</th>
@@ -310,8 +311,8 @@ export const SanchayapatraPage: React.FC<{
                     <th className="px-4 py-3 text-right">{isBn ? 'TDS উপলভ্য' : 'TDS Available'}</th>
                     <th className="px-4 py-3 text-right">{isBn ? 'TDS দাবি' : 'TDS Claim'}</th>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+                </LedgerTableHead>
+                <LedgerTableBody>
                   {draftRows.map((row) => {
                     const selected = selectedIds.includes(row.id);
                     const invalid = parseMoney(row.claim) > parseMoney(row.available);
@@ -338,8 +339,8 @@ export const SanchayapatraPage: React.FC<{
                       </tr>
                     );
                   })}
-                </tbody>
-              </table>
+                </LedgerTableBody>
+              </LedgerTable>
             </div>
             <div className="flex justify-end gap-2 border-t px-5 py-4">
               <button type="button" onClick={() => setSyncOpen(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">{isBn ? 'বাতিল' : 'Cancel'}</button>

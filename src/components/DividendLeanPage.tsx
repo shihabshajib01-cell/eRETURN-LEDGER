@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -152,8 +153,8 @@ export const DividendLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[980px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[980px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">
@@ -177,8 +178,8 @@ export const DividendLeanPage: React.FC<{
                   {isBn ? 'অ্যাকশন' : 'Action'}
                 </th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
@@ -203,8 +204,8 @@ export const DividendLeanPage: React.FC<{
                 </tr>
               ))}
 
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
 
@@ -236,8 +237,8 @@ export const DividendLeanPage: React.FC<{
             </div>
 
             <div className="overflow-auto">
-              <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
-                <thead className="bg-slate-50 text-[#5F6B7A]">
+              <LedgerTable className="ledger-responsive-table w-full min-w-[1080px] text-sm">
+                <LedgerTableHead>
                   <tr>
                     <th scope="col" className="px-4 py-3 text-left font-semibold">
                       {isBn ? 'নির্বাচন' : 'Select'}
@@ -260,8 +261,8 @@ export const DividendLeanPage: React.FC<{
                       {isBn ? 'দাবিকৃত পরিমাণ' : 'Claimed Amount'}
                     </th>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+                </LedgerTableHead>
+                <LedgerTableBody>
                   {draftRows.map((row) => {
                     const selected = selectedIds.includes(row.id);
                     return (
@@ -308,8 +309,8 @@ export const DividendLeanPage: React.FC<{
                       </tr>
                     );
                   })}
-                </tbody>
-              </table>
+                </LedgerTableBody>
+              </LedgerTable>
             </div>
 
             <div className="flex flex-col gap-3 border-t border-[#E2E8F0] bg-slate-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">

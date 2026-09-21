@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Search, Trash2, X, Check } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -326,8 +327,8 @@ export const LookupClaimPage: React.FC<{
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[900px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[900px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">SL.</th>
                 {config.columns.map((column) => (
@@ -335,8 +336,8 @@ export const LookupClaimPage: React.FC<{
                 ))}
                 <th className="px-4 py-3 text-right font-semibold">{isBn ? 'অ্যাকশন' : 'Action'}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {rows.map((row, index) => (
                 <tr key={String((row as Record<string, unknown>)[config.lookupKey] ?? index)}>
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
@@ -363,8 +364,8 @@ export const LookupClaimPage: React.FC<{
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
     </section>

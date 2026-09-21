@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
+import { LedgerTable, LedgerTableBody, LedgerTableHead } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
@@ -246,8 +247,8 @@ export const ServicePaymentLeanPage: React.FC<{
 
       <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[1080px] text-sm">
-            <thead className="bg-slate-50 text-[#5F6B7A]">
+          <LedgerTable className="ledger-responsive-table w-full min-w-[1080px] text-sm">
+            <LedgerTableHead>
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
                 {columns.map(([key, label]) => (
@@ -257,8 +258,8 @@ export const ServicePaymentLeanPage: React.FC<{
                 ))}
                 <th scope="col" className="px-4 py-3 text-right font-semibold">{labelText('Action')}</th>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+            </LedgerTableHead>
+            <LedgerTableBody>
               {rows.map((row, index) => (
                 <tr key={row.id} className="hover:bg-slate-50/70">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
@@ -327,8 +328,8 @@ export const ServicePaymentLeanPage: React.FC<{
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+            </LedgerTableBody>
+          </LedgerTable>
         </div>
       </section>
 
@@ -340,8 +341,8 @@ export const ServicePaymentLeanPage: React.FC<{
               <button type="button" onClick={closeSync} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
             <div className="overflow-auto p-4">
-              <table className="ledger-responsive-table w-full min-w-[1180px] text-sm">
-                <thead className="bg-slate-50 text-[#5F6B7A]">
+              <LedgerTable className="ledger-responsive-table w-full min-w-[1180px] text-sm">
+                <LedgerTableHead>
                   <tr>
                     <th className="px-3 py-3 text-left">
                       <input
@@ -361,8 +362,8 @@ export const ServicePaymentLeanPage: React.FC<{
                     <th className="px-3 py-3 text-right font-semibold">{labelText('Challan/ Certificate Amount')}</th>
                     <th className="px-3 py-3 text-right font-semibold">{labelText('Claimed Amount')}</th>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+                </LedgerTableHead>
+                <LedgerTableBody>
                   {draftRows.map((row) => {
                     const selected = selectedIds.includes(row.id);
                     return (
@@ -407,8 +408,8 @@ export const ServicePaymentLeanPage: React.FC<{
                       </tr>
                     );
                   })}
-                </tbody>
-              </table>
+                </LedgerTableBody>
+              </LedgerTable>
             </div>
             <div className="flex justify-end gap-2 border-t border-[#E2E8F0] px-5 py-4">
               <button type="button" onClick={closeSync} className="rounded-lg border border-[#C8D4E1] bg-white px-4 py-2 text-sm font-semibold text-[#263247] hover:bg-slate-50">{labelText('Close')}</button>
