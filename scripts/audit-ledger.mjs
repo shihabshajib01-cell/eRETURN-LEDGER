@@ -68,8 +68,10 @@ expectContains('iBAS integration', files.ibasService, [
 
 expectContains('Salary Others', files.salaryOther, [
   'Salary [ Section-86]',
-  'Bank Name',
-  'Branch Name',
+  'Depositing Authority',
+  'Payment Document Type',
+  'Challan/ Certificate Reference No.',
+  'Challan/ Certificate Date',
   'Challan/ Certificate Amount',
   'Claimed Amount',
   'isValidLedgerDate',
@@ -77,6 +79,10 @@ expectContains('Salary Others', files.salaryOther, [
   'normalizeSalaryRow',
   'normalizedRows',
 ]);
+
+if (files.salaryOther.includes("'Bank Name':") || files.salaryOther.includes("'Branch Name':")) {
+  fail('Salary Others must not introduce Bank Name or Branch Name fields beyond the current-system field set.');
+}
 
 expectContains('Bank TDS', files.bank, [
   'Bank TDS',
