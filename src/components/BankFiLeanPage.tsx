@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { RefreshCw, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
-import { parseMoney } from '../utils/money';
+import { formatLedgerNumber, parseMoney } from '../utils/money';
 import { isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
@@ -125,7 +125,11 @@ export const BankFiLeanPage: React.FC<{
 
       <LedgerTableFrame>
         <LedgerTableToolbar>
-          <div />
+          <LedgerTableSummaryGroup>
+            <LedgerTableSummaryItem label={isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'} value={formatLedgerNumber(totalTds)} accent />
+            <div className="h-9 w-px bg-[#E3E8F0]" aria-hidden="true" />
+            <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={rows.length} />
+          </LedgerTableSummaryGroup>
           <button
             type="button"
             onClick={() => void openSync()}

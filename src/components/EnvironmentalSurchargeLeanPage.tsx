@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
 import { formatLedgerNumber, parseMoney } from '../utils/money';
@@ -107,14 +107,18 @@ export const EnvironmentalSurchargeLeanPage: React.FC<{
 
       <LedgerTableFrame>
         <LedgerTableToolbar>
-          <div />
+          <LedgerTableSummaryGroup>
+            <LedgerTableSummaryItem label={isBn ? 'মোট পরিশোধিত পরিমাণ' : 'Total Paid Amount'} value={formatLedgerNumber(totalPaid)} accent />
+            <div className="h-9 w-px bg-[#E3E8F0]" aria-hidden="true" />
+            <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={rows.length} />
+          </LedgerTableSummaryGroup>
           <button
             type="button"
             onClick={addRow}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F2F8FC] sm:w-auto"
           >
             <Plus className="h-4 w-4" />
-            {labelText('Add')}
+            {isBn ? 'নতুন যোগ করুন' : 'Add new'}
           </button>
         </LedgerTableToolbar>
         <LedgerTableViewport>
