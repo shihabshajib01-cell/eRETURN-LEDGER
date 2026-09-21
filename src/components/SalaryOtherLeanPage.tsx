@@ -91,6 +91,11 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     [rows]
   );
 
+  const showBankDetails = useMemo(
+    () => adding || rows.some((row) => hasText(row.bank) || hasText(row.branch)),
+    [adding, rows]
+  );
+
   useEffect(() => {
     updateCategoryAmount('salary-other', totalClaimed);
   }, [totalClaimed, updateCategoryAmount]);
@@ -169,67 +174,84 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
 
   return (
     <section className="w-full space-y-4" aria-labelledby="salary-other-title">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <h1 id="salary-other-title" className="text-2xl lg:text-[28px] font-bold tracking-tight text-[#172033]">
-            {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
-          </h1>
-          <p className="mt-1 text-sm italic leading-relaxed text-[#0B6FA4]">
-            {isBn ? 'বেতন [ ধারা-৮৬]' : 'Salary [ Section-86]'}
-          </p>
-        </div>
+      <header className="min-w-0">
+        <h1 id="salary-other-title" className="text-2xl font-bold tracking-tight text-[#172033] lg:text-[28px]">
+          {isBn ? 'বেতন (অন্যান্য)' : 'Salary (Others)'}
+        </h1>
+        <p className="mt-1 text-sm italic leading-relaxed text-[#0B6FA4]">
+          {isBn ? 'বেতন [ ধারা-৮৬]' : 'Salary [ Section-86]'}
+        </p>
+      </header>
 
-        <div className="flex flex-wrap items-end gap-5">
-          <div className="text-left sm:text-right">
-            <p className="text-xs font-medium text-[#5F6B7A]">{isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#0B6FA4]">{formatLedgerNumber(totalClaimed)}</p>
+      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+        <div className="flex flex-col gap-4 border-b border-[#E2E8F0] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex items-center gap-5">
+            <div>
+              <p className="text-xs font-medium text-[#6B778A]">{isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'}</p>
+              <p className="mt-0.5 text-xl font-bold tabular-nums text-[#0B6FA4]">{formatLedgerNumber(totalClaimed)}</p>
+            </div>
+            <div className="h-9 w-px bg-[#E2E8F0]" aria-hidden="true" />
+            <div>
+              <p className="text-xs font-medium text-[#6B778A]">{isBn ? 'রেকর্ড' : 'Records'}</p>
+              <p className="mt-0.5 text-xl font-bold tabular-nums text-[#172033]">{rows.length}</p>
+            </div>
           </div>
-          <div className="text-left sm:text-right">
-            <p className="text-xs font-medium text-[#5F6B7A]">{isBn ? 'সংখ্যা' : 'Count'}</p>
-            <p className="mt-0.5 text-xl font-bold text-[#172033]">{rows.length}</p>
-          </div>
+
           <button
             type="button"
             onClick={openAdd}
             disabled={adding}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#0B6FA4] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#095D8A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 focus-visible:ring-offset-2"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] transition-colors hover:bg-[#F2F8FC] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B6FA4]/30 sm:w-auto"
           >
-            <Plus className="h-4 w-4" />
-            {isBn ? 'যোগ করুন' : 'Add'}
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {isBn ? 'নতুন যোগ করুন' : 'Add new'}
           </button>
         </div>
-      </header>
 
-      <section className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
         <div className="overflow-x-auto">
-          <table className="ledger-responsive-table w-full min-w-[980px] text-sm">
-            <thead className="bg-slate-50 text-slate-600">
+          <table className={`ledger-responsive-table w-full text-sm ${showBankDetails ? 'min-w-[1040px]' : 'min-w-[820px]'}`}>
+            <thead className="bg-[#F7F9FB] text-[#5F6B7A]">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">SL.</th>
-                {columns.map((column) => (
-                  <th
-                    scope="col"
-                    key={column.key}
-                    className={`px-4 py-3 font-semibold ${column.numeric ? 'text-right' : 'text-left'}`}
-                  >
-                    {labelText(column.label)}
+                <th scope="col" className="w-14 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.02em]">SL.</th>
+                {columns
+                  .filter((column) => column.key !== 'bank' && column.key !== 'branch')
+                  .map((column) => (
+                    <th
+                      scope="col"
+                      key={column.key}
+                      className={`px-4 py-3 text-xs font-semibold uppercase tracking-[0.02em] ${column.numeric ? 'text-right' : 'text-left'}`}
+                    >
+                      {labelText(column.label)}
+                    </th>
+                  ))}
+                {showBankDetails && (
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.02em]">
+                    {isBn ? 'ব্যাংক / শাখা' : 'Bank / Branch'}
                   </th>
-                ))}
-                <th scope="col" className="px-4 py-3 text-right font-semibold">{labelText('Action')}</th>
+                )}
+                <th scope="col" className="w-24 px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.02em]">{labelText('Action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((row, index) => (
-                <tr key={row.id} className="hover:bg-slate-50/70">
+                <tr key={row.id} className="transition-colors hover:bg-[#F8FBFD]">
                   <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
                   <td data-label={labelText("Depositing Authority")} className="px-4 py-3">{row.authority}</td>
                   <td data-label={labelText("Payment Document Type")} className="px-4 py-3">{row.documentType}</td>
                   <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-4 py-3">{row.reference}</td>
-                  <td data-label={labelText("Challan/ Certificate Date")} className="px-4 py-3">{row.date}</td>
-                  <td data-label={labelText("Bank Name")} className="px-4 py-3">{row.bank || "—"}</td>
-                  <td data-label={labelText("Branch Name")} className="px-4 py-3">{row.branch || "—"}</td>
-                  <td data-label={labelText("Challan/ Certificate Amount")} className="px-4 py-3 text-right font-medium">{row.amount}</td>
-                  <td data-label={labelText("Claimed Amount")} className="px-4 py-3 text-right font-medium">{row.claimed}</td>
+                  <td data-label={labelText("Challan/ Certificate Date")} className="whitespace-nowrap px-4 py-3">{row.date}</td>
+                  <td data-label={labelText("Challan/ Certificate Amount")} className="whitespace-nowrap px-4 py-3 text-right font-medium tabular-nums">{row.amount}</td>
+                  <td data-label={labelText("Claimed Amount")} className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums text-[#172033]">{row.claimed}</td>
+                  {showBankDetails && (
+                    <td data-label={isBn ? 'ব্যাংক / শাখা' : 'Bank / Branch'} className="px-4 py-3">
+                      {row.bank || row.branch ? (
+                        <div className="min-w-[140px]">
+                          <p className="font-medium text-[#263247]">{row.bank || '—'}</p>
+                          <p className="mt-0.5 text-xs text-[#6B778A]">{row.branch || '—'}</p>
+                        </div>
+                      ) : '—'}
+                    </td>
+                  )}
                   <td data-label={labelText("Action")} className="px-4 py-2">
                     <div className="flex justify-end gap-1">
                       <button
@@ -285,18 +307,20 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   <td data-label={labelText("Challan/ Certificate Date")} className="px-2 py-2.5">
                     <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "তারিখ লিখুন" : "Enter Date"} className="w-full min-w-[135px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
                   </td>
-                  <td data-label={labelText("Bank Name")} className="px-2 py-2.5">
-                    <input value={form.bank} onChange={(event) => setForm((current) => ({ ...current, bank: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "ব্যাংকের নাম" : "Bank Name"} className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
-                  </td>
-                  <td data-label={labelText("Branch Name")} className="px-2 py-2.5">
-                    <input value={form.branch} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "শাখার নাম" : "Branch Name"} className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
-                  </td>
                   <td data-label={labelText("Challan/ Certificate Amount")} className="px-2 py-2.5">
                     <input value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder={isBn ? "পরিমাণ লিখুন" : "Enter Amount"} className="w-full min-w-[125px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
                   </td>
                   <td data-label={labelText("Claimed Amount")} className="px-2 py-2.5">
                     <input value={form.claimed} onChange={(event) => setForm((current) => ({ ...current, claimed: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder={isBn ? "দাবিকৃত পরিমাণ লিখুন" : "Enter Claimed Amount"} className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
                   </td>
+                  {showBankDetails && (
+                    <td data-label={isBn ? 'ব্যাংক / শাখা' : 'Bank / Branch'} className="px-2 py-2.5">
+                      <div className="grid min-w-[180px] gap-2">
+                        <input value={form.bank} onChange={(event) => setForm((current) => ({ ...current, bank: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "ব্যাংকের নাম" : "Bank Name"} className="w-full rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                        <input value={form.branch} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "শাখার নাম" : "Branch Name"} className="w-full rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
+                      </div>
+                    </td>
+                  )}
                   <td data-label={labelText("Action")} className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} title={labelText("Save")} className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
