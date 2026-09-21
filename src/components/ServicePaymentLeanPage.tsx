@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, Edit2, Plus, RefreshCw, Trash2, X } from 'lucide-react';
 import { Language } from '../types';
-import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
+import { LedgerTable, LedgerTableBody, LedgerTableFrame, LedgerTableHead, LedgerTableSummaryGroup, LedgerTableSummaryItem, LedgerTableToolbar, LedgerTableViewport } from './table/LedgerTable';
 import { useDialogFocusTrap } from '../hooks/useDialogFocusTrap';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useLedgerRuntime } from '../state/LedgerRuntimeContext';
-import { parseMoney } from '../utils/money';
+import { formatLedgerNumber, parseMoney } from '../utils/money';
 import { hasText, isValidLedgerDate, isValidMoneyInput, parseMoneyStrict } from '../utils/validation';
 import { fetchIncomeSyncRecords } from '../services/eReturnIncomeSync';
 
@@ -31,6 +31,7 @@ const INITIAL_ROWS: ServiceRow[] = [
 ];
 
 type FormState = Omit<ServiceRow, 'id'>;
+type FormKey = keyof FormState;
 const EMPTY: FormState = { authority: '', documentType: 'Challan', reference: '', date: '', bank: '', branch: '', amount: '', claimed: '' };
 
 const columns = [
@@ -59,7 +60,6 @@ export const ServicePaymentLeanPage: React.FC<{
   const [syncLoading, setSyncLoading] = useState(false);
   const { updateCategoryAmount } = useLedgerRuntime();
   const syncDialogRef = useDialogFocusTrap(syncOpen, () => setSyncOpen(false));
-  const editDialogRef = useDialogFocusTrap(Boolean(editing), () => setEditing(null));
   const labelText = (label: string) => {
     if (!isBn) return label;
     const labels: Record<string, string> = {
@@ -148,6 +148,66 @@ export const ServicePaymentLeanPage: React.FC<{
     }
   };
 
+  const cancelEdit = () => {
+    setEditing(null);
+    setForm(EMPTY);
+  };
+
+  const cancelAdd = () => {
+    setAdding(false);
+    setForm(EMPTY);
+  };
+
+  const handleManualKeyDown = (event: React.KeyboardEvent, mode: 'add' | 'edit') => {
+    if (event.key === 'Escape') {
+      if (mode === 'add') cancelAdd();
+      else cancelEdit();
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (mode === 'add') saveAdd();
+      else saveEdit();
+    }
+  };
+
+  const renderManualControl = (key: FormKey, label: string, mode: 'add' | 'edit', autoFocus = false) => {
+    if (key === 'documentType') {
+      return (
+        <select
+          autoFocus={autoFocus}
+          value={form.documentType}
+          onChange={(event) => setForm((current) => ({ ...current, documentType: event.target.value }))}
+          onKeyDown={(event) => handleManualKeyDown(event, mode)}
+          aria-label={labelText(label)}
+          className="ledger-inline-control w-full min-w-[150px] bg-white text-sm"
+        >
+          <option value="">Select One</option>
+          <option value="Challan">Challan</option>
+          <option value="Certificate">Certificate</option>
+        </select>
+      );
+    }
+
+    const numeric = key === 'amount' || key === 'claimed';
+    return (
+      <input
+        autoFocus={autoFocus}
+        value={form[key]}
+        onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
+        onKeyDown={(event) => handleManualKeyDown(event, mode)}
+        inputMode={numeric ? 'decimal' : undefined}
+        aria-label={labelText(label)}
+        placeholder={
+          key === 'authority' ? (isBn ? 'জমাদানকারী কর্তৃপক্ষ লিখুন' : 'Enter Depositing Authority')
+            : key === 'reference' ? (isBn ? 'রেফারেন্স নং লিখুন' : 'Enter Reference No')
+              : key === 'date' ? 'DD-MM-YYYY'
+                : labelText(label)
+        }
+        className={`ledger-inline-control w-full min-w-[140px] bg-white text-sm ${numeric ? 'text-right' : ''}`}
+      />
+    );
+  };
+
   const openSync = async () => {
     setSyncLoading(true);
     try {
@@ -225,7 +285,11 @@ export const ServicePaymentLeanPage: React.FC<{
 
       <LedgerTableFrame>
         <LedgerTableToolbar>
-          <div />
+          <LedgerTableSummaryGroup>
+            <LedgerTableSummaryItem label={isBn ? 'মোট দাবিকৃত পরিমাণ' : 'Total Claimed Amount'} value={formatLedgerNumber(totalClaimed)} accent />
+            <div className="h-9 w-px bg-[#E3E8F0]" aria-hidden="true" />
+            <LedgerTableSummaryItem label={isBn ? 'রেকর্ড' : 'Records'} value={rows.length} />
+          </LedgerTableSummaryGroup>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             <button
               type="button"
@@ -243,7 +307,7 @@ export const ServicePaymentLeanPage: React.FC<{
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#0B6FA4] bg-white px-3.5 py-2 text-sm font-semibold text-[#0B6FA4] hover:bg-[#F2F8FC] disabled:opacity-50"
             >
               <Plus className="h-4 w-4" />
-              {labelText('Add')}
+              {isBn ? 'নতুন যোগ করুন' : 'Add new'}
             </button>
           </div>
         </LedgerTableToolbar>
@@ -261,70 +325,61 @@ export const ServicePaymentLeanPage: React.FC<{
               </tr>
             </LedgerTableHead>
             <LedgerTableBody>
-              {rows.map((row, index) => (
-                <tr key={row.id} className="hover:bg-slate-50/70">
-                  <td data-label="SL." className="px-4 py-3 text-slate-500">{index + 1}</td>
-                  <td data-label={labelText("Depositing Authority")} className="px-4 py-3">{row.authority}</td>
-                  <td data-label={labelText("Payment Document Type")} className="px-4 py-3">{row.documentType}</td>
-                  <td data-label={labelText("Challan/ Certificate Reference No.")} className="px-4 py-3">{row.reference}</td>
-                  <td data-label={labelText("Challan/ Certificate Date")} className="px-4 py-3">{row.date}</td>
-                  <td data-label={labelText("Bank Name")} className="px-4 py-3">{row.bank || "—"}</td>
-                  <td data-label={labelText("Branch Name")} className="px-4 py-3">{row.branch || "—"}</td>
-                  <td data-label={labelText("Challan/ Certificate Amount")} className="px-4 py-3 text-right font-medium">{row.amount}</td>
-                  <td data-label={labelText("Claimed Amount")} className="px-4 py-3 text-right font-medium">{row.claimed}</td>
-                  <td data-label={labelText("Action")} className="px-4 py-2">
-                    <div className="flex justify-end gap-1">
-                      <button type="button" onClick={() => openEdit(row)} aria-label={labelText("Edit")} className="rounded-md p-2 text-[#149DB2] hover:bg-cyan-50">
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button type="button" onClick={() => removeRow(row.id)} aria-label={labelText("Delete")} className="rounded-md p-2 text-red-600 hover:bg-red-50">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {rows.map((row, index) => {
+                const isEditingRow = editing?.id === row.id;
+
+                if (isEditingRow) {
+                  return (
+                    <tr key={row.id} className="ledger-table-editor-row align-top">
+                      <td data-label="SL." className="text-slate-500">{index + 1}</td>
+                      {columns.map(([key, label], columnIndex) => (
+                        <td key={key} data-label={labelText(label)}>
+                          {renderManualControl(key, label, 'edit', columnIndex === 0)}
+                        </td>
+                      ))}
+                      <td data-label={labelText("Action")}>
+                        <div className="flex justify-end gap-1.5">
+                          <button type="button" onClick={saveEdit} disabled={!formValid} aria-label={labelText("Save")} className="ledger-inline-action ledger-inline-save"><Check className="h-4 w-4" /></button>
+                          <button type="button" onClick={cancelEdit} aria-label={labelText("Cancel")} className="ledger-inline-action ledger-inline-cancel"><X className="h-4 w-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return (
+                  <tr key={row.id}>
+                    <td data-label="SL." className="text-slate-500">{index + 1}</td>
+                    <td data-label={labelText("Depositing Authority")}>{row.authority}</td>
+                    <td data-label={labelText("Payment Document Type")}>{row.documentType}</td>
+                    <td data-label={labelText("Challan/ Certificate Reference No.")}>{row.reference}</td>
+                    <td data-label={labelText("Challan/ Certificate Date")}>{row.date}</td>
+                    <td data-label={labelText("Bank Name")}>{row.bank || "—"}</td>
+                    <td data-label={labelText("Branch Name")}>{row.branch || "—"}</td>
+                    <td data-label={labelText("Challan/ Certificate Amount")} className="text-right font-medium tabular-nums">{row.amount}</td>
+                    <td data-label={labelText("Claimed Amount")} className="text-right font-semibold tabular-nums text-[#172033]">{row.claimed}</td>
+                    <td data-label={labelText("Action")}>
+                      <div className="flex justify-end gap-1">
+                        <button type="button" onClick={() => openEdit(row)} aria-label={labelText("Edit")} className="ledger-row-action text-[#0B6FA4]"><Edit2 className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => removeRow(row.id)} aria-label={labelText("Delete")} className="ledger-row-action text-red-600"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
 
               {adding && (
-                <tr className="bg-[#F5FAFD] align-top">
-                  <td data-label="SL." className="px-4 py-3 text-slate-500">{rows.length + 1}</td>
-                  {columns.map(([key, label], index) => (
-                    <td key={key} data-label={labelText(label)} className="px-2 py-2.5">
-                      {key === 'documentType' ? (
-                        <select
-                          autoFocus={index === 0}
-                          value={form.documentType}
-                          onChange={(event) => setForm((current) => ({ ...current, documentType: event.target.value }))}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Escape') { setAdding(false); setForm(EMPTY); }
-                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
-                          }}
-                          className="w-full min-w-[150px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm"
-                        >
-                          <option value="">Select One</option>
-                          <option value="Challan">Challan</option>
-                          <option value="Certificate">Certificate</option>
-                        </select>
-                      ) : (
-                        <input
-                          autoFocus={index === 0}
-                          value={form[key]}
-                          onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Escape') { setAdding(false); setForm(EMPTY); }
-                            if (event.key === 'Enter') { event.preventDefault(); saveAdd(); }
-                          }}
-                          aria-label={labelText(label)}
-                          placeholder={key === 'authority' ? 'Enter Depositing Authority' : key === 'reference' ? 'Enter Reference No' : key === 'date' ? 'Enter Date' : key === 'amount' ? 'Enter Amount' : key === 'claimed' ? 'Enter Claimed Amount' : label}
-                          className={`w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm ${['amount','claimed'].includes(key) ? 'text-right' : ''}`}
-                        />
-                      )}
+                <tr className="ledger-table-editor-row align-top">
+                  <td data-label="SL." className="text-slate-500">{rows.length + 1}</td>
+                  {columns.map(([key, label], columnIndex) => (
+                    <td key={key} data-label={labelText(label)}>
+                      {renderManualControl(key, label, 'add', columnIndex === 0)}
                     </td>
                   ))}
-                  <td data-label={labelText("Action")} className="px-3 py-2.5">
+                  <td data-label={labelText("Action")}>
                     <div className="flex justify-end gap-1.5">
-                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} className="rounded-md bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 p-2 text-white hover:bg-emerald-700"><Check className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => { setAdding(false); setForm(EMPTY); }} aria-label={labelText("Cancel")} className="rounded-md bg-red-600 p-2 text-white hover:bg-red-700"><Trash2 className="h-4 w-4" /></button>
+                      <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} className="ledger-inline-action ledger-inline-save"><Check className="h-4 w-4" /></button>
+                      <button type="button" onClick={cancelAdd} aria-label={labelText("Cancel")} className="ledger-inline-action ledger-inline-cancel ledger-inline-cancel-danger"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -420,32 +475,6 @@ export const ServicePaymentLeanPage: React.FC<{
         </div>
       )}
 
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div ref={editDialogRef} tabIndex={-1} role="dialog" aria-modal="true" className="flex max-h-[88vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 className="font-bold text-[#172033]">{labelText('Service Payment')}</h2>
-              <button type="button" onClick={() => setEditing(null)} aria-label={labelText("Close")} className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
-            </div>
-            <div className="grid grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
-              {columns.map(([key, label]) => (
-                <div key={key}>
-                  <label className="mb-1.5 block text-sm font-semibold text-[#172033]">{labelText(label)}</label>
-                  <input
-                    value={form[key]}
-                    onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
-                    className={`w-full rounded-lg border border-slate-300 px-3 py-2.5 ${['amount','claimed'].includes(key) ? 'text-right' : ''}`}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end gap-2 border-t px-5 py-4">
-              <button type="button" onClick={() => setEditing(null)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">{labelText("Close")}</button>
-              <button type="button" onClick={saveEdit} disabled={!formValid} className="rounded-lg bg-[#0B6FA4] disabled:cursor-not-allowed disabled:opacity-40 px-4 py-2 text-sm font-semibold text-white">{labelText("Save")}</button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
