@@ -73,7 +73,7 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
         </div>
 
         <footer className="shrink-0 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
-          <div className="flex min-w-0 items-baseline justify-between gap-4 sm:justify-start sm:gap-5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6">
             <div className="min-w-0">
               <p className="text-sm font-bold text-[#172033]">
                 {isBn ? 'মোট' : 'Total'}
