@@ -74,6 +74,8 @@ expectContains('Salary Others', files.salaryOther, [
   'Claimed Amount',
   'isValidLedgerDate',
   'parseMoneyStrict',
+  'normalizeSalaryRow',
+  'normalizedRows',
 ]);
 
 expectContains('Bank TDS', files.bank, [
