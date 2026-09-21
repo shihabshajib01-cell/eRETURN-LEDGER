@@ -51,7 +51,8 @@ expectContains('Home', files.home, [
 
 expectContains('iBAS', files.ibas, [
   'iBAS++ (Salary) TDS',
-  'const [searched, setSearched] = useState(false)',
+  "type LoadState = 'loading' | 'ready' | 'empty' | 'error'",
+  'void loadIbas()',
   'fetchIbasSalaryTds',
   'TDS Available',
   'TDS Claim',
