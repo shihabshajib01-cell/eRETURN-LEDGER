@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Language } from '../../types';
 import { useDialogFocusTrap } from '../../hooks/useDialogFocusTrap';
 import { useLedgerRuntime } from '../../state/LedgerRuntimeContext';
@@ -73,29 +73,18 @@ export const TaxPaymentStatusModal: React.FC<TaxPaymentStatusModalProps> = ({
         </div>
 
         <footer className="shrink-0 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-baseline justify-between gap-4 sm:justify-start sm:gap-5">
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-[#172033]">
-                  {isBn ? 'মোট' : 'Total'}
-                </p>
-                <p className="mt-0.5 text-xs text-[#6B778A]">
-                  {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
-                </p>
-              </div>
-              <strong className="shrink-0 whitespace-nowrap text-xl font-bold tabular-nums text-[#0B6FA4]">
-                {formatLedgerNumber(runtime.total)}
-              </strong>
+          <div className="flex min-w-0 items-baseline justify-between gap-4 sm:justify-start sm:gap-5">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#172033]">
+                {isBn ? 'মোট' : 'Total'}
+              </p>
+              <p className="mt-0.5 text-xs text-[#6B778A]">
+                {isBn ? 'বর্তমান লেজারের সব পরিমাণ' : 'All amounts currently recorded in this Ledger'}
+              </p>
             </div>
-
-            <button
-              type="button"
-              onClick={onGoToEReturn}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#006A4E] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#00553f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30 sm:w-auto"
-            >
-              {isBn ? 'ই-রিটার্নে যান' : 'Go to eReturn'}
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            </button>
+            <strong className="shrink-0 whitespace-nowrap text-xl font-bold tabular-nums text-[#0B6FA4]">
+              {formatLedgerNumber(runtime.total)}
+            </strong>
           </div>
         </footer>
       </div>
