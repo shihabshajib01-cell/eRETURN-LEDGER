@@ -13,8 +13,8 @@ type SalaryRow = {
   documentType: string;
   reference: string;
   date: string;
-  bank: string;
-  branch: string;
+  bank?: string;
+  branch?: string;
   amount: string;
   claimed: string;
 };
@@ -44,8 +44,6 @@ const emptyForm = {
   documentType: 'Challan',
   reference: '',
   date: '',
-  bank: '',
-  branch: '',
   amount: '',
   claimed: '',
 };
@@ -63,8 +61,6 @@ const columns: Column[] = [
   { key: 'documentType', label: 'Payment Document Type' },
   { key: 'reference', label: 'Challan/ Certificate Reference No.' },
   { key: 'date', label: 'Challan/ Certificate Date' },
-  { key: 'bank', label: 'Bank Name' },
-  { key: 'branch', label: 'Branch Name' },
   { key: 'amount', label: 'Challan/ Certificate Amount', numeric: true },
   { key: 'claimed', label: 'Claimed Amount', numeric: true },
 ];
@@ -84,8 +80,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       'Payment Document Type': 'পেমেন্ট ডকুমেন্টের ধরন',
       'Challan/ Certificate Reference No.': 'চালান/সার্টিফিকেট রেফারেন্স নং',
       'Challan/ Certificate Date': 'চালান/সার্টিফিকেট তারিখ',
-      'Bank Name': 'ব্যাংকের নাম',
-      'Branch Name': 'শাখার নাম',
       'Challan/ Certificate Amount': 'চালান/সার্টিফিকেট পরিমাণ',
       'Claimed Amount': 'দাবিকৃত পরিমাণ',
       'Action': 'অ্যাকশন',
@@ -108,11 +102,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     [normalizedRows]
   );
 
-  const showBankDetails = useMemo(
-    () => adding || normalizedRows.some((row) => hasText(row.bank) || hasText(row.branch)),
-    [adding, normalizedRows]
-  );
-
   useEffect(() => {
     updateCategoryAmount('salary-other', totalClaimed);
   }, [totalClaimed, updateCategoryAmount]);
@@ -124,7 +113,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
     hasText(form.documentType) &&
     hasText(form.reference) &&
     isValidLedgerDate(form.date) &&
-    (form.documentType !== 'Challan' || editing !== null || (hasText(form.bank) && hasText(form.branch))) &&
     isValidMoneyInput(form.amount) &&
     isValidMoneyInput(form.claimed) &&
     amountValue !== null &&
@@ -162,8 +150,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
       documentType: row.documentType,
       reference: row.reference,
       date: row.date,
-      bank: row.bank || '',
-      branch: row.branch || '',
       amount: row.amount,
       claimed: row.claimed,
     });
@@ -226,13 +212,11 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className={`ledger-responsive-table w-full text-sm ${showBankDetails ? 'min-w-[1040px]' : 'min-w-[820px]'}`}>
+          <table className="ledger-responsive-table w-full min-w-[820px] text-sm">
             <thead className="bg-[#F7F9FB] text-[#5F6B7A]">
               <tr>
                 <th scope="col" className="w-14 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.02em]">SL.</th>
-                {columns
-                  .filter((column) => column.key !== 'bank' && column.key !== 'branch')
-                  .map((column) => (
+                {columns.map((column) => (
                     <th
                       scope="col"
                       key={column.key}
@@ -241,11 +225,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                       {labelText(column.label)}
                     </th>
                   ))}
-                {showBankDetails && (
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.02em]">
-                    {isBn ? 'ব্যাংক / শাখা' : 'Bank / Branch'}
-                  </th>
-                )}
                 <th scope="col" className="w-24 px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.02em]">{labelText('Action')}</th>
               </tr>
             </thead>
@@ -259,16 +238,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   <td data-label={labelText("Challan/ Certificate Date")} className="whitespace-nowrap px-4 py-3">{row.date}</td>
                   <td data-label={labelText("Challan/ Certificate Amount")} className="whitespace-nowrap px-4 py-3 text-right font-medium tabular-nums">{row.amount}</td>
                   <td data-label={labelText("Claimed Amount")} className="whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums text-[#172033]">{row.claimed}</td>
-                  {showBankDetails && (
-                    <td data-label={isBn ? 'ব্যাংক / শাখা' : 'Bank / Branch'} className="px-4 py-3">
-                      {row.bank || row.branch ? (
-                        <div className="min-w-[140px]">
-                          <p className="font-medium text-[#263247]">{row.bank || '—'}</p>
-                          <p className="mt-0.5 text-xs text-[#6B778A]">{row.branch || '—'}</p>
-                        </div>
-                      ) : '—'}
-                    </td>
-                  )}
                   <td data-label={labelText("Action")} className="px-4 py-2">
                     <div className="flex justify-end gap-1">
                       <button
@@ -330,14 +299,6 @@ export const SalaryOtherLeanPage: React.FC<{ lang: Language }> = ({ lang }) => {
                   <td data-label={labelText("Claimed Amount")} className="px-2 py-2.5">
                     <input value={form.claimed} onChange={(event) => setForm((current) => ({ ...current, claimed: event.target.value }))} onKeyDown={handleRowKeyDown} inputMode="decimal" placeholder={isBn ? "দাবিকৃত পরিমাণ লিখুন" : "Enter Claimed Amount"} className="w-full min-w-[140px] rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-right text-sm" />
                   </td>
-                  {showBankDetails && (
-                    <td data-label={isBn ? 'ব্যাংক / শাখা' : 'Bank / Branch'} className="px-2 py-2.5">
-                      <div className="grid min-w-[180px] gap-2">
-                        <input value={form.bank} onChange={(event) => setForm((current) => ({ ...current, bank: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "ব্যাংকের নাম" : "Bank Name"} className="w-full rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
-                        <input value={form.branch} onChange={(event) => setForm((current) => ({ ...current, branch: event.target.value }))} onKeyDown={handleRowKeyDown} placeholder={isBn ? "শাখার নাম" : "Branch Name"} className="w-full rounded-md border border-[#9BC8DE] bg-white px-2.5 py-2 text-sm" />
-                      </div>
-                    </td>
-                  )}
                   <td data-label={labelText("Action")} className="px-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <button type="button" onClick={saveAdd} disabled={!formValid} aria-label={labelText("Save")} title={labelText("Save")} className="rounded-md bg-emerald-600 p-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">
