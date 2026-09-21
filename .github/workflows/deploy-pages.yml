@@ -49,14 +49,39 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Version production asset URLs
+        env:
+          BUILD_SHA: ${{ steps.sha.outputs.value }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path('dist/index.html')
+          html = path.read_text()
+          sha = os.environ['BUILD_SHA']
+          html = html.replace(
+              '/eRETURN-LEDGER/assets/app.js',
+              f'/eRETURN-LEDGER/assets/app.js?v={sha}',
+          )
+          html = html.replace(
+              '/eRETURN-LEDGER/assets/app.css',
+              f'/eRETURN-LEDGER/assets/app.css?v={sha}',
+          )
+          path.write_text(html)
+          PY
+
       - name: Verify production artifact
+        env:
+          BUILD_SHA: ${{ steps.sha.outputs.value }}
         shell: bash
         run: |
           test -f dist/index.html
           test -f dist/assets/app.js
           test -f dist/assets/app.css
-          grep -q '/eRETURN-LEDGER/assets/app.js' dist/index.html
-          grep -q '/eRETURN-LEDGER/assets/app.css' dist/index.html
+          grep -Fq "/eRETURN-LEDGER/assets/app.js?v=$BUILD_SHA" dist/index.html
+          grep -Fq "/eRETURN-LEDGER/assets/app.css?v=$BUILD_SHA" dist/index.html
           if grep -q '/src/main.tsx' dist/index.html; then
             echo "Raw Vite source entry leaked into production index."
             exit 1
@@ -126,8 +151,8 @@ jobs:
           url="https://shihabshajib01-cell.github.io/eRETURN-LEDGER/?v=$SHA"
           for attempt in {1..24}; do
             html="$(curl -fsSL -H 'Cache-Control: no-cache' "$url" || true)"
-            if echo "$html" | grep -q '/eRETURN-LEDGER/assets/app.js' && echo "$html" | grep -q '/eRETURN-LEDGER/assets/app.css' && ! echo "$html" | grep -q '/src/main.tsx'; then
-              echo "Live Pages is serving the validated Vite build."
+            if echo "$html" | grep -Fq "/eRETURN-LEDGER/assets/app.js?v=$SHA" && echo "$html" | grep -Fq "/eRETURN-LEDGER/assets/app.css?v=$SHA" && ! echo "$html" | grep -q '/src/main.tsx'; then
+              echo "Live Pages is serving the validated versioned Vite build."
               exit 0
             fi
             echo "Live Pages has not switched to the validated build yet (attempt $attempt/24)."
